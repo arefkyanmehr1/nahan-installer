@@ -299,6 +299,11 @@ const T = {
     en: 'Enter your API Token and Account ID'
   },
   labelToken: { fa: 'API Token', en: 'API Token' },
+  createTokenBtn: { fa: 'ساخت API Token در Cloudflare', en: 'Create API Token on Cloudflare' },
+  createTokenHint: {
+    fa: 'روی دکمه بالا کلیک کنید تا صفحه ساخت توکن با دسترسی‌های لازم باز شود. پس از ساخت، توکن را کپی و در زیر وارد کنید.',
+    en: 'Click the button above to open the token creation page with required permissions pre-filled. After creating, copy and paste the token below.'
+  },
   hintToken: {
     fa: 'توکن با دسترسی D1 Edit، Workers Scripts Edit، Account Read',
     en: 'Token with D1 Edit, Workers Scripts Edit, Account Read permissions'
@@ -714,184 +719,50 @@ async function findExistingD1() {
 }
 
 async function deployWorker() {
-  // Use the Beta API 3-step deploy for reliable workers.dev URL enablement.
-  // 1. POST /workers/workers — create Worker with subdomain enabled
-  // 2. POST /workers/workers/{id}/versions — upload code (base64 modules)
-  // 3. POST /workers/scripts/{name}/deployments — deploy version to 100% traffic
-  // Falls back to stable multipart PUT if Beta version upload fails (first-upload restriction).
+  // Deploy using stable multipart PUT API.
+  // This creates the Worker AND the service resource in one call,
+  // which is required for the services API to enable workers.dev.
+  //
+  // Flow: PUT /workers/scripts/{name} → enable subdomain → verify
 
-  console.log('[Deploy] === Starting deployment (Beta API 3-step) ===');
+  console.log('[Deploy] === Starting deployment (stable PUT + subdomain enable) ===');
   console.log('[Deploy] Worker name:', state.workerName);
   console.log('[Deploy] DB ID:', state.dbId);
   console.log('[Deploy] Worker code length:', state.workerCode?.length, 'bytes');
 
-  // Step 1: Create Worker resource with workers.dev enabled
-  const createResult = await deployBetaCreateWorker();
-  if (!createResult.ok) {
-    console.error('[Deploy] Create Worker failed:', createResult.msg);
-    return createResult;
+  // Step 1: Upload code via stable multipart PUT
+  const uploadResult = await deployWorkerStable();
+  if (!uploadResult.ok) {
+    console.error('[Deploy] Stable upload failed:', uploadResult.msg);
+    return uploadResult;
   }
-  console.log('[Deploy] ✓ Worker resource ready (id:', createResult.workerId + ')');
+  console.log('[Deploy] ✓ Stable upload succeeded');
 
-  // Step 2: Upload version via Beta API
-  const versionResult = await deployBetaUploadVersion(createResult.workerId);
-  if (versionResult.ok) {
-    console.log('[Deploy] ✓ Version uploaded (id:', versionResult.versionId + ')');
-
-    // Step 3: Deploy version to 100% traffic
-    const deployResult = await deployBetaCreateDeployment(versionResult.versionId);
-    if (deployResult.ok) {
-      console.log('[Deploy] ✓ Deployment created — Worker is live');
-      return { ok: true, via: 'beta-api' };
-    }
-    console.warn('[Deploy] Deployment creation failed:', deployResult.msg);
-    return deployResult;
+  // Step 2: Enable workers.dev route via services API
+  console.log('[Deploy] Enabling workers.dev route...');
+  const enableRes = await cfFetch(
+    `/accounts/${state.accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`,
+    { method: 'POST', body: JSON.stringify({ enabled: true }) }
+  );
+  console.log('[Deploy] Enable subdomain success:', enableRes.success, 'HTTP:', enableRes._status);
+  if (enableRes.success) {
+    console.log('[Deploy] ✓ workers.dev route enabled');
+    return { ok: true, via: 'stable+services' };
   }
 
-  // Beta version upload failed — likely first-upload restriction.
-  // Fall back to stable multipart PUT (works for code upload even on fresh Workers).
-  console.warn('[Deploy] Beta version upload failed:', versionResult.msg);
-  console.log('[Deploy] Falling back to stable multipart PUT...');
-
-  const stableResult = await deployWorkerStable();
-  if (stableResult.ok) {
-    console.log('[Deploy] ✓ Stable upload succeeded (Worker created via Beta, code via stable)');
-    return { ok: true, via: 'beta+stable' };
-  }
-  return stableResult;
-}
-
-async function deployBetaCreateWorker() {
-  console.log('[Beta-Create] Creating Worker with subdomain enabled...');
-  const path = `/accounts/${state.accountId}/workers/workers`;
-  const body = {
-    name: state.workerName,
-    subdomain: { enabled: true },
-  };
-
-  const r = await cfFetch(path, { method: 'POST', body: JSON.stringify(body) });
-  console.log('[Beta-Create] success:', r.success, 'HTTP:', r._status);
-
-  if (r.success) {
-    console.log('[Beta-Create] ✓ Worker created. id:', r.result?.id);
-    return { ok: true, workerId: r.result?.id };
-  }
-
-  const errMsg = r.errors?.[0]?.message || '';
-  const errCode = r.errors?.[0]?.code;
-
-  // 409 = Worker already exists — that's OK, get its ID from settings
-  if (r._status === 409 || errCode === 10006 || errMsg.includes('already exists') || errMsg.includes('name is already taken')) {
-    console.log('[Beta-Create] Worker already exists — fetching ID from settings...');
-    const settingsRes = await cfFetch(`/accounts/${state.accountId}/workers/scripts/${encodeURIComponent(state.workerName)}/settings`);
-    if (settingsRes.success) {
-      const workerId = settingsRes.result?.id || state.workerName;
-      console.log('[Beta-Create] ✓ Using existing Worker. id:', workerId);
-      return { ok: true, workerId };
-    }
-    // If settings fetch fails, use the worker name as ID
-    console.log('[Beta-Create] Settings fetch failed, using worker name as ID');
-    return { ok: true, workerId: state.workerName };
-  }
-
-  console.error('[Beta-Create] FAILED:', errMsg);
-  return { ok: false, msg: errMsg || 'Failed to create Worker' };
-}
-
-async function deployBetaUploadVersion(workerId) {
-  console.log('[Beta-Version] Uploading version for worker:', workerId);
-
-  // Use a fixed entrypoint filename — must match main_module in metadata.
-  // Wrangler uses the source filename (e.g. worker.js); we follow the same convention.
-  const MODULE_FILENAME = 'worker.js';
-
-  // Base64-encode the worker code (handles Unicode correctly)
-  const codeBytes = new TextEncoder().encode(state.workerCode);
-  let binary = '';
-  for (let i = 0; i < codeBytes.byteLength; i++) {
-    binary += String.fromCharCode(codeBytes[i]);
-  }
-  const codeBase64 = btoa(binary);
-
-  console.log('[Beta-Version] Module filename:', MODULE_FILENAME);
-  console.log('[Beta-Version] Code size:', state.workerCode.length, 'bytes');
-  console.log('[Beta-Version] Base64 size:', codeBase64.length, 'bytes');
-
-  const path = `/accounts/${state.accountId}/workers/workers/${encodeURIComponent(workerId)}/versions`;
-  const body = {
-    main_module: MODULE_FILENAME,
-    compatibility_date: '2024-09-22',
-    compatibility_flags: ['nodejs_compat'],
-    bindings: [
-      {
-        type: 'd1',
-        name: 'IOT_DB',
-        id: state.dbId,
-      }
-    ],
-    modules: [
-      {
-        name: MODULE_FILENAME,
-        content_type: 'application/javascript+module',
-        content_base64: codeBase64,
-      }
-    ],
-  };
-
-  const r = await cfFetch(path, { method: 'POST', body: JSON.stringify(body) });
-  console.log('[Beta-Version] success:', r.success, 'HTTP:', r._status);
-  if (r.result) {
-    console.log('[Beta-Version] result.id:', r.result?.id);
-  }
-  if (!r.success) {
-    console.error('[Beta-Version] ERRORS:', JSON.stringify(r.errors));
-    console.error('[Beta-Version] MESSAGES:', JSON.stringify(r.messages));
-  }
-
-  if (r.success && r.result?.id) {
-    return { ok: true, versionId: r.result.id };
-  }
-
-  const errMsg = r.errors?.[0]?.message || '';
-  return { ok: false, msg: errMsg };
-}
-
-async function deployBetaCreateDeployment(versionId) {
-  console.log('[Beta-Deploy] Creating deployment for version:', versionId);
-
-  const path = `/accounts/${state.accountId}/workers/scripts/${encodeURIComponent(state.workerName)}/deployments`;
-  const body = {
-    strategy: 'percentage',
-    versions: [
-      { percentage: 100, version_id: versionId }
-    ],
-  };
-
-  const r = await cfFetch(path, { method: 'POST', body: JSON.stringify(body) });
-  console.log('[Beta-Deploy] success:', r.success, 'HTTP:', r._status);
-  if (r.result) {
-    console.log('[Beta-Deploy] result.id:', r.result?.id);
-  }
-  if (!r.success) {
-    console.error('[Beta-Deploy] ERRORS:', JSON.stringify(r.errors));
-    console.error('[Beta-Deploy] MESSAGES:', JSON.stringify(r.messages));
-  }
-
-  if (r.success) {
-    return { ok: true };
-  }
-
-  const errMsg = r.errors?.[0]?.message || '';
-  return { ok: false, msg: errMsg || 'Failed to create deployment' };
+  // Subdomain enablement failed — log but don't fail.
+  // The Beta API might have already enabled it, or the account might not have a subdomain.
+  console.warn('[Deploy] Enable subdomain errors:', JSON.stringify(enableRes.errors));
+  console.warn('[Deploy] Enable subdomain messages:', JSON.stringify(enableRes.messages));
+  console.log('[Deploy] Proceeding — subdomain may already be enabled');
+  return { ok: true, via: 'stable' };
 }
 
 async function deployWorkerStable() {
-  // Stable multipart PUT API — fallback when Beta version upload fails.
-  // Uploads code and creates a deployment in a single request.
+  // Stable multipart PUT API — creates Worker, uploads code, and deploys in one request.
 
-  console.log('[Stable] === Multipart PUT fallback ===');
+  console.log('[Stable] === Multipart PUT upload ===');
 
-  // Use fixed 'worker.js' entrypoint — must match the form part name below.
   const MODULE_FILENAME = 'worker.js';
 
   const metadata = {
@@ -915,7 +786,6 @@ async function deployWorkerStable() {
   const scriptBlob = new Blob([state.workerCode], { type: 'application/javascript+module' });
 
   form.append('metadata', metadataBlob);
-  // Part name MUST match main_module in metadata above.
   form.append(MODULE_FILENAME, scriptBlob, MODULE_FILENAME);
 
   const path = `/accounts/${state.accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
@@ -949,13 +819,11 @@ async function verifyBindings() {
 }
 
 async function enableWorkersDevUrl() {
-  // Enable the workers.dev route for this Worker, then construct the URL.
-  // The stable PUT API does NOT auto-enable this route for fresh Workers.
-  // We must call the subdomain endpoint explicitly.
+  // Construct the workers.dev URL from the account's subdomain.
+  // Subdomain enablement is done in deployWorker() via the services API.
 
-  console.log('[EnableUrl] === Enabling workers.dev URL ===');
+  console.log('[EnableUrl] === Constructing workers.dev URL ===');
 
-  // First: get the account's workers.dev subdomain name
   const subdomainRes = await cfFetch(`/accounts/${state.accountId}/workers/subdomain`);
   console.log('[EnableUrl] Subdomain response:', JSON.stringify(subdomainRes));
 
@@ -967,21 +835,6 @@ async function enableWorkersDevUrl() {
   const subdomain = subdomainRes.result.subdomain;
   state.deployUrl = `https://${state.workerName}.${subdomain}.workers.dev`;
   console.log('[EnableUrl] Workers.dev URL:', state.deployUrl);
-
-  // Second: explicitly enable the workers.dev route via the services API.
-  // This is the critical missing step — without this, the Worker exists
-  // but has no active route, showing "There is nothing here yet".
-  console.log('[EnableUrl] Enabling workers.dev route via services API...');
-  const enableRes = await cfFetch(
-    `/accounts/${state.accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`,
-    { method: 'POST', body: JSON.stringify({ enabled: true }) }
-  );
-  console.log('[EnableUrl] Enable route success:', enableRes.success, 'HTTP:', enableRes._status);
-  if (!enableRes.success) {
-    console.warn('[EnableUrl] Enable route errors:', JSON.stringify(enableRes.errors));
-    // Don't fail — the Beta API may have already enabled it via subdomain: {enabled: true}.
-    // Only warn.
-  }
 
   return { ok: true, subdomain };
 }
@@ -1272,6 +1125,18 @@ async function testProxyConnection() {
 
 // ── Credentials ──
 function renderCredentials() {
+  // Pre-filled token creation URL with required permissions.
+  // Uses Cloudflare's official template URL feature.
+  const tokenPermissions = [
+    { key: 'workers_scripts', type: 'edit' },
+    { key: 'd1', type: 'edit' },
+    { key: 'account_settings', type: 'read' },
+  ];
+  const tokenName = 'Nahan Installer';
+  const permParam = encodeURIComponent(JSON.stringify(tokenPermissions));
+  const nameParam = encodeURIComponent(tokenName);
+  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${permParam}&accountId=*&zoneId=all&name=${nameParam}`;
+
   return `
 <div class="card step-panel">
   <div class="card-title" data-t="credTitle"></div>
@@ -1281,6 +1146,11 @@ function renderCredentials() {
 
   <div class="form-group">
     <label class="form-label" data-t="labelToken"></label>
+    <a href="${createTokenUrl}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;text-decoration:none;font-size:.85rem">
+      <span data-t="createTokenBtn"></span>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 7v3a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1h3M7 1h4v4M5 7L10.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <div class="form-hint" data-t="createTokenHint"></div>
     <input type="password" class="form-input" id="inpToken" value="${esc(state.apiToken)}"
            placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
     <div class="form-hint" data-t="hintToken"></div>
@@ -1502,7 +1372,7 @@ async function runDeployment() {
   const d1Msg = d1Result.existed ? t('stepD1Exists') : state.dbId;
   setProgress('prog-d1', 'done', d1Msg);
 
-  // Step 3: Deploy Worker (Beta API 3-step: create → upload version → deploy)
+  // Step 3: Deploy Worker (stable PUT + services API subdomain enable)
   setProgress('prog-deploy', 'active');
   const deployResult = await deployWorker();
   if (!deployResult.ok) {
