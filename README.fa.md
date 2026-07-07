@@ -7,6 +7,10 @@
 [![English](https://img.shields.io/badge/English-blue)](README.md)
 [![فارسی](https://img.shields.io/badge/فارسی-green)](README.fa.md)
 
+<br>
+
+![Nahan Installer](screenshot.png)
+
 </div>
 
 ---
