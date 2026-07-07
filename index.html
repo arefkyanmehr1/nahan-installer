@@ -9,11 +9,11 @@
 :root{
 --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
 --text:#e0e0ec;--text2:#8888a0;--text3:#55556a;
---cyan:#00d4ff;--cyan2:#00a8cc;--cyan-bg:rgba(0,212,255,.08);
+--cyan:#e53935;--cyan2:#c62828;--cyan-bg:rgba(229,57,53,.08);
 --green:#00e676;--green-bg:rgba(0,230,118,.08);
 --red:#ff4466;--red-bg:rgba(255,68,102,.08);
 --yellow:#ffaa00;--yellow-bg:rgba(255,170,0,.08);
---purple:#b388ff;
+--purple:#e53935;
 --border:#2a2a40;--border2:#3a3a55;
 --radius:10px;--radius2:14px;
 --shadow:0 4px 24px rgba(0,0,0,.4);
@@ -35,7 +35,7 @@ body.rtl{direction:rtl}
 /* ── Header ── */
 .header{text-align:center;margin-bottom:32px}
 .logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
-background:linear-gradient(135deg,var(--cyan),var(--purple));
+background:linear-gradient(135deg,var(--cyan),#ff6659);
 -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 margin-bottom:4px}
 .logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
@@ -65,7 +65,7 @@ padding:32px;box-shadow:var(--shadow);transition:var(--transition)
 }
 .card-title{
 font-size:1.35rem;font-weight:700;margin-bottom:6px;
-background:linear-gradient(135deg,var(--cyan),#fff);
+background:linear-gradient(135deg,var(--cyan),#ff8a80);
 -webkit-background-clip:text;-webkit-text-fill-color:transparent
 }
 .card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
@@ -1875,5 +1875,13 @@ function resetAll() {
 // ══════════════════════════════════════════════════════════
 renderStep();
 </script>
+<div style="text-align:center;padding:20px;margin-top:40px;border-top:1px solid var(--border)">
+  <p style="color:var(--text3);font-size:.8rem">
+    ساخته شده با <span style="color:var(--red)">❤️</span> توسط
+    <a href="https://github.com/erpycode" target="_blank" style="color:var(--cyan);text-decoration:none;font-weight:600">ErPyCode</a>
+    · ۲۰۲۶
+  </p>
+</div>
+
 </body>
 </html>
