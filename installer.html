@@ -1069,8 +1069,8 @@ function renderConnTest() {
       <span id="countdownNum" style="font-size:1.4rem;font-weight:700;color:var(--cyan);margin:0 4px">5</span>
       <span data-t="seconds"></span>
     </div>
-    <div style="width:100%;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:12px">
-      <div id="countdownBar" style="width:100%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width 0.1s linear;border-radius:2px"></div>
+    <div style="width:100%;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:12px;direction:rtl">
+      <div id="countdownBar" style="width:0%;height:100%;background:linear-gradient(270deg,var(--cyan),var(--purple));transition:width 0.1s linear;border-radius:2px;float:right"></div>
     </div>
   </div>
 
@@ -1126,13 +1126,15 @@ function startCountdown(seconds, onDone) {
   if (boxEl) boxEl.style.display = 'block';
   if (customEl) customEl.style.display = 'block';
   if (numEl) numEl.textContent = remaining;
-  if (barEl) barEl.style.width = '100%';
+  if (barEl) barEl.style.width = '0%';
 
   countdownInterval = setInterval(() => {
     if (countdownCancelled) { clearInterval(countdownInterval); return; }
     remaining--;
     if (numEl) numEl.textContent = remaining;
-    if (barEl) barEl.style.width = `${(remaining / seconds) * 100}%`;
+    // Fill from 0% to 100% (right to left in RTL)
+    const filled = ((seconds - remaining) / seconds) * 100;
+    if (barEl) barEl.style.width = `${filled}%`;
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       if (boxEl) boxEl.style.display = 'none';
