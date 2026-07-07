@@ -18,6 +18,8 @@ const jsonResp = (data, status = 200) =>
 // Only these Cloudflare API path patterns are allowed.
 // Prevents the proxy from being abused as a general-purpose CORS relay.
 function isAllowedPath(path) {
+  // Allow /accounts (list all accounts) and /accounts/{id}...
+  if (path === '/accounts' || path === '/accounts/') return true;
   if (!path.startsWith('/accounts/')) return false;
   const patterns = [
     /^\/accounts\/[^/]+\/d1\/database/,                // D1 create, list, delete
