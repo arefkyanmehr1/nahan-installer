@@ -9,7 +9,7 @@
 :root{
 --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
 --text:#e0e0ec;--text2:#8888a0;--text3:#55556a;
---cyan:#e53935;--cyan2:#c62828;--cyan-bg:rgba(229,57,53,.08);
+--cyan:#e53935;--cyan2:#c62828;--cyan-bg:rgba(229,57,53,.12);
 --green:#00e676;--green-bg:rgba(0,230,118,.08);
 --red:#ff4466;--red-bg:rgba(255,68,102,.08);
 --yellow:#ffaa00;--yellow-bg:rgba(255,170,0,.08);
@@ -35,8 +35,8 @@ body.rtl{direction:rtl}
 /* ── Header ── */
 .header{text-align:center;margin-bottom:32px}
 .logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
-background:linear-gradient(135deg,var(--cyan),#ff6659);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;
+color:var(--cyan);
+font-weight:900;
 margin-bottom:4px}
 .logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
 .lang-btn{
@@ -65,8 +65,7 @@ padding:32px;box-shadow:var(--shadow);transition:var(--transition)
 }
 .card-title{
 font-size:1.35rem;font-weight:700;margin-bottom:6px;
-background:linear-gradient(135deg,var(--cyan),#ff8a80);
--webkit-background-clip:text;-webkit-text-fill-color:transparent
+color:var(--cyan)
 }
 .card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
 
@@ -91,8 +90,8 @@ font-weight:600;cursor:pointer;border:none;transition:var(--transition);
 font-family:var(--font)
 }
 .btn-primary{
-background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#000;
-box-shadow:0 2px 12px rgba(0,212,255,.25)
+background:var(--cyan);color:#fff;
+box-shadow:0 2px 12px rgba(229,57,53,.3)
 }
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.35)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -1065,7 +1064,7 @@ function renderConnTest() {
       <span data-t="seconds"></span>
     </div>
     <div style="width:100%;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:12px;direction:rtl">
-      <div id="countdownBar" style="width:0%;height:100%;background:linear-gradient(270deg,var(--cyan),var(--purple));transition:width 0.1s linear;border-radius:2px;float:right"></div>
+      <div id="countdownBar" style="width:0%;height:100%;background:var(--cyan);transition:width 0.1s linear;border-radius:2px;float:right"></div>
     </div>
   </div>
 
@@ -1879,7 +1878,6 @@ renderStep();
   <p style="color:var(--text3);font-size:.8rem">
     ساخته شده با <span style="color:var(--red)">❤️</span> توسط
     <a href="https://github.com/erpycode" target="_blank" style="color:var(--cyan);text-decoration:none;font-weight:600">ErPyCode</a>
-    · ۲۰۲۶
   </p>
 </div>
 
