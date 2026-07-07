@@ -107,7 +107,7 @@ The solution is a **proxy Worker** (`installer-proxy.js`) deployed on a Cloudfla
 - ✅ Passes through your API token without storing it
 - ✅ Runs on Cloudflare's edge (fast & reliable)
 
-**Default proxy:** The installer uses a hosted proxy at `dark-voice-d889.edge1-erpy.workers.dev`.
+**Default proxy:** The installer uses a hosted proxy at `nahan-installer.edge1-erpy.workers.dev`.
 
 **Self-hosting:** If you prefer your own proxy, deploy `installer-proxy.js` on your Cloudflare account and update the URL in the installer.
 
