@@ -1749,7 +1749,7 @@ async function runDeployment() {
 // ── Success ──
 function renderSuccess() {
   const pass = state.password || 'admin';
-  const steps = t('quickStartSteps');
+  const isDefaultPass = !state.password || state.password === 'admin';
   const hasUrl = !!state.deployUrl;
   const panelUrl = hasUrl ? `${state.deployUrl}/${state.apiRoute}/dash` : '';
 
@@ -1771,40 +1771,36 @@ function renderSuccess() {
   </div>`;
   }
 
+  // Only show security warning if using default password
+  const securityWarning = isDefaultPass ? `
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <span data-t="securityWarning"></span>
+  </div>` : '';
+
+  // Only show quick start steps if using default password
+  const steps = isDefaultPass ? t('quickStartSteps') : [];
+  const stepsSection = steps.length ? `
+  <div class="divider"></div>
+  <div style="font-weight:600;margin-bottom:10px;font-size:.95rem" data-t="quickStart"></div>
+  <ol style="padding-${lang === 'fa' ? 'right' : 'left'}:20px;color:var(--text2);font-size:.9rem;margin-bottom:20px">
+    ${steps.map(s => `<li style="margin-bottom:6px">${esc(s)}</li>`).join('')}
+  </ol>` : '';
+
   return `
 <div class="card step-panel">
   <div class="card-title" data-t="successTitle"></div>
   <div class="card-subtitle" data-t="successSub"></div>
 
-  <div class="alert alert-warn">
-    <span class="alert-icon">⚠️</span>
-    <span data-t="securityWarning"></span>
-  </div>
+  ${securityWarning}
 
   ${urlSection}
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div class="result-box">
-      <div class="result-label" data-t="labelWorkerName"></div>
-      <div class="result-value">
-        <span>${esc(state.workerName)}</span>
-        <button class="copy-btn" onclick="copyText(this,'${esc(state.workerName)}')">${lang === 'fa' ? 'کپی' : 'Copy'}</button>
-      </div>
-    </div>
-    <div class="result-box">
-      <div class="result-label" data-t="labelDBName"></div>
-      <div class="result-value">
-        <span>${esc(state.dbName)}</span>
-        <button class="copy-btn" onclick="copyText(this,'${esc(state.dbName)}')">${lang === 'fa' ? 'کپی' : 'Copy'}</button>
-      </div>
-    </div>
-  </div>
-
   <div class="result-box">
-    <div class="result-label" data-t="labelDBId"></div>
+    <div class="result-label" data-t="labelWorkerName"></div>
     <div class="result-value">
-      <span style="font-size:.9rem">${esc(state.dbId)}</span>
-      <button class="copy-btn" onclick="copyText(this,'${esc(state.dbId)}')">${lang === 'fa' ? 'کپی' : 'Copy'}</button>
+      <span>${esc(state.workerName)}</span>
+      <button class="copy-btn" onclick="copyText(this,'${esc(state.workerName)}')">${lang === 'fa' ? 'کپی' : 'Copy'}</button>
     </div>
   </div>
 
@@ -1816,12 +1812,7 @@ function renderSuccess() {
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <div style="font-weight:600;margin-bottom:10px;font-size:.95rem" data-t="quickStart"></div>
-  <ol style="padding-${lang === 'fa' ? 'right' : 'left'}:20px;color:var(--text2);font-size:.9rem;margin-bottom:20px">
-    ${steps.map(s => `<li style="margin-bottom:6px">${esc(s)}</li>`).join('')}
-  </ol>
+  ${stepsSection}
 
   <div class="btn-group">
     ${hasUrl ? `<a href="${esc(panelUrl)}" target="_blank" rel="noopener" class="btn btn-primary" data-t="openPanel">${t('openPanel')}</a>` : ''}
