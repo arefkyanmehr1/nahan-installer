@@ -292,22 +292,7 @@ const T = {
   createTokenLink: { fa: 'ساخت API Token در Cloudflare', en: 'Create API Token at Cloudflare' },
   letsStart: { fa: 'شروع کنیم', en: "Let's Start" },
 
-  // ── OAuth ──
-  oauthTitle: { fa: 'اتصال سریع به Cloudflare', en: 'Quick Connect to Cloudflare' },
-  oauthDesc: {
-    fa: 'با کلیک روی دکمه زیر، مستقیماً به Cloudflare وصل شوید و دسترسی لازم را بدهید. نیازی به کپی کردن API Token یا پیدا کردن Account ID نیست.',
-    en: 'Click the button below to connect directly to Cloudflare and grant access. No need to copy API tokens or find Account IDs.'
-  },
-  oauthConnect: { fa: 'اتصال به Cloudflare', en: 'Connect to Cloudflare' },
-  oauthConnecting: { fa: 'در حال اتصال...', en: 'Connecting...' },
-  oauthSuccess: { fa: 'اتصال موفق! در حال دریافت اطلاعات حساب...', en: 'Connected! Fetching account info...' },
-  oauthFail: { fa: 'اتصال ناموفق بود. لطفاً دوباره تلاش کنید.', en: 'Connection failed. Please try again.' },
-  oauthOr: { fa: 'یا', en: 'or' },
-  oauthManual: { fa: 'ورود دستی API Token', en: 'Manual API Token Entry' },
-  oauthManualDesc: {
-    fa: 'اگر می‌خواهید به صورت دستی وارد کنید، API Token خود را در زیر وارد کنید.',
-    en: 'If you prefer manual entry, enter your API Token below.'
-  },
+
 
   // ── Step 2: Credentials ──
   credTitle: { fa: 'اعتبارنامه Cloudflare', en: 'Cloudflare Credentials' },
@@ -1234,35 +1219,17 @@ function renderCredentials() {
 
   <div id="credAlert"></div>
 
-  <!-- OAuth Connect Button (preferred) -->
-  <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:8px;font-size:.95rem;color:var(--cyan)" data-t="oauthTitle"></div>
-    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px" data-t="oauthDesc"></p>
-    <button class="btn btn-primary" id="btnOAuth" onclick="startOAuth()" style="width:100%;justify-content:center;padding:14px">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a7 7 0 100 14A7 7 0 008 1z" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <span data-t="oauthConnect"></span>
-    </button>
+  <div class="form-group">
+    <label class="form-label" data-t="labelToken"></label>
+    <a href="${createTokenUrl}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;text-decoration:none;font-size:.85rem">
+      <span data-t="createTokenBtn"></span>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 7v3a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1h3M7 1h4v4M5 7L10.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <div class="form-hint" data-t="createTokenHint"></div>
+    <input type="password" class="form-input" id="inpToken" value="${esc(state.apiToken)}"
+           placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+    <div class="form-hint" data-t="hintToken"></div>
   </div>
-
-  <div style="text-align:center;margin:16px 0;color:var(--text3);font-size:.85rem" data-t="oauthOr"></div>
-
-  <!-- Manual Token Entry (fallback) -->
-  <details style="margin-bottom:20px">
-    <summary style="cursor:pointer;color:var(--text2);font-size:.88rem;font-weight:500;padding:8px 0" data-t="oauthManual"></summary>
-    <div style="margin-top:12px">
-      <div class="form-hint" data-t="oauthManualDesc" style="margin-bottom:12px"></div>
-      <div class="form-group">
-        <label class="form-label" data-t="labelToken"></label>
-        <a href="${createTokenUrl}" target="_blank" rel="noopener" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;text-decoration:none;font-size:.82rem">
-          <span data-t="createTokenBtn"></span>
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M10 7v3a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1h3M7 1h4v4M5 7L10.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <input type="password" class="form-input" id="inpToken" value="${esc(state.apiToken)}"
-               placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
-        <div class="form-hint" data-t="hintToken"></div>
-      </div>
-    </div>
-  </details>
 
   <!-- Account ID: auto-filled after token validation -->
   <div class="form-group" id="accountGroup" style="display:none">
@@ -1387,38 +1354,7 @@ function onAccountSelect() {
 }
 
 // ══════════════════════════════════════════════════════════
-//  OAuth FLOW
-// ══════════════════════════════════════════════════════════
-const OAUTH_WORKER = 'https://nahan-oauth.erpy.workers.dev';
-
-function startOAuth() {
-  // Redirect to OAuth Worker which will redirect to Cloudflare
-  window.location.href = `${OAUTH_WORKER}/auth`;
-}
-
-// Check if we're returning from OAuth callback (token in URL hash)
-function checkOAuthCallback() {
-  const hash = window.location.hash;
-  if (!hash || !hash.includes('token=')) return false;
-
-  const params = new URLSearchParams(hash.substring(1));
-  const token = params.get('token');
-  const accountId = params.get('account_id');
-  const accountName = params.get('account_name');
-
-  if (token) {
-    state.apiToken = token;
-    state.accountId = accountId || '';
-    state.accountName = accountName || '';
-    // Clear the hash
-    history.replaceState(null, '', window.location.pathname);
-    return true;
-  }
-  return false;
-}
-
-// ── Configuration ──
-function renderConfig() {
+//  UTILITIES
   return `
 <div class="card step-panel">
   <div class="card-title" data-t="configTitle"></div>
@@ -1781,15 +1717,7 @@ function resetAll() {
 // ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
-if (checkOAuthCallback()) {
-  // Returned from OAuth — skip to credentials validation
-  currentStep = 2;
-  renderStep();
-  // Auto-validate after OAuth
-  setTimeout(() => handleValidate(), 500);
-} else {
-  renderStep();
-}
+renderStep();
 </script>
 </body>
 </html>
