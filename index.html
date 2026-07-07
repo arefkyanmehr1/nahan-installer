@@ -806,6 +806,18 @@ async function deployWorkerStable() {
 
   const MODULE_FILENAME = 'worker.js';
 
+  // Inject password into worker code if user set a custom one
+  let code = state.workerCode;
+  if (state.password && state.password !== 'admin') {
+    // Replace default password patterns in worker code
+    // Common patterns: masterKey, MASTER_KEY, admin password config
+    code = code.replace(/masterKey\s*[=:]\s*['"]admin['"]/g, `masterKey: '${state.password}'`);
+    code = code.replace(/MASTER_KEY\s*=\s*['"]admin['"]/g, `MASTER_KEY = '${state.password}'`);
+    code = code.replace(/['"]admin['"]\s*\/\/\s*default\s*password/gi, `'${state.password}' // custom password`);
+    code = code.replace(/password\s*[=:]\s*['"]admin['"]/g, `password: '${state.password}'`);
+    console.log('[Stable] Injected custom password into worker code');
+  }
+
   const metadata = {
     main_module: MODULE_FILENAME,
     compatibility_date: '2024-09-22',
@@ -824,7 +836,7 @@ async function deployWorkerStable() {
 
   const form = new FormData();
   const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
-  const scriptBlob = new Blob([state.workerCode], { type: 'application/javascript+module' });
+  const scriptBlob = new Blob([code], { type: 'application/javascript+module' });
 
   form.append('metadata', metadataBlob);
   form.append(MODULE_FILENAME, scriptBlob, MODULE_FILENAME);
