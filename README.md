@@ -47,34 +47,17 @@ When you run the installer, the following resources are created on your Cloudfla
 
 ## 🚀 Quick Start
 
-### Step 1: Create an API Token
+### 🔗 [Open Installer](https://erpycode.github.io/nahan-installer/)
 
-Click the button below to create a token with the required permissions pre-filled:
+No installation required — just open the link and follow the steps:
 
-**🔗 [Create API Token](https://dash.cloudflare.com/profile/api-tokens)**
+1. 🔑 Click **"Create API Token"** in the installer — it opens Cloudflare with all permissions pre-filled
+2. 📝 Copy the token and paste it in the installer
+3. ⚙️ Configure Worker name and database (Account ID is fetched automatically!)
+4. 🚀 Click Deploy
+5. 🎉 Done! Your panel is ready
 
-Required permissions:
-- ✅ Workers Scripts — Edit
-- ✅ D1 — Edit
-- ✅ Account Settings — Read
-- ✅ Account Analytics — Read
-
-### Step 2: Open the Installer
-
-Open `index.html` in your browser:
-
-```
-file:///path/to/nahan-installer/index.html
-```
-
-Or host it on GitHub Pages / any static host.
-
-### Step 3: Follow the Steps
-
-1. 📝 Enter your API Token
-2. ⚙️ Configure Worker name and database
-3. 🚀 Click Deploy
-4. 🎉 Done! Your panel is ready
+> 💡 You can also run it locally: clone the repo and open `index.html` in your browser.
 
 ---
 
@@ -92,8 +75,8 @@ nahan-installer/
 
 | File | Who needs it? | Description |
 |------|---------------|-------------|
-| `index.html` | **Everyone** | The main installer — open in any browser to deploy Nahan |
-| `installer-proxy.js` | **Proxy maintainers** | Cloudflare Worker code for the API proxy. Used by the installer to relay Cloudflare API calls when direct browser access is blocked (CORS). Deploy this on your own account if you want to self-host the proxy. |
+| `index.html` | **Everyone** | The main installer — [open online](https://erpycode.github.io/nahan-installer/) or run locally |
+| `installer-proxy.js` | **Proxy maintainers** | Cloudflare Worker code for the API proxy. Deploy on your own account if you want to self-host the proxy. |
 
 ---
 
