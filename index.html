@@ -934,7 +934,19 @@ async function deployWorkerStable() {
   if (state.apiToken) {
     code = code.replace(/cfApiToken\s*:\s*['"][^'"]*['"]/g, `cfApiToken: "${state.apiToken}"`);
   }
-  console.log('[Stable] Injected cfWorkerName, cfAccountId, cfApiToken');
+  // Inject API route
+  if (state.apiRoute && state.apiRoute !== 'sync') {
+    code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
+  }
+  // Inject Telegram bot token
+  if (state.tgToken) {
+    code = code.replace(/tgToken\s*:\s*['"][^'"]*['"]/g, `tgToken: "${state.tgToken}"`);
+  }
+  // Inject Telegram admin ID
+  if (state.tgAdminId) {
+    code = code.replace(/tgAdminId\s*:\s*['"][^'"]*['"]/g, `tgAdminId: "${state.tgAdminId}"`);
+  }
+  console.log('[Stable] Injected cfWorkerName, cfAccountId, cfApiToken, apiRoute, tgToken, tgAdminId');
 
   const metadata = {
     main_module: MODULE_FILENAME,
