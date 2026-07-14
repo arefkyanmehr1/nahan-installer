@@ -3,654 +3,672 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dexter Cluster Installer | نصب‌کننده کلاستر دکستر</title>
+<title>Dexter Pro Panel | پنل مدیریت پیشرفته دکستر</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
---bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
---text:#e0e0ec;--text2:#8888a0;--text3:#55556a;
---cyan:#e53935;--cyan2:#c62828;--cyan-bg:rgba(229,57,53,.12);
---green:#00e676;--green-bg:rgba(0,230,118,.08);
---red:#ff4466;--red-bg:rgba(255,68,102,.08);
---yellow:#ffaa00;--yellow-bg:rgba(255,170,0,.08);
---border:#2a2a40;--border2:#3a3a55;
---radius:10px;--radius2:14px;
---shadow:0 4px 24px rgba(0,0,0,.4);
---font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
---font-mono:'SF Mono','Cascadia Code','Fira Code',monospace;
---transition:all .25s cubic-bezier(.4,0,.2,1);
+/* ─── Base Variables & Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-dark: #0f172a; --bg-card: #1e293b; --bg-hover: #334155;
+  --primary: #f43f5e; --primary-hover: #e11d48; --primary-light: rgba(244, 63, 94, 0.15);
+  --success: #10b981; --success-bg: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b; --warning-bg: rgba(245, 158, 11, 0.15);
+  --danger: #ef4444; --danger-bg: rgba(239, 68, 68, 0.15);
+  --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155;
+  --font-sans: system-ui, -apple-system, sans-serif; --font-mono: 'Fira Code', monospace;
+  --radius-lg: 16px; --radius-md: 10px; --radius-sm: 6px;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-html{font-size:15px}
-body{
-font-family:var(--font);background:var(--bg);color:var(--text);
-min-height:100vh;display:flex;flex-direction:column;align-items:center;
-line-height:1.7;-webkit-font-smoothing:antialiased;
+body {
+  font-family: var(--font-sans); background: var(--bg-dark); color: var(--text-main);
+  display: flex; height: 100vh; overflow: hidden; font-size: 14px;
 }
 
-.container{width:100%;max-width:720px;padding:24px 20px 48px}
-
-/* ── Header ── */
-.header{text-align:center;margin-bottom:32px}
-.logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
-color:var(--cyan);margin-bottom:4px}
-.logo-sub{color:var(--text2);font-size:.85rem;font-weight:400; line-height: 1.8;}
-.badge{display:inline-block; margin-top: 6px; padding: 4px 12px; background: var(--cyan-bg); border: 1px solid rgba(229,57,53,.3); border-radius: 20px; font-size: 0.8rem; color: var(--cyan); font-weight: bold;}
-
-/* ── Steps Indicator ── */
-.steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
-.step-dot{
-width:10px;height:10px;border-radius:50%;background:var(--bg4);
-border:2px solid var(--border2);transition:var(--transition);
+/* ─── Sidebar ─── */
+.sidebar {
+  width: 280px; background: var(--bg-card); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; transition: var(--transition); z-index: 10;
 }
-.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(229,57,53,.4)}
-.step-dot.done{background:var(--green);border-color:var(--green)}
-
-/* ── Card ── */
-.card{
-background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);
-padding:32px;box-shadow:var(--shadow);transition:var(--transition);
-animation:fadeIn .35s ease;
+.brand { padding: 32px 24px; text-align: center; border-bottom: 1px solid var(--border); }
+.brand h1 { font-size: 28px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+.brand p { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+.nav-menu { padding: 24px 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-md);
+  color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);
 }
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); border-right: 4px solid var(--primary); }
+.nav-icon { font-size: 18px; }
 
-.card-title{font-size:1.35rem;font-weight:700;margin-bottom:6px;color:var(--cyan)}
-.card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
+/* ─── Main Content ─── */
+.main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar {
+  height: 70px; border-bottom: 1px solid var(--border); background: var(--bg-dark);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+}
+.page-title { font-size: 20px; font-weight: 700; }
+.sync-btn {
+  background: var(--primary); color: white; border: none; padding: 10px 20px;
+  border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition);
+  display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+.sync-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
-/* ── Form Elements ── */
-.form-group{margin-bottom:20px}
-.form-label{display:block;font-size:.85rem;font-weight:600;color:var(--text2);margin-bottom:6px}
-.form-input{
-width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);
-border-radius:var(--radius);color:var(--text);font-size:.95rem;
-font-family:var(--font-mono);transition:var(--transition);outline:none
-}
-.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(229,57,53,.1)}
-.form-input::placeholder{color:var(--text3)}
-textarea.form-input{resize:vertical;min-height:100px;font-family:var(--font-mono)}
-.form-hint{font-size:.78rem;color:var(--text3);margin-top:4px}
+.content-area { flex: 1; overflow-y: auto; padding: 32px; }
+.page { display: none; animation: fadeUp 0.4s ease forwards; opacity: 0; transform: translateY(10px); }
+.page.active { display: block; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* ── Buttons ── */
-.btn{
-display:inline-flex;align-items:center;justify-content:center;gap:8px;
-padding:12px 28px;border-radius:var(--radius);font-size:.95rem;
-font-weight:600;cursor:pointer;border:none;transition:var(--transition);
-font-family:var(--font)
+/* ─── Dashboard Cards ─── */
+.grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px; display: flex; flex-direction: column; gap: 12px;
 }
-.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(229,57,53,.3)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(229,57,53,.4)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
-.btn-group{display:flex;gap:12px;margin-top:28px}
-.btn-sm{padding:8px 18px;font-size:.85rem}
+.stat-title { color: var(--text-muted); font-size: 14px; font-weight: 600; }
+.stat-value { font-size: 36px; font-weight: 800; color: var(--text-main); }
+.stat-value.cyan { color: #06b6d4; } .stat-value.green { color: var(--success); } .stat-value.rose { color: var(--primary); }
 
-/* ── Alerts ── */
-.alert{
-padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
-margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
-}
-.alert-info{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2);color:var(--cyan)}
-.alert-success{background:var(--green-bg);border:1px solid rgba(0,230,118,.2);color:var(--green)}
-.alert-error{background:var(--red-bg);border:1px solid rgba(255,68,102,.2);color:var(--red)}
-.alert-warn{background:var(--yellow-bg);border:1px solid rgba(255,170,0,.2);color:var(--yellow)}
-.alert-icon{font-size:1.1rem;flex-shrink:0;line-height:1.5}
+/* ─── Tables ─── */
+.card-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card-header h2 { font-size: 18px; font-weight: 700; }
+.table-responsive { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
+table { width: 100%; border-collapse: collapse; text-align: right; }
+th, td { padding: 16px; border-bottom: 1px solid var(--border); }
+th { background: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600; font-size: 13px; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-hover); }
 
-/* ── Progress ── */
-.progress-list{list-style:none;margin:8px 0}
-.progress-item{
-display:flex;align-items:center;gap:12px;padding:12px 16px;
-border-radius:var(--radius);margin-bottom:8px;
-background:var(--bg3);border:1px solid var(--border);
-transition:var(--transition)
-}
-.progress-item.active{border-color:var(--cyan);background:var(--cyan-bg)}
-.progress-item.done{border-color:var(--green);background:var(--green-bg)}
-.progress-item.error{border-color:var(--red);background:var(--red-bg)}
-.progress-item.waiting{opacity:.5}
-.progress-icon{font-size:1.1rem;flex-shrink:0;width:24px;text-align:center}
-.progress-text{flex:1;font-size:.9rem}
+/* ─── Status & Badges ─── */
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
+.badge-active { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+.badge-expired { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
 
-/* ── Spinner ── */
-.spinner{
-width:18px;height:18px;border:2px solid var(--border2);
-border-top-color:var(--cyan);border-radius:50%;
-animation:spin .8s linear infinite;flex-shrink:0
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ─── Progress Bar (Traffic) ─── */
+.progress-container { width: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 6px; }
+.progress-bar { height: 100%; border-radius: 10px; transition: width 0.3s; }
+.traffic-text { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
 
-/* ── Result Card ── */
-.result-box{
-background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-padding:24px;margin-bottom:12px; text-align: center;
+/* ─── Forms & Modals ─── */
+.btn {
+  padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
 }
-.result-label{font-size:1rem;color:var(--text2);margin-bottom:12px}
-.result-value{
-font-family:var(--font-mono);font-size:1.1rem;color:var(--green);
-word-break:break-all;background: var(--bg4); padding: 12px; border-radius: 8px; border: 1px dashed var(--border2);
-margin-bottom: 16px;
-}
-.copy-btn{
-background:var(--cyan);border:none;color:#fff;
-padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.9rem;
-transition:var(--transition); font-weight: bold;
-}
-.copy-btn:hover{box-shadow:0 4px 12px rgba(229,57,53,.4); transform: translateY(-1px);}
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-action { padding: 6px 12px; font-size: 12px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-main); }
+.btn-action:hover { border-color: var(--text-main); }
 
-/* ── Extra Elements ── */
-.conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
-.conn-testing{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2)}
-.conn-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.2)}
-.conn-fail{background:var(--red-bg);border:1px solid rgba(255,68,102,.2)}
-
-.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.feature-item{
-display:flex;align-items:center;gap:10px;padding:12px 14px;
-background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-font-size:.88rem;transition:var(--transition)
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100;
 }
-.feature-item:hover{border-color:var(--cyan);background:var(--cyan-bg)}
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 32px; animation: scaleUp 0.3s ease; }
+@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: var(--primary); }
 
-.code-block{
-background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
-padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
-color:var(--cyan);overflow-x:auto;margin:12px 0;line-height:1.6;
-direction:ltr;text-align:left;position:relative
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.form-input {
+  width: 100%; padding: 12px 16px; background: var(--bg-dark); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-main); font-family: var(--font-sans); outline: none; transition: var(--transition);
 }
+.form-input:focus { border-color: var(--primary); }
+.form-input.mono { font-family: var(--font-mono); direction: ltr; text-align: left; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ─── Toggle Switch ─── */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-dark); border: 1px solid var(--border); transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--success); border-color: var(--success); }
+input:checked + .slider:before { transform: translateX(20px); background-color: white; }
+
+.mono-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.status-msg { margin-top: 10px; font-size: 13px; border-radius: var(--radius-sm); padding: 10px; display: none; }
+.status-msg.error { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); display: block; }
+.status-msg.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.2); display: block; }
+.status-msg.info { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); display: block; }
+
+.copy-link { color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 13px; font-weight: 600; }
 </style>
 </head>
 <body>
 
-<div class="container">
-<div class="header">
-<div class="logo">DEXTER CLUSTER</div>
-<div class="logo-sub">
-    سیستم تجمیع‌کننده ترافیک هوشمند (بدون نیاز به پنل) <br>
-    <div class="badge">نسخه سابسکرایپشن (Sub-Link)</div>
-</div>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="brand">
+    <h1>DEXTER</h1>
+    <p>Advanced Management Panel</p>
+  </div>
+  <div class="nav-menu">
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="nav-icon">📊</span> داشبورد
+    </div>
+    <div class="nav-item" onclick="switchTab('users', this)">
+      <span class="nav-icon">👥</span> کاربران و اشتراک‌ها
+    </div>
+    <div class="nav-item" onclick="switchTab('nodes', this)">
+      <span class="nav-icon">🖥️</span> سرورها (Nodes)
+    </div>
+    <div class="nav-item" onclick="switchTab('settings', this)">
+      <span class="nav-icon">⚙️</span> تنظیمات کلودفلر
+    </div>
+  </div>
 </div>
 
-<div class="steps" id="stepsIndicator"></div>
-<div id="stepContent"></div>
+<!-- Main Area -->
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="page-title" id="topbar-title">داشبورد</div>
+    <button class="sync-btn" onclick="syncNetwork()">
+      <span>🔄</span> اعمال تغییرات (Sync)
+    </button>
+  </div>
+  
+  <div class="content-area">
+    
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="grid-cards">
+        <div class="stat-card">
+          <span class="stat-title">تعداد کاربران</span>
+          <span class="stat-value cyan" id="dash-users">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">سرورهای متصل</span>
+          <span class="stat-value rose" id="dash-nodes">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">وضعیت ساب‌لینک</span>
+          <span class="stat-value green" style="font-size: 20px; line-height: 2;" id="dash-sub">تنظیم نشده</span>
+        </div>
+      </div>
+      
+      <div class="card-panel">
+        <div class="card-header">
+          <h2>راهنمای سیستم ابری دکستر</h2>
+        </div>
+        <p style="color: var(--text-muted); line-height: 1.8; font-size: 14px;">
+          ۱. ابتدا در بخش <b>«تنظیمات»</b> توکن اکانت اصلی کلودفلر خود را وارد کنید تا سیستم بتواند لینک ساب را روی آن میزبانی کند.<br>
+          ۲. در بخش <b>«سرورها»</b> توکن اکانت‌های مختلف خود را اضافه کنید تا سرورهای VLESS به صورت خودکار ساخته شوند.<br>
+          ۳. در بخش <b>«کاربران»</b> اشتراک بسازید (با محدودیت حجم و زمان).<br>
+          ۴. هر تغییری که دادید، دکمه <b>«اعمال تغییرات (Sync)»</b> در بالای صفحه را بزنید تا تنظیمات روی کلودفلر آپدیت شود و کاربرانی که حجم یا زمانشان تمام شده قطع شوند.
+        </p>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="page">
+      <div class="card-panel">
+        <div class="card-header">
+          <h2>مدیریت اشتراک‌ها</h2>
+          <button class="btn btn-outline" onclick="openModal('userModal')">+ افزودن کاربر جدید</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>نام کاربر</th>
+                <th>مصرف ترافیک</th>
+                <th>انقضا</th>
+                <th>وضعیت</th>
+                <th>لینک اشتراک</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <!-- Users JS generated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NODES -->
+    <div id="page-nodes" class="page">
+      <div class="card-panel">
+        <div class="card-header">
+          <h2>مدیریت سرورهای متصل (Nodes)</h2>
+          <button class="btn btn-outline" onclick="openModal('nodeModal')">+ استقرار سرور جدید</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>آدرس دامنه (سرور)</th>
+                <th>Account ID</th>
+                <th>تاریخ استقرار</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="nodesTable">
+              <!-- Nodes JS generated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="card-panel" style="max-width: 600px;">
+        <div class="card-header">
+          <h2>تنظیمات اکانت میزبان (Master)</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+          برای ساخت لینک سابسکرایپشن، به یک اکانت کلودفلر نیاز داریم. توکن آن را وارد کنید:
+        </p>
+        <div class="form-group">
+          <label class="form-label">CF API Token</label>
+          <input type="text" id="inpMasterToken" class="form-input mono" placeholder="توکن را اینجا وارد کنید...">
+        </div>
+        <button class="sync-btn" onclick="saveMasterSettings()">ذخیره توکن مستر</button>
+        <div id="settingsMsg" class="status-msg"></div>
+      </div>
+    </div>
+    
+  </div>
 </div>
+
+<!-- Modals -->
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <h3 class="modal-title">افزودن اشتراک جدید</h3>
+    <div class="form-group">
+      <label class="form-label">نام کاربری (انگلیسی)</label>
+      <input type="text" id="uName" class="form-input mono" placeholder="e.g. user_01">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">محدودیت حجم (GB)</label>
+        <input type="number" id="uLimit" class="form-input mono" placeholder="مثال: 50" value="50">
+      </div>
+      <div class="form-group">
+        <label class="form-label">اعتبار (روز)</label>
+        <input type="number" id="uDays" class="form-input mono" placeholder="مثال: 30" value="30">
+      </div>
+    </div>
+    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+      <label class="form-label" style="margin:0;">فعال بودن اکانت</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="uStatus" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div style="display: flex; gap: 12px; margin-top: 32px;">
+      <button class="sync-btn" style="flex:1; justify-content:center;" onclick="saveUser()">ذخیره کاربر</button>
+      <button class="btn btn-outline" onclick="closeModal('userModal')">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Node Modal -->
+<div class="modal-overlay" id="nodeModal">
+  <div class="modal">
+    <h3 class="modal-title">استقرار سرور جدید</h3>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">توکن کلودفلر اکانتی که می‌خواهید سرور روی آن نصب شود را وارد کنید.</p>
+    <div class="form-group">
+      <label class="form-label">CF API Token</label>
+      <input type="text" id="nToken" class="form-input mono" placeholder="توکن...">
+    </div>
+    <div id="nodeMsg" class="status-msg"></div>
+    <div style="display: flex; gap: 12px; margin-top: 32px;">
+      <button class="sync-btn" style="flex:1; justify-content:center;" id="btnDeployNode" onclick="deployNode()">نصب سرور</button>
+      <button class="btn btn-outline" onclick="closeModal('nodeModal')">بستن</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Modal -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal" style="text-align: center;">
+    <h3 class="modal-title" style="margin-bottom: 10px;">در حال همگام‌سازی شبکه</h3>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">لطفاً مرورگر را نبندید. در حال محاسبه کاربران و ساخت ساب‌لینک روی کلودفلر...</p>
+    <div id="syncProgressMsg" style="font-family: var(--font-mono); color: var(--primary); font-size: 14px; margin-bottom: 20px;">Processing...</div>
+  </div>
+</div>
+
 
 <script>
 // ══════════════════════════════════════════════════════════
-//  STATE MANAGEMENT
+//  DATABASE & STATE (LocalStorage)
 // ══════════════════════════════════════════════════════════
-const totalSteps = 6;
-let currentStep = 0;
-const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
-
-const state = {
-  proxyUrl: localStorage.getItem('dexter_proxy_url') || '',
-  rawTokensInput: '',
-  accountsList: [], 
-  vlessConfigs: [],
-  subLinkUrl: '',
-  
-  workerName: 'dex-node',
-  uuid: crypto.randomUUID(), // Auto generate UUID
-  
-  workerCode: '',
-};
-
-// ══════════════════════════════════════════════════════════
-//  CLOUDFLARE API ENGINE
-// ══════════════════════════════════════════════════════════
+const DB_KEY = 'dexter_pro_db';
+const PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-async function cfFetch(path, token, options = {}) {
-  const proxy = state.proxyUrl;
-  let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
+let db = {
+  masterToken: '',
+  masterAccountId: '',
+  subDomain: '',
+  nodes: [], // { id, token, accountId, domain, created }
+  users: []  // { id, name, uuid, limitGB, usedGB, expiryTime, isActive }
+};
+
+function loadDB() {
+  const data = localStorage.getItem(DB_KEY);
+  if (data) db = JSON.parse(data);
+  renderAll();
+}
+function saveDB() {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════
+//  UI LOGIC & RENDERING
+// ══════════════════════════════════════════════════════════
+const titles = { dashboard: 'داشبورد', users: 'کاربران و اشتراک‌ها', nodes: 'سرورها (Nodes)', settings: 'تنظیمات کلودفلر' };
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${tabId}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('topbar-title').innerText = titles[tabId];
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function formatDate(timestamp) {
+  const diff = timestamp - Date.now();
+  if(diff < 0) return 'منقضی شده';
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return `${days} روز دیگر`;
+}
+
+function renderAll() {
+  // Dash
+  document.getElementById('dash-users').innerText = db.users.length;
+  document.getElementById('dash-nodes').innerText = db.nodes.length;
+  document.getElementById('dash-sub').innerText = db.subDomain ? db.subDomain : 'تنظیم نشده';
+  document.getElementById('inpMasterToken').value = db.masterToken || '';
+
+  // Nodes Table
+  const nTable = document.getElementById('nodesTable');
+  nTable.innerHTML = db.nodes.map((n, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td class="mono-text" style="color:var(--text-main)">${n.domain}</td>
+      <td class="mono-text">${n.accountId.substring(0,8)}...</td>
+      <td class="mono-text">${new Date(n.created).toLocaleDateString('fa-IR')}</td>
+      <td><button class="btn-action" onclick="deleteNode('${n.id}')">حذف</button></td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">سروری اضافه نشده است</td></tr>`;
+
+  // Users Table
+  const uTable = document.getElementById('usersTable');
+  const baseSubLink = db.subDomain ? `https://${db.subDomain}/sub/` : '';
   
-  const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
-  if (proxy) headers['X-Proxy-Target'] = path;
-  if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+  uTable.innerHTML = db.users.map(u => {
+    // Traffic Calc
+    const percent = u.limitGB > 0 ? Math.min(100, (u.usedGB / u.limitGB) * 100) : 0;
+    const pColor = percent > 90 ? 'var(--danger)' : percent > 75 ? 'var(--warning)' : 'var(--success)';
+    
+    // Status Logic
+    const isExpired = Date.now() > u.expiryTime;
+    const isTrafficOut = u.limitGB > 0 && u.usedGB >= u.limitGB;
+    const isWorking = u.isActive && !isExpired && !isTrafficOut;
+    
+    let statusBadge = '';
+    if(!u.isActive) statusBadge = `<span class="badge badge-warning">غیرفعال (دستی)</span>`;
+    else if(isExpired) statusBadge = `<span class="badge badge-expired">پایان زمان</span>`;
+    else if(isTrafficOut) statusBadge = `<span class="badge badge-expired">پایان حجم</span>`;
+    else statusBadge = `<span class="badge badge-active">فعال و متصل</span>`;
+
+    const subLink = baseSubLink ? `${baseSubLink}${u.uuid}` : '';
+
+    return `
+    <tr>
+      <td>
+        <div style="font-weight:700">${u.name}</div>
+        <div class="mono-text" style="font-size:10px">${u.uuid}</div>
+      </td>
+      <td>
+        <div class="traffic-text">${u.usedGB.toFixed(2)} / ${u.limitGB} GB</div>
+        <div class="progress-container"><div class="progress-bar" style="width:${percent}%; background:${pColor}"></div></div>
+      </td>
+      <td>
+        <div style="font-size:12px">${formatDate(u.expiryTime)}</div>
+      </td>
+      <td>${statusBadge}</td>
+      <td>
+        ${baseSubLink ? `<span class="copy-link" onclick="copyText('${subLink}', this)">کپی لینک</span>` : `<span style="font-size:11px;color:var(--text-muted)">نیاز به Sync</span>`}
+      </td>
+      <td>
+        <button class="btn-action" onclick="toggleUser('${u.id}')">${u.isActive ? 'خاموش' : 'روشن'}</button>
+        <button class="btn-action" style="color:var(--danger)" onclick="deleteUser('${u.id}')">حذف</button>
+      </td>
+    </tr>
+    `;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">کاربری ثبت نشده است</td></tr>`;
+}
+
+function copyText(txt, el) {
+  navigator.clipboard.writeText(txt).then(() => {
+    let old = el.innerText; el.innerText = 'کپی شد!';
+    setTimeout(() => el.innerText = old, 1500);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  CLOUDFLARE API
+// ══════════════════════════════════════════════════════════
+async function cfFetch(path, token, options = {}) {
+  let url = `${PROXY_URL}${path}`;
+  const headers = { 'Authorization': `Bearer ${token}`, 'X-Proxy-Target': path };
+  if (options.body && typeof options.body === 'string') headers['Content-Type'] = 'application/json';
 
   try {
     const res = await fetch(url, { ...options, headers });
     const text = await res.text();
-    let json;
-    try { json = JSON.parse(text); } 
-    catch(e) { return { success: false, errors: [{ message: 'پاسخ سرور نامعتبر است.' }] }; }
-    return json;
+    return JSON.parse(text);
   } catch (e) {
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (خطای CORS).' }] };
-    }
-    return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
+    return { success: false, errors: [{ message: `Network error: ${e.message}` }] };
   }
 }
 
-async function testDirectApi() {
-  try {
-    const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
-    return (res.status === 401 || res.status === 200 || res.status === 403);
-  } catch (e) { return false; }
-}
-
-async function fetchAccountsForToken(token) {
-  const r = await cfFetch('/accounts', token);
-  if (r.success && Array.isArray(r.result)) return { ok: true, accounts: r.result };
-  return { ok: false, msg: r.errors?.[0]?.message || 'خطا در اعتبارسنجی توکن' };
-}
-
 // ══════════════════════════════════════════════════════════
-//  CORE WORKER FUNCTIONS
+//  CORE ACTIONS
 // ══════════════════════════════════════════════════════════
-async function fetchWorkerCode() {
-  if (state.workerCode) return { ok: true };
-
-  // دریافت یک هسته VLESS بسیار سبک و استاندارد (بدون دیتابیس)
-  // از سورس معتبر زیزفین (edgetunnel) استفاده می‌کنیم تا سبک‌ترین حالت باشد.
-  const sourceUrl = 'https://raw.githubusercontent.com/zizifn/edgetunnel/main/src/worker-vless.js';
-  const proxyUrl = state.proxyUrl ? `${state.proxyUrl}/github` : sourceUrl;
-  const opts = state.proxyUrl ? { headers: { 'X-GitHub-Url': sourceUrl } } : {};
-
-  try {
-    const res = await fetch(proxyUrl, opts);
-    if (!res.ok) throw new Error('Failed to fetch worker code');
-    let code = await res.text();
-    
-    // جایگذاری UUID هاردکد شده در اسکریپت
-    code = code.replace(/let\s+userID\s*=\s*['"][^'"]+['"]/i, `let userID = '${state.uuid}'`);
-    
-    state.workerCode = code;
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, msg: 'خطا در دریافت هسته VLESS' };
-  }
+function showMsg(id, type, text) {
+  const el = document.getElementById(id);
+  el.className = `status-msg ${type}`;
+  el.innerHTML = text;
 }
 
-async function deployNodeToAccount(accountIndex, token, accountId) {
-  setProgress('prog-deploy', 'active');
+async function saveMasterSettings() {
+  const token = document.getElementById('inpMasterToken').value.trim();
+  if(!token) return showMsg('settingsMsg', 'error', 'لطفا توکن را وارد کنید');
+  showMsg('settingsMsg', 'info', 'در حال بررسی توکن...');
   
-  const metadata = {
-    main_module: 'worker.js',
-    compatibility_date: '2024-09-22',
-  };
+  const accRes = await cfFetch('/accounts', token);
+  if(accRes.success && accRes.result.length > 0) {
+    db.masterToken = token;
+    db.masterAccountId = accRes.result[0].id;
+    saveDB();
+    showMsg('settingsMsg', 'success', 'اکانت اصلی تایید و ذخیره شد.');
+  } else {
+    showMsg('settingsMsg', 'error', 'توکن نامعتبر است یا دسترسی Account ندارد.');
+  }
+}
 
+async function deployNode() {
+  const token = document.getElementById('nToken').value.trim();
+  if(!token) return showMsg('nodeMsg', 'error', 'توکن الزامی است');
+  
+  document.getElementById('btnDeployNode').disabled = true;
+  showMsg('nodeMsg', 'info', 'بررسی توکن و دریافت Account ID...');
+  
+  const accRes = await cfFetch('/accounts', token);
+  if(!accRes.success || accRes.result.length === 0) {
+    document.getElementById('btnDeployNode').disabled = false;
+    return showMsg('nodeMsg', 'error', 'توکن نامعتبر است.');
+  }
+  const accountId = accRes.result[0].id;
+  
+  showMsg('nodeMsg', 'info', 'دریافت سورس کد هسته VLESS...');
+  const vlessRes = await fetch(`${PROXY_URL}/github`, { headers: { 'X-GitHub-Url': 'https://raw.githubusercontent.com/zizifn/edgetunnel/main/src/worker-vless.js' } });
+  let code = await vlessRes.text();
+  
+  // تزریق سیستم Multi-UUID (UUID های فعال در زمان Sync به متغیرها اعمال میشوند، 
+  // اما برای سرور استاتیک، فعلا تمام UUID های مجاز را تزریق میکنیم. در ورژن پیشرفته باید از KV استفاده شود.
+  // اینجا تمام UUID های کاربران را تزریق میکنیم).
+  let validUuids = db.users.map(u => u.uuid);
+  if(validUuids.length === 0) validUuids = ['00000000-0000-0000-0000-000000000000'];
+  
+  code = code.replace(/let\s+userID\s*=\s*['"][^'"]+['"]/i, `
+    const userIDs = ${JSON.stringify(validUuids)};
+    let userID = userIDs[0]; 
+  `);
+  code = code.replace(/userID\s*===\s*uuid/g, `userIDs.includes(uuid)`);
+  
+  showMsg('nodeMsg', 'info', 'در حال آپلود Worker روی کلودفلر...');
+  const nodeName = `dex-node-${Date.now().toString().slice(-6)}`;
   const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  form.append('worker.js', new Blob([state.workerCode], { type: 'application/javascript+module' }), 'worker.js');
+  form.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2024-09-22' })], { type: 'application/json' }));
+  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
 
-  const nodeName = `${state.workerName}-${accountIndex + 1}`;
-  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(nodeName)}`;
-  const uploadRes = await cfFetch(deployPath, token, { method: 'PUT', body: form });
-  if (!uploadRes.success) return { ok: false, step: 'deploy', msg: uploadRes.errors?.[0]?.message };
+  await cfFetch(`/accounts/${accountId}/workers/scripts/${nodeName}`, token, { method: 'PUT', body: form });
+  await cfFetch(`/accounts/${accountId}/workers/scripts/${nodeName}/deployments`, token, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
 
-  await cfFetch(`${deployPath}/deployments`, token, {
-    method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } })
-  });
-  setProgress('prog-deploy', 'done');
-
-  setProgress('prog-verify', 'active');
   let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   if (!subRes.result?.subdomain) {
-      const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
-      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, { method: 'PUT', body: JSON.stringify({ subdomain: randomSub }) });
+      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, { method: 'PUT', body: JSON.stringify({ subdomain: `proxy-${Math.random().toString(36).substring(2, 8)}` }) });
       subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   }
+  await cfFetch(`/accounts/${accountId}/workers/services/${nodeName}/environments/production/subdomain`, token, { method: 'POST', body: JSON.stringify({ enabled: true }) });
 
-  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(nodeName)}/environments/production/subdomain`, token, {
-    method: 'POST', body: JSON.stringify({ enabled: true })
-  });
-
-  if (subRes.success && subRes.result?.subdomain) {
-    const domain = `${nodeName}.${subRes.result.subdomain}.workers.dev`;
-    setProgress('prog-verify', 'done');
-    
-    // تولید لینک VLESS خام برای این سرور
-    const vlessUri = `vless://${state.uuid}@${domain}:443?encryption=none&security=tls&sni=${domain}&fp=random&type=ws&host=${domain}&path=/%3Fed%3D2048#Dexter-Node-${accountIndex + 1}`;
-    state.vlessConfigs.push(vlessUri);
-    
-    return { ok: true, domain };
-  }
+  const domain = `${nodeName}.${subRes.result.subdomain}.workers.dev`;
+  db.nodes.push({ id: Date.now().toString(), token, accountId, domain, created: Date.now() });
+  saveDB();
   
-  return { ok: false, step: 'verify', msg: 'خطا در دریافت زیردامنه' };
+  document.getElementById('btnDeployNode').disabled = false;
+  closeModal('nodeModal');
+  document.getElementById('nToken').value = '';
+  showMsg('nodeMsg', '', '');
+  alert(`سرور ${domain} اضافه شد. لطفا برای بروزرسانی UUID ها، دکمه Sync را بزنید.`);
 }
 
-async function deploySubWorker(account) {
-    setProgress('prog-sub', 'active');
-    
-    // تبدیل تمام کانفیگ‌ها به یک فایل Base64
-    const b64Sub = btoa(state.vlessConfigs.join('\n'));
-    
-    // یک ورکر بسیار ساده که فقط متن Base64 را برمی‌گرداند
-    const code = `export default { fetch(req) { return new Response(atob('${b64Sub}'), { headers: { 'Content-Type': 'text/plain; charset=utf-8' }}); } }`;
-    const metadata = { main_module: 'worker.js', compatibility_date: '2024-09-22' };
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
-    
-    const deployPath = `/accounts/${account.accountId}/workers/scripts/dexter-sub-link`;
-    await cfFetch(deployPath, account.token, { method: 'PUT', body: form });
-    await cfFetch(`${deployPath}/deployments`, account.token, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
-    
-    let subRes = await cfFetch(`/accounts/${account.accountId}/workers/subdomain`, account.token);
-    await cfFetch(`/accounts/${account.accountId}/workers/services/dexter-sub-link/environments/production/subdomain`, account.token, { method: 'POST', body: JSON.stringify({ enabled: true }) });
-    
-    setProgress('prog-sub', 'done');
-    return `https://dexter-sub-link.${subRes.result.subdomain}.workers.dev`;
+function deleteNode(id) {
+  if(confirm('حذف سرور؟')) { db.nodes = db.nodes.filter(n => n.id !== id); saveDB(); }
 }
 
-// ══════════════════════════════════════════════════════════
-//  STEP RENDERERS
-// ══════════════════════════════════════════════════════════
-function renderStepsIndicator() {
-  let html = '';
-  for (let i = 0; i < totalSteps; i++) {
-    let cls = 'step-dot';
-    if (i === currentStep) cls += ' active';
-    else if (i < currentStep) cls += ' done';
-    html += `<div class="${cls}"></div>`;
-  }
-  document.getElementById('stepsIndicator').innerHTML = html;
-}
-
-function renderStep() {
-  renderStepsIndicator();
-  const el = document.getElementById('stepContent');
-  switch (currentStep) {
-    case 0: el.innerHTML = renderWelcome(); break;
-    case 1: el.innerHTML = renderConnTest(); runConnectivityTest(); break;
-    case 2: el.innerHTML = renderCredentials(); break;
-    case 3: el.innerHTML = renderConfig(); break;
-    case 4: el.innerHTML = renderDeploy(); runDeployment(); break;
-    case 5: el.innerHTML = renderSuccess(); break;
-  }
-}
-
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}
-
-function alert(type, msg) {
-  const icons = { info: 'ℹ️', success: '✅', error: '❌', warn: '⚠️' };
-  return `<div class="alert alert-${type}"><span class="alert-icon">${icons[type]}</span><span>${esc(msg)}</span></div>`;
-}
-
-function goStep(n) { currentStep = n; renderStep(); }
-
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('finalCopyBtn');
-    if(btn) {
-        btn.textContent = 'کپی شد!';
-        setTimeout(() => { btn.textContent = 'کپی لینک سابسکرایپشن'; }, 2000);
-    }
-  });
-}
-
-function resetAll() {
-  state.rawTokensInput = '';
-  state.accountsList = [];
-  state.vlessConfigs = [];
-  state.uuid = crypto.randomUUID();
-  goStep(0);
-}
-
-// ── UI STEPS ──
-
-function renderWelcome() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">معماری کلاستر دکستر (تولید Sub-Link)</div>
-  <div class="card-subtitle">دستیابی به ۱ میلیون درخواست بدون نیاز به هیچ پنل مدیریتی!</div>
+function saveUser() {
+  const name = document.getElementById('uName').value.trim();
+  const limit = parseFloat(document.getElementById('uLimit').value) || 0;
+  const days = parseInt(document.getElementById('uDays').value) || 30;
+  const isActive = document.getElementById('uStatus').checked;
   
-  <div class="alert alert-info">
-    <span class="alert-icon">💡</span>
-    <span>این نسخه نیازی به پنل و دیتابیس ندارد. یک هسته سبک روی تمام اکانت‌های شما مستقر می‌شود و در نهایت <b>فقط یک لینک سابسکرایپشن</b> به شما تحویل می‌دهد.</span>
-  </div>
-
-  <div style="margin-bottom:20px">
-    <div class="feature-grid">
-      <div class="feature-item"><span class="feature-icon">🚀</span><span>بدون پنل و بدون باگ دیتابیس</span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span>تولید هوشمند یک لینک مشترک</span></div>
-      <div class="feature-item"><span class="feature-icon">⚡</span><span>تضمین Load Balance واقعی</span></div>
-      <div class="feature-item"><span class="feature-icon">🛡️</span><span>امنیت و سرعت فوق‌العاده بالا</span></div>
-    </div>
-  </div>
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="goStep(1)">شروع کنیم</button>
-  </div>
-</div>`;
+  if(!name) return alert('نام را وارد کنید');
+  
+  db.users.push({
+    id: Date.now().toString(),
+    name,
+    uuid: crypto.randomUUID(),
+    limitGB: limit,
+    usedGB: 0, // در نسخه سرورلس، محاسبه حجم نیازمند Worker KV است. در این نسخه رابط کاربری آن قرار داده شده.
+    expiryTime: Date.now() + (days * 24 * 60 * 60 * 1000),
+    isActive
+  });
+  saveDB();
+  closeModal('userModal');
+  document.getElementById('uName').value = '';
+  alert('کاربر ذخیره شد. حتما دکمه اعمال تغییرات (Sync) را بزنید.');
 }
 
-function renderConnTest() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">بررسی ارتباط سرور</div>
-  <div class="conn-status conn-testing" id="connStatus">
-    <div class="spinner"></div><span>در حال آزمایش اتصال...</span>
-  </div>
-  <div id="proxyButtons" style="display:none;margin:20px 0">
-    <button class="btn btn-primary" onclick="connectDefaultProxy()">⚡ اتصال با پروکسی</button>
-  </div>
-  <div id="connResult"></div>
-</div>`;
+function toggleUser(id) {
+  const u = db.users.find(x => x.id === id);
+  if(u) { u.isActive = !u.isActive; saveDB(); }
+}
+function deleteUser(id) {
+  if(confirm('کاربر حذف شود؟')) { db.users = db.users.filter(x => x.id !== id); saveDB(); }
 }
 
-async function runConnectivityTest() {
-  const statusEl = document.getElementById('connStatus');
-  const directOk = await testDirectApi();
-  if (directOk) {
-    statusEl.className = 'conn-status conn-ok';
-    statusEl.innerHTML = `<span>✓</span><span>اتصال مستقیم برقرار است.</span>`;
-    setTimeout(() => goStep(2), 1000);
-  } else {
-    connectDefaultProxy();
-  }
-}
+// ── THE BRAIN: SYNC & SUB LINK GENERATION ──
+async function syncNetwork() {
+  if(!db.masterToken || !db.masterAccountId) return alert('خطا: ابتدا به تنظیمات بروید و توکن اکانت اصلی (مستر) را وارد کنید.');
+  if(db.nodes.length === 0) return alert('خطا: هنوز هیچ سروری اضافه نکرده‌اید.');
 
-async function connectDefaultProxy() {
-  const statusEl = document.getElementById('connStatus');
+  openModal('syncModal');
+  const msg = document.getElementById('syncProgressMsg');
+  
   try {
-      const r = await fetch(`${DEFAULT_PROXY_URL}/health`);
-      if ((await r.json()).ok) {
-        state.proxyUrl = DEFAULT_PROXY_URL;
-        statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار شد.</span>`;
-        setTimeout(() => goStep(2), 1000);
-        return;
+    msg.innerText = 'Calculating active users based on Status, Time, and Traffic...';
+    
+    const subData = {};
+    const validUuids = [];
+
+    // فیلتر هوشمند کاربران بر اساس وضعیت مدیریت شما
+    db.users.forEach(u => {
+      const isExpired = Date.now() > u.expiryTime;
+      const isTrafficOut = u.limitGB > 0 && u.usedGB >= u.limitGB;
+      
+      // اگر کاربر مشکلی نداشت، لینک هایش ساخته میشود
+      if (u.isActive && !isExpired && !isTrafficOut) {
+        validUuids.push(u.uuid);
+        const vlessLinks = db.nodes.map(n => 
+          `vless://${u.uuid}@${n.domain}:443?encryption=none&security=tls&sni=${n.domain}&fp=random&type=ws&host=${n.domain}&path=/%3Fed%3D2048#Dexter_${u.name}_${n.domain.substring(0,4)}`
+        );
+        subData[u.uuid] = btoa(vlessLinks.join('\n'));
       }
-  } catch (e) {}
-  statusEl.className = 'conn-status conn-fail';
-  statusEl.innerHTML = `<span>✗</span><span>خطا در ارتباط. لطفا با VPN تست کنید.</span>`;
-}
+    });
 
-function renderCredentials() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">وارد کردن توکن‌های کلودفلر</div>
-  <div class="card-subtitle">هر تعداد توکن که دارید در کادر زیر وارد کنید (هر خط یک توکن)</div>
-  <div id="credAlert"></div>
-  <div class="form-group">
-    <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="مثال:\nToken_Account1_xxxxxx\nToken_Account2_xxxxxx"
-              spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-  </div>
-  <div class="btn-group">
-    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">تایید توکن‌ها</button>
-    <button class="btn btn-secondary" onclick="goStep(1)">بازگشت</button>
-  </div>
-</div>`;
-}
+    msg.innerText = 'Uploading Master Sub-Link Worker...';
+    
+    // کد ورکر توزیع‌کننده ساب‌لینک
+    const workerCode = `
+      const DATA = ${JSON.stringify(subData)};
+      export default {
+        async fetch(request) {
+          const url = new URL(request.url);
+          const uuid = url.pathname.split('/').pop();
+          if (DATA[uuid]) {
+            return new Response(atob(DATA[uuid]), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+          }
+          return new Response('User Not Found, Disabled, Expired, or Out of Bandwidth.', { status: 403 });
+        }
+      };
+    `;
 
-async function handleValidate() {
-  const tokenEl = document.getElementById('inpTokens');
-  const alertEl = document.getElementById('credAlert');
-  const btnEl = document.getElementById('btnValidate');
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2024-09-22' })], { type: 'application/json' }));
+    form.append('worker.js', new Blob([workerCode], { type: 'application/javascript+module' }), 'worker.js');
 
-  state.rawTokensInput = tokenEl.value;
-  const rawTokens = tokenEl.value.split(/\r?\n/).map(t => t.trim()).filter(t => t.length > 5);
-  
-  if (rawTokens.length === 0) return;
+    const subNodeName = 'dex-sub-manager';
+    await cfFetch(`/accounts/${db.masterAccountId}/workers/scripts/${subNodeName}`, db.masterToken, { method: 'PUT', body: form });
+    await cfFetch(`/accounts/${db.masterAccountId}/workers/scripts/${subNodeName}/deployments`, db.masterToken, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
 
-  btnEl.disabled = true;
-  btnEl.innerHTML = `<div class="spinner"></div> بررسی...`;
-  state.accountsList = []; 
-  
-  for (let i = 0; i < rawTokens.length; i++) {
-    const acctsResult = await fetchAccountsForToken(rawTokens[i]);
-    if (acctsResult.ok && acctsResult.accounts.length > 0) {
-       state.accountsList.push({ token: rawTokens[i], accountId: acctsResult.accounts[0].id, accountName: acctsResult.accounts[0].name });
+    let subRes = await cfFetch(`/accounts/${db.masterAccountId}/workers/subdomain`, db.masterToken);
+    await cfFetch(`/accounts/${db.masterAccountId}/workers/services/${subNodeName}/environments/production/subdomain`, db.masterToken, { method: 'POST', body: JSON.stringify({ enabled: true }) });
+
+    if(subRes.result?.subdomain) {
+      db.subDomain = `${subNodeName}.${subRes.result.subdomain}.workers.dev`;
+      saveDB();
+      msg.innerText = 'Sync Complete! Sub links updated successfully.';
+      setTimeout(() => closeModal('syncModal'), 1500);
+    } else {
+      throw new Error("Failed to get master subdomain.");
     }
-  }
 
-  if (state.accountsList.length > 0) {
-     alertEl.innerHTML = alert('success', `${state.accountsList.length} اکانت شناسایی شد!`);
-     setTimeout(() => goStep(3), 1000);
-  } else {
-     alertEl.innerHTML = alert('error', 'هیچ توکن معتبری یافت نشد.');
-     btnEl.disabled = false;
-     btnEl.textContent = 'تایید توکن‌ها';
-  }
-}
-
-function generateNewUUID() {
-    document.getElementById('inpUUID').value = crypto.randomUUID();
-}
-
-function renderConfig() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">پیکربندی هویت (UUID)</div>
-  <div class="card-subtitle">این شناسه در تمام سرورهای شما تزریق خواهد شد</div>
-  
-  <div class="form-group">
-    <label class="form-label">شناسه کاربر (UUID)</label>
-    <div style="display:flex;gap:10px">
-        <input type="text" class="form-input" id="inpUUID" value="${state.uuid}" style="direction:ltr;text-align:left;flex:1">
-        <button class="btn btn-secondary btn-sm" onclick="generateNewUUID()">تولید جدید</button>
-    </div>
-    <div class="form-hint">این رمز اتصال شماست. آن را تغییر ندهید مگر اینکه می‌دانید چه می‌کنید.</div>
-  </div>
-
-  <div id="configAlert"></div>
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="handleConfigNext()">استقرار نهایی و ساخت لینک</button>
-    <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
-  </div>
-</div>`;
-}
-
-function handleConfigNext() {
-  const uuid = document.getElementById('inpUUID').value.trim();
-  if (uuid.length < 10) {
-    document.getElementById('configAlert').innerHTML = alert('error', 'UUID نامعتبر است.');
-    return;
-  }
-  state.uuid = uuid;
-  goStep(4);
-}
-
-function renderDeploy() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">در حال استقرار کلاستر ایستا...</div>
-  
-  <div id="deployAlert" style="margin-bottom:16px;"></div>
-
-  <ul class="progress-list">
-    <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span><div class="progress-text">دریافت هسته VLESS اختصاصی</div>
-    </li>
-    <li class="progress-item waiting" id="prog-deploy">
-      <span class="progress-icon">○</span><div class="progress-text">تزریق UUID و استقرار روی سرورها</div>
-    </li>
-    <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span><div class="progress-text">فعال‌سازی دامنه‌های کلاستر</div>
-    </li>
-    <li class="progress-item waiting" id="prog-sub">
-      <span class="progress-icon">○</span><div class="progress-text">تولید ورکر سابسکرایپشن مرکزی</div>
-    </li>
-  </ul>
-</div>`;
-}
-
-function setProgress(id, status, textOverride) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.className = `progress-item ${status}`;
-  const icon = el.querySelector('.progress-icon');
-  if (status === 'active') icon.innerHTML = '<div class="spinner"></div>';
-  else if (status === 'done') icon.textContent = '✓';
-  else if (status === 'error') icon.textContent = '✗';
-  else icon.textContent = '○';
-  if (textOverride) el.querySelector('.progress-text').textContent = textOverride;
-}
-
-async function runDeployment() {
-  const alertEl = () => document.getElementById('deployAlert');
-
-  setProgress('prog-fetch', 'active');
-  const fetchResult = await fetchWorkerCode();
-  if (!fetchResult.ok) {
-    setProgress('prog-fetch', 'error');
-    alertEl().innerHTML = alert('error', fetchResult.msg);
-    return;
-  }
-  setProgress('prog-fetch', 'done');
-
-  for (let i = 0; i < state.accountsList.length; i++) {
-     const acc = state.accountsList[i];
-     alertEl().innerHTML = alert('info', `⏳ تزریق کد در اکانت ${i + 1} از ${state.accountsList.length}...`);
-     
-     setProgress('prog-deploy', 'active');
-     setProgress('prog-verify', 'waiting');
-
-     const res = await deployNodeToAccount(i, acc.token, acc.accountId);
-     if (!res.ok) {
-        alertEl().innerHTML = alert('warn', `اکانت ${i+1} با خطا مواجه شد. در حال پرش به بعدی...`);
-     }
-  }
-
-  if (state.vlessConfigs.length === 0) {
-      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد.`);
-      return;
-  }
-
-  // مرحله نهایی: ساخت ورکر سابسکرایپشن روی اکانت اول
-  alertEl().innerHTML = alert('info', `⏳ در حال ساخت لینک سابسکرایپشن نهایی...`);
-  try {
-      state.subLinkUrl = await deploySubWorker(state.accountsList[0]);
   } catch(e) {
-      // در صورت خطا، حداقل لینک‌ها تولید شده‌اند
+    msg.innerText = `Error: ${e.message}`;
+    setTimeout(() => closeModal('syncModal'), 3000);
   }
-  
-  setTimeout(() => goStep(5), 1500);
 }
 
-function renderSuccess() {
-  return `
-<div class="card step-panel">
-  <div class="card-title" style="color:var(--green)">🎉 کلاستر با موفقیت ساخته شد!</div>
-  <div class="card-subtitle">تمامی ${state.vlessConfigs.length} سرور شما با موفقیت در قالب یک لینک ادغام شدند.</div>
-
-  <div class="alert alert-success">
-    <span class="alert-icon">💡</span>
-    <span>فقط کافیست لینک زیر را کپی کرده و در برنامه v2rayNG / NekoBox خود به عنوان Subscription اضافه کنید. گزینه Load Balance برنامه را روشن کنید تا از تمام ظرفیت سرورها به صورت تجمیع شده استفاده کنید.</span>
-  </div>
-
-  <div class="result-box">
-    <div class="result-label">لینک سابسکرایپشن (Sub Link) اختصاصی شما:</div>
-    <div class="result-value" id="subLinkText">
-        ${state.subLinkUrl || 'خطا در تولید URL. کدهای خام در دسترس است.'}
-    </div>
-    <button id="finalCopyBtn" class="copy-btn" onclick="copyText('${esc(state.subLinkUrl)}')">کپی لینک سابسکرایپشن</button>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn btn-secondary" onclick="resetAll()">نصب مجدد کلاستر</button>
-  </div>
-</div>`;
-}
-
-renderStep();
+// Init App
+loadDB();
 </script>
 </body>
 </html>
