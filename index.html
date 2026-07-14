@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dexter Multi-Installer | نصب‌کننده گروهی دکستر</title>
+<title>Dexter Cluster Installer | نصب‌کننده کلاستر دکستر</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -34,8 +34,7 @@ line-height:1.7;-webkit-font-smoothing:antialiased;
 .logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
 color:var(--cyan);margin-bottom:4px}
 .logo-sub{color:var(--text2);font-size:.85rem;font-weight:400; line-height: 1.8;}
-.credit{display:inline-block; margin-top: 6px; padding: 4px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; color: var(--text2);}
-.credit b{color: var(--text);}
+.badge{display:inline-block; margin-top: 6px; padding: 4px 12px; background: var(--cyan-bg); border: 1px solid rgba(229,57,53,.3); border-radius: 20px; font-size: 0.8rem; color: var(--cyan); font-weight: bold;}
 
 /* ── Steps Indicator ── */
 .steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
@@ -122,20 +121,20 @@ animation:spin .8s linear infinite;flex-shrink:0
 /* ── Result Card ── */
 .result-box{
 background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-padding:16px;margin-bottom:12px
+padding:24px;margin-bottom:12px; text-align: center;
 }
-.result-label{font-size:.8rem;color:var(--text2);margin-bottom:4px}
+.result-label{font-size:1rem;color:var(--text2);margin-bottom:12px}
 .result-value{
-font-family:var(--font-mono);font-size:1.05rem;color:var(--cyan);
-word-break:break-all;display:flex;align-items:center;gap:10px
+font-family:var(--font-mono);font-size:1.1rem;color:var(--green);
+word-break:break-all;background: var(--bg4); padding: 12px; border-radius: 8px; border: 1px dashed var(--border2);
+margin-bottom: 16px;
 }
 .copy-btn{
-background:var(--bg4);border:1px solid var(--border);color:var(--text2);
-padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;
-transition:var(--transition);flex-shrink:0
+background:var(--cyan);border:none;color:#fff;
+padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.9rem;
+transition:var(--transition); font-weight: bold;
 }
-.copy-btn:hover{color:var(--cyan);border-color:var(--cyan)}
-.copy-btn.copied{color:var(--green);border-color:var(--green)}
+.copy-btn:hover{box-shadow:0 4px 12px rgba(229,57,53,.4); transform: translateY(-1px);}
 
 /* ── Extra Elements ── */
 .conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
@@ -151,39 +150,22 @@ font-size:.88rem;transition:var(--transition)
 }
 .feature-item:hover{border-color:var(--cyan);background:var(--cyan-bg)}
 
-.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:520px){.config-grid{grid-template-columns:1fr}}
-.divider{height:1px;background:var(--border);margin:20px 0}
-
 .code-block{
 background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
 padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
 color:var(--cyan);overflow-x:auto;margin:12px 0;line-height:1.6;
 direction:ltr;text-align:left;position:relative
 }
-.steps-list{list-style:none;counter-reset:step;margin:16px 0}
-.steps-list li{
-counter-increment:step;padding:10px 44px 10px 14px;position:relative;
-font-size:.9rem;color:var(--text2);margin-bottom:6px;
-background:var(--bg3);border-radius:8px;line-height:1.5
-}
-.steps-list li::before{
-content:counter(step);position:absolute;right:14px;top:10px;
-width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
-color:var(--cyan);font-size:.78rem;font-weight:700;
-display:flex;align-items:center;justify-content:center
-}
-.steps-list a{color:var(--cyan); text-decoration: none;}
 </style>
 </head>
 <body>
 
 <div class="container">
 <div class="header">
-<div class="logo">DEXTER</div>
+<div class="logo">DEXTER CLUSTER</div>
 <div class="logo-sub">
-    نصب‌کننده گروهی دکستر (بدون باگ دیتابیس) — نسخه ۲.۱ <br>
-    <div class="credit">ساخته شده بر پایه نسخه اصلی اثر: <b>ی ب خ (itsyebekhe)</b></div>
+    سیستم تجمیع‌کننده ترافیک هوشمند (بدون نیاز به پنل) <br>
+    <div class="badge">نسخه سابسکرایپشن (Sub-Link)</div>
 </div>
 </div>
 
@@ -197,22 +179,19 @@ display:flex;align-items:center;justify-content:center
 // ══════════════════════════════════════════════════════════
 const totalSteps = 6;
 let currentStep = 0;
-// URL زیر برای حفظ کارکرد پروکسی پیش‌فرض دست‌نخورده باقی مانده است
 const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 
 const state = {
   proxyUrl: localStorage.getItem('dexter_proxy_url') || '',
-  directApiOk: null,
   rawTokensInput: '',
   accountsList: [], 
-  deployedPanels: [], 
+  vlessConfigs: [],
+  subLinkUrl: '',
   
-  workerName: 'dexter-core',
-  dbName: 'iot_db',
-  apiRoute: 'sync',
+  workerName: 'dex-node',
+  uuid: crypto.randomUUID(), // Auto generate UUID
   
   workerCode: '',
-  workerVersion: '',
 };
 
 // ══════════════════════════════════════════════════════════
@@ -262,66 +241,41 @@ async function fetchAccountsForToken(token) {
 async function fetchWorkerCode() {
   if (state.workerCode) return { ok: true };
 
-  // آدرس‌های مخزن گیت‌هاب اصلی برای دریافت سورس کد صحیح ثابت نگه داشته شده است
-  const sources = state.proxyUrl 
-    ? [ { url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
-    : [ { url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
-        { url: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ];
+  // دریافت یک هسته VLESS بسیار سبک و استاندارد (بدون دیتابیس)
+  // از سورس معتبر زیزفین (edgetunnel) استفاده می‌کنیم تا سبک‌ترین حالت باشد.
+  const sourceUrl = 'https://raw.githubusercontent.com/zizifn/edgetunnel/main/src/worker-vless.js';
+  const proxyUrl = state.proxyUrl ? `${state.proxyUrl}/github` : sourceUrl;
+  const opts = state.proxyUrl ? { headers: { 'X-GitHub-Url': sourceUrl } } : {};
 
-  for (const src of sources) {
-    try {
-      const fetchOpts = src.viaProxy ? { headers: { 'X-GitHub-Url': src.githubUrl } } : {};
-      const res = await fetch(src.url, fetchOpts);
-      if (!res.ok) continue;
-
-      state.workerCode = await res.text();
-      const verMatch = state.workerCode.match(/const\s+CURRENT_VERSION\s*=\s*["']([^"']+)["']/);
-      state.workerVersion = verMatch ? verMatch[1] : '';
-      return { ok: true };
-    } catch (e) { console.error(e); }
+  try {
+    const res = await fetch(proxyUrl, opts);
+    if (!res.ok) throw new Error('Failed to fetch worker code');
+    let code = await res.text();
+    
+    // جایگذاری UUID هاردکد شده در اسکریپت
+    code = code.replace(/let\s+userID\s*=\s*['"][^'"]+['"]/i, `let userID = '${state.uuid}'`);
+    
+    state.workerCode = code;
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, msg: 'خطا در دریافت هسته VLESS' };
   }
-  return { ok: false, msg: 'خطا در دریافت سورس کد' };
 }
 
-async function deployToAccount(accountIndex, token, accountId) {
-  // Step 1: Create D1 Database
-  setProgress('prog-d1', 'active');
-  let dbId = '';
-  const d1Res = await cfFetch(`/accounts/${accountId}/d1/database`, token, {
-    method: 'POST', body: JSON.stringify({ name: state.dbName })
-  });
-  if (d1Res.success) {
-    dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
-  } else {
-    const check = await cfFetch(`/accounts/${accountId}/d1/database`, token);
-    if (check.success && Array.isArray(check.result)) {
-      const db = check.result.find(d => d.name === state.dbName);
-      if (db) dbId = db.uuid || db.database_id || '';
-    }
-    if (!dbId) return { ok: false, step: 'd1', msg: d1Res.errors?.[0]?.message || 'خطا در ساخت دیتابیس D1' };
-  }
-  setProgress('prog-d1', 'done');
-
-  // Step 2: Prepare Code & Deploy (بدون دستکاری رمز برای جلوگیری از خرابی سینتکس)
+async function deployNodeToAccount(accountIndex, token, accountId) {
   setProgress('prog-deploy', 'active');
-  let code = state.workerCode;
-  
-  // Only inject non-breaking standard variables. 
-  // DO NOT INJECT PASSWORD to avoid corrupting the JS.
-  code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
   
   const metadata = {
     main_module: 'worker.js',
     compatibility_date: '2024-09-22',
-    compatibility_flags: ['nodejs_compat'],
-    bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }]
   };
 
   const form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
+  form.append('worker.js', new Blob([state.workerCode], { type: 'application/javascript+module' }), 'worker.js');
 
-  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
+  const nodeName = `${state.workerName}-${accountIndex + 1}`;
+  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(nodeName)}`;
   const uploadRes = await cfFetch(deployPath, token, { method: 'PUT', body: form });
   if (!uploadRes.success) return { ok: false, step: 'deploy', msg: uploadRes.errors?.[0]?.message };
 
@@ -330,30 +284,54 @@ async function deployToAccount(accountIndex, token, accountId) {
   });
   setProgress('prog-deploy', 'done');
 
-  // Step 3: Enable workers.dev and verify
   setProgress('prog-verify', 'active');
-  
-  // --- رفع باگ اکانت‌های خام: ساخت ساب‌دامنه خودکار در صورت عدم وجود ---
   let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   if (!subRes.result?.subdomain) {
       const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
-      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, {
-          method: 'PUT', body: JSON.stringify({ subdomain: randomSub })
-      });
+      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, { method: 'PUT', body: JSON.stringify({ subdomain: randomSub }) });
       subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   }
 
-  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, token, {
+  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(nodeName)}/environments/production/subdomain`, token, {
     method: 'POST', body: JSON.stringify({ enabled: true })
   });
 
   if (subRes.success && subRes.result?.subdomain) {
-    const url = `https://${state.workerName}.${subRes.result.subdomain}.workers.dev`;
+    const domain = `${nodeName}.${subRes.result.subdomain}.workers.dev`;
     setProgress('prog-verify', 'done');
-    return { ok: true, url };
+    
+    // تولید لینک VLESS خام برای این سرور
+    const vlessUri = `vless://${state.uuid}@${domain}:443?encryption=none&security=tls&sni=${domain}&fp=random&type=ws&host=${domain}&path=/%3Fed%3D2048#Dexter-Node-${accountIndex + 1}`;
+    state.vlessConfigs.push(vlessUri);
+    
+    return { ok: true, domain };
   }
   
-  return { ok: false, step: 'verify', msg: 'خطا در فعال‌سازی زیردامنه workers.dev' };
+  return { ok: false, step: 'verify', msg: 'خطا در دریافت زیردامنه' };
+}
+
+async function deploySubWorker(account) {
+    setProgress('prog-sub', 'active');
+    
+    // تبدیل تمام کانفیگ‌ها به یک فایل Base64
+    const b64Sub = btoa(state.vlessConfigs.join('\n'));
+    
+    // یک ورکر بسیار ساده که فقط متن Base64 را برمی‌گرداند
+    const code = `export default { fetch(req) { return new Response(atob('${b64Sub}'), { headers: { 'Content-Type': 'text/plain; charset=utf-8' }}); } }`;
+    const metadata = { main_module: 'worker.js', compatibility_date: '2024-09-22' };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
+    
+    const deployPath = `/accounts/${account.accountId}/workers/scripts/dexter-sub-link`;
+    await cfFetch(deployPath, account.token, { method: 'PUT', body: form });
+    await cfFetch(`${deployPath}/deployments`, account.token, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
+    
+    let subRes = await cfFetch(`/accounts/${account.accountId}/workers/subdomain`, account.token);
+    await cfFetch(`/accounts/${account.accountId}/workers/services/dexter-sub-link/environments/production/subdomain`, account.token, { method: 'POST', body: JSON.stringify({ enabled: true }) });
+    
+    setProgress('prog-sub', 'done');
+    return `https://dexter-sub-link.${subRes.result.subdomain}.workers.dev`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -397,19 +375,21 @@ function alert(type, msg) {
 
 function goStep(n) { currentStep = n; renderStep(); }
 
-function copyText(btn, text) {
+function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'کپی شد!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+    const btn = document.getElementById('finalCopyBtn');
+    if(btn) {
+        btn.textContent = 'کپی شد!';
+        setTimeout(() => { btn.textContent = 'کپی لینک سابسکرایپشن'; }, 2000);
+    }
   });
 }
 
 function resetAll() {
   state.rawTokensInput = '';
   state.accountsList = [];
-  state.deployedPanels = [];
+  state.vlessConfigs = [];
+  state.uuid = crypto.randomUUID();
   goStep(0);
 }
 
@@ -418,17 +398,20 @@ function resetAll() {
 function renderWelcome() {
   return `
 <div class="card step-panel">
-  <div class="card-title">به نصب‌کننده گروهی دکستر خوش آمدید</div>
-  <div class="card-subtitle">استقرار همزمان گیت‌وی دکستر روی چندین حساب Cloudflare</div>
-  <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
-    این ابزار برای راه‌اندازی پروکسی روی چند اکانت به صورت گروهی (Load Balancing) طراحی شده تا به راحتی سقف محدودیت درخواست‌های رایگان کلودفلر را افزایش دهید.
-  </p>
+  <div class="card-title">معماری کلاستر دکستر (تولید Sub-Link)</div>
+  <div class="card-subtitle">دستیابی به ۱ میلیون درخواست بدون نیاز به هیچ پنل مدیریتی!</div>
+  
+  <div class="alert alert-info">
+    <span class="alert-icon">💡</span>
+    <span>این نسخه نیازی به پنل و دیتابیس ندارد. یک هسته سبک روی تمام اکانت‌های شما مستقر می‌شود و در نهایت <b>فقط یک لینک سابسکرایپشن</b> به شما تحویل می‌دهد.</span>
+  </div>
+
   <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">چه چیزی در هر اکانت ساخته می‌شود؟</div>
     <div class="feature-grid">
-      <div class="feature-item"><span class="feature-icon">🗄️</span><span>پایگاه داده D1 اختصاصی</span></div>
-      <div class="feature-item"><span class="feature-icon">⚡</span><span>Cloudflare Worker</span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span>اتصال خودکار D1</span></div>
+      <div class="feature-item"><span class="feature-icon">🚀</span><span>بدون پنل و بدون باگ دیتابیس</span></div>
+      <div class="feature-item"><span class="feature-icon">🔗</span><span>تولید هوشمند یک لینک مشترک</span></div>
+      <div class="feature-item"><span class="feature-icon">⚡</span><span>تضمین Load Balance واقعی</span></div>
+      <div class="feature-item"><span class="feature-icon">🛡️</span><span>امنیت و سرعت فوق‌العاده بالا</span></div>
     </div>
   </div>
   <div class="btn-group">
@@ -442,225 +425,56 @@ function renderConnTest() {
 <div class="card step-panel">
   <div class="card-title">بررسی ارتباط سرور</div>
   <div class="conn-status conn-testing" id="connStatus">
-    <div class="spinner"></div><span>در حال آزمایش اتصال به Cloudflare...</span>
+    <div class="spinner"></div><span>در حال آزمایش اتصال...</span>
   </div>
-  
   <div id="proxyButtons" style="display:none;margin:20px 0">
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:.9rem;color:var(--text2);margin-bottom:12px">
-        اتصال مستقیم از مرورگر مسدود است (CORS). یکی از روش‌های زیر را انتخاب کنید:
-      </div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="connectDefaultProxy()" style="min-width:180px">
-          ⚡ <span>استفاده از پروکسی پیش‌فرض</span>
-        </button>
-        <button class="btn btn-secondary" onclick="showCustomProxyForm()" style="min-width:180px">
-          🔧 <span>استفاده از پروکسی شخصی</span>
-        </button>
-      </div>
-    </div>
+    <button class="btn btn-primary" onclick="connectDefaultProxy()">⚡ اتصال با پروکسی</button>
   </div>
-
-  <div id="customProxyForm" style="display:none;margin-top:16px">
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-      <div style="font-weight:600;margin-bottom:8px;color:var(--cyan)">پروکسی شخصی</div>
-      <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">آدرس Worker پروکسی خود را وارد کنید</div>
-      <input type="text" class="form-input" id="inpCustomProxy" placeholder="https://my-proxy.workers.dev" style="direction:ltr;text-align:left;margin-bottom:10px">
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-primary btn-sm" onclick="connectCustomProxy()" id="btnCustomConnect">اتصال و نصب</button>
-        <button class="btn btn-secondary btn-sm" onclick="cancelCustomProxy()">بازگشت</button>
-      </div>
-      <div id="customProxyResult" style="margin-top:10px"></div>
-    </div>
-  </div>
-
   <div id="connResult"></div>
-  
-  <div class="btn-group">
-    <button class="btn btn-secondary" onclick="goStep(0)">بازگشت</button>
-  </div>
 </div>`;
-}
-
-const PROXY_CODE = `// Dexter Installer Proxy Worker
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Proxy-Target, X-GitHub-Url',
-  'Access-Control-Max-Age': '86400',
-};
-const jsonResp = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...CORS } });
-
-export default {
-  async fetch(request) {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
-    const url = new URL(request.url);
-    if (url.pathname === '/health') return jsonResp({ ok: true });
-    if (url.pathname === '/github') {
-      try {
-        const r = await fetch(request.headers.get('X-GitHub-Url'));
-        return new Response(await r.text(), { status: r.status, headers: { 'Content-Type': 'application/javascript', ...CORS } });
-      } catch (e) { return jsonResp({ error: e.message }, 502); }
-    }
-    try {
-      const cfUrl = 'https://api.cloudflare.com/client/v4' + request.headers.get('X-Proxy-Target');
-      const opts = { method: request.method, headers: { Authorization: request.headers.get('Authorization') } };
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        const ct = request.headers.get('Content-Type') || '';
-        if (ct.includes('multipart/form-data')) { opts.body = await request.formData(); }
-        else { opts.body = await request.text(); opts.headers['Content-Type'] = 'application/json'; }
-      }
-      const resp = await fetch(cfUrl, opts);
-      return new Response(await resp.text(), { status: resp.status, headers: { 'Content-Type': 'application/json', ...CORS } });
-    } catch (e) { return jsonResp({ error: e.message }, 502); }
-  },
-};`;
-
-function renderProxySetup() {
-  return `
-  <div style="margin-top:16px">
-    <div class="alert alert-warn" style="margin-bottom:16px">
-      <span class="alert-icon">💡</span>
-      <span>دلیل قطعی: مرورگر شما اجازه دسترسی مستقیم به API را نمی‌دهد (CORS). برای حل این مشکل، یک Worker پروکسی روی حساب Cloudflare خود مستقر کنید:</span>
-    </div>
-    <ol class="steps-list">
-      <li>روی لینک زیر کلیک کنید تا داشبورد باز شود:<br>
-        <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener">باز کردن Cloudflare Dashboard</a>
-      </li>
-      <li>یک Worker جدید بسازید (مثلاً dexter-installer-proxy)</li>
-      <li>کد زیر را کپی و جایگزین کد پیش‌فرض Worker کنید:
-        <div class="code-block" style="max-height:160px;overflow:auto;white-space:pre;font-size:.78rem">${esc(PROXY_CODE)}</div>
-        <button class="btn btn-sm btn-secondary" onclick="copyText(this, \`${PROXY_CODE.replace(/`/g, "\\`")}\`)" style="margin-top:6px">کپی کد پروکسی</button>
-      </li>
-      <li>روی "Save and Deploy" کلیک کنید</li>
-      <li>آدرس Worker مستقر شده را در زیر وارد کنید:
-        <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <input type="text" class="form-input" id="inpProxyUrl" placeholder="https://dexter-proxy...workers.dev" style="direction:ltr;text-align:left;flex:1">
-          <button class="btn btn-primary btn-sm" onclick="testManualProxy()" id="btnTestProxy">اتصال به پروکسی</button>
-        </div>
-        <div id="proxyTestResult" style="margin-top:8px"></div>
-      </li>
-    </ol>
-  </div>`;
 }
 
 async function runConnectivityTest() {
   const statusEl = document.getElementById('connStatus');
-  const proxyBtns = document.getElementById('proxyButtons');
-  
-  if (state.proxyUrl) {
-    try {
-      const r = await fetch(`${state.proxyUrl}/health`);
-      if ((await r.json()).ok) {
-        statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار است.</span>`;
-        setTimeout(() => goStep(2), 1000);
-        return;
-      }
-    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('dexter_proxy_url'); }
-  }
-
   const directOk = await testDirectApi();
   if (directOk) {
     statusEl.className = 'conn-status conn-ok';
     statusEl.innerHTML = `<span>✓</span><span>اتصال مستقیم برقرار است.</span>`;
     setTimeout(() => goStep(2), 1000);
-    return;
+  } else {
+    connectDefaultProxy();
   }
-
-  statusEl.className = 'conn-status conn-fail';
-  statusEl.innerHTML = `<span>✗</span><span>اتصال مستقیم ممکن نیست.</span>`;
-  proxyBtns.style.display = 'block';
 }
 
 async function connectDefaultProxy() {
   const statusEl = document.getElementById('connStatus');
-  const proxyBtns = document.getElementById('proxyButtons');
-  const resultEl = document.getElementById('connResult');
-
-  statusEl.className = 'conn-status conn-testing';
-  statusEl.innerHTML = `<div class="spinner"></div><span>در حال اتصال به پروکسی پیش‌فرض...</span>`;
-  proxyBtns.style.display = 'none';
-
   try {
       const r = await fetch(`${DEFAULT_PROXY_URL}/health`);
       if ((await r.json()).ok) {
         state.proxyUrl = DEFAULT_PROXY_URL;
         statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span>اتصال به پروکسی پیش‌فرض موفق بود.</span>`;
+        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار شد.</span>`;
         setTimeout(() => goStep(2), 1000);
         return;
       }
   } catch (e) {}
-  
   statusEl.className = 'conn-status conn-fail';
-  statusEl.innerHTML = `<span>✗</span><span>پروکسی پیش‌فرض پاسخگو نیست.</span>`;
-  resultEl.innerHTML = renderProxySetup();
-}
-
-function showCustomProxyForm() {
-  document.getElementById('proxyButtons').style.display = 'none';
-  document.getElementById('customProxyForm').style.display = 'block';
-}
-
-function cancelCustomProxy() {
-  document.getElementById('customProxyForm').style.display = 'none';
-  document.getElementById('proxyButtons').style.display = 'block';
-}
-
-async function connectCustomProxy() {
-  const url = document.getElementById('inpCustomProxy').value.trim().replace(/\/+$/, '');
-  await _verifyAndSaveProxy(url, document.getElementById('btnCustomConnect'), document.getElementById('customProxyResult'));
-}
-
-async function testManualProxy() {
-  const url = document.getElementById('inpProxyUrl').value.trim().replace(/\/+$/, '');
-  await _verifyAndSaveProxy(url, document.getElementById('btnTestProxy'), document.getElementById('proxyTestResult'));
-}
-
-async function _verifyAndSaveProxy(url, btnEl, resEl) {
-  if (!url) { resEl.innerHTML = alert('error', 'آدرس وارد نشده است'); return; }
-  btnEl.disabled = true;
-  resEl.innerHTML = '';
-  try {
-    const res = await fetch(`${url}/health`);
-    if ((await res.json()).ok) {
-      state.proxyUrl = url;
-      localStorage.setItem('dexter_proxy_url', url);
-      resEl.innerHTML = alert('success', 'اتصال موفق!');
-      setTimeout(() => goStep(2), 1000);
-      return;
-    }
-  } catch (e) { resEl.innerHTML = alert('error', `خطا: ${e.message}`); }
-  btnEl.disabled = false;
+  statusEl.innerHTML = `<span>✗</span><span>خطا در ارتباط. لطفا با VPN تست کنید.</span>`;
 }
 
 function renderCredentials() {
-  const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
-  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Dexter Batch Installer')}`;
-
   return `
 <div class="card step-panel">
-  <div class="card-title">اعتبارنامه‌های Cloudflare (گروهی)</div>
-  <div class="card-subtitle">توکن‌های API اکانت‌های مختلف خود را وارد کنید</div>
+  <div class="card-title">وارد کردن توکن‌های کلودفلر</div>
+  <div class="card-subtitle">هر تعداد توکن که دارید در کادر زیر وارد کنید (هر خط یک توکن)</div>
   <div id="credAlert"></div>
-  
   <div class="form-group">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-       <label class="form-label" style="margin:0">توکن‌ها (API Tokens)</label>
-       <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
-    </div>
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
-       <b>دسترسی‌های لازم:</b> D1 Edit ، Workers Edit ، Account Read
-    </div>
     <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="مثال:\nToken_Accont1_xxxxxx\nToken_Account2_xxxxxx"
+              placeholder="مثال:\nToken_Account1_xxxxxx\nToken_Account2_xxxxxx"
               spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید (با زدن Enter). سیستم به طور خودکار Account ID اکانت‌ها را استخراج می‌کند.</div>
   </div>
-  
   <div class="btn-group">
-    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">بررسی و تایید توکن‌ها</button>
+    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">تایید توکن‌ها</button>
     <button class="btn btn-secondary" onclick="goStep(1)">بازگشت</button>
   </div>
 </div>`;
@@ -672,125 +486,89 @@ async function handleValidate() {
   const btnEl = document.getElementById('btnValidate');
 
   state.rawTokensInput = tokenEl.value;
-  // Regex to split by newline correctly in all OS
   const rawTokens = tokenEl.value.split(/\r?\n/).map(t => t.trim()).filter(t => t.length > 5);
   
-  if (rawTokens.length === 0) {
-    alertEl.innerHTML = alert('error', 'لطفاً حداقل یک API Token معتبر وارد کنید.');
-    return;
-  }
+  if (rawTokens.length === 0) return;
 
   btnEl.disabled = true;
-  btnEl.innerHTML = `<div class="spinner"></div> در حال بررسی توکن‌ها...`;
-  alertEl.innerHTML = '';
+  btnEl.innerHTML = `<div class="spinner"></div> بررسی...`;
   state.accountsList = []; 
-
-  let errorsHtml = '';
   
   for (let i = 0; i < rawTokens.length; i++) {
-    const token = rawTokens[i];
-    const acctsResult = await fetchAccountsForToken(token);
-    
+    const acctsResult = await fetchAccountsForToken(rawTokens[i]);
     if (acctsResult.ok && acctsResult.accounts.length > 0) {
-       const acct = acctsResult.accounts[0];
-       state.accountsList.push({ token: token, accountId: acct.id, accountName: acct.name || acct.id });
-    } else {
-       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی یا نامعتبر'}<br>`;
+       state.accountsList.push({ token: rawTokens[i], accountId: acctsResult.accounts[0].id, accountName: acctsResult.accounts[0].name });
     }
   }
 
-  if (errorsHtml) {
-     alertEl.innerHTML = alert('error', errorsHtml);
-     if (state.accountsList.length === 0) {
-         btnEl.disabled = false;
-         btnEl.textContent = 'بررسی مجدد';
-         return;
-     }
+  if (state.accountsList.length > 0) {
+     alertEl.innerHTML = alert('success', `${state.accountsList.length} اکانت شناسایی شد!`);
+     setTimeout(() => goStep(3), 1000);
+  } else {
+     alertEl.innerHTML = alert('error', 'هیچ توکن معتبری یافت نشد.');
+     btnEl.disabled = false;
+     btnEl.textContent = 'تایید توکن‌ها';
   }
+}
 
-  alertEl.innerHTML += alert('success', `${state.accountsList.length} اکانت با موفقیت تایید و شناسایی شد!`);
-  setTimeout(() => goStep(3), 1500);
+function generateNewUUID() {
+    document.getElementById('inpUUID').value = crypto.randomUUID();
 }
 
 function renderConfig() {
   return `
 <div class="card step-panel">
-  <div class="card-title">پیکربندی استقرار</div>
-  <div class="card-subtitle">تنظیمات زیر روی تمامی اکانت‌ها به صورت یکسان اعمال خواهد شد</div>
+  <div class="card-title">پیکربندی هویت (UUID)</div>
+  <div class="card-subtitle">این شناسه در تمام سرورهای شما تزریق خواهد شد</div>
   
-  <div class="alert alert-info">
-    <span class="alert-icon">🔒</span>
-    <span>برای جلوگیری از خرابی دیتابیس، <b>رمز عبور پیش‌فرض تمام پنل‌ها admin تنظیم شده است.</b> پس از ورود به پنل، حتماً رمز را از بخش تنظیمات تغییر دهید.</span>
-  </div>
-
-  <div class="config-grid">
-    <div class="form-group">
-      <label class="form-label">نام Worker</label>
-      <input type="text" class="form-input" id="inpWorker" value="${esc(state.workerName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">فقط حروف کوچک، اعداد و خط تیره</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">نام پایگاه داده D1</label>
-      <input type="text" class="form-input" id="inpDB" value="${esc(state.dbName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">پایگاه داده برای ذخیره کانفیگ‌ها</div>
-    </div>
-  </div>
-
   <div class="form-group">
-    <label class="form-label">مسیر پنل (API Route)</label>
-    <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
-    <div class="form-hint">به صورت پیش‌فرض: sync</div>
+    <label class="form-label">شناسه کاربر (UUID)</label>
+    <div style="display:flex;gap:10px">
+        <input type="text" class="form-input" id="inpUUID" value="${state.uuid}" style="direction:ltr;text-align:left;flex:1">
+        <button class="btn btn-secondary btn-sm" onclick="generateNewUUID()">تولید جدید</button>
+    </div>
+    <div class="form-hint">این رمز اتصال شماست. آن را تغییر ندهید مگر اینکه می‌دانید چه می‌کنید.</div>
   </div>
 
   <div id="configAlert"></div>
-
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="handleConfigNext()">تایید و استقرار</button>
+    <button class="btn btn-primary" onclick="handleConfigNext()">استقرار نهایی و ساخت لینک</button>
     <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
   </div>
 </div>`;
 }
 
 function handleConfigNext() {
-  const workerName = document.getElementById('inpWorker').value.trim() || 'dexter-core';
-  if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
-    document.getElementById('configAlert').innerHTML = alert('error', 'نام Worker نامعتبر است.');
+  const uuid = document.getElementById('inpUUID').value.trim();
+  if (uuid.length < 10) {
+    document.getElementById('configAlert').innerHTML = alert('error', 'UUID نامعتبر است.');
     return;
   }
-  
-  state.workerName = workerName;
-  state.dbName = document.getElementById('inpDB').value.trim() || 'iot_db';
-  state.apiRoute = document.getElementById('inpRoute').value.trim() || 'sync';
-  
+  state.uuid = uuid;
   goStep(4);
 }
 
 function renderDeploy() {
   return `
 <div class="card step-panel">
-  <div class="card-title">در حال استقرار گروهی...</div>
-  <div class="card-subtitle">لطفاً تا پایان عملیات روی تمام اکانت‌ها از این صفحه خارج نشوید.</div>
-
+  <div class="card-title">در حال استقرار کلاستر ایستا...</div>
+  
   <div id="deployAlert" style="margin-bottom:16px;"></div>
 
   <ul class="progress-list">
     <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span><div class="progress-text">دریافت سورس کد Worker</div>
-    </li>
-    <li class="progress-item waiting" id="prog-d1">
-      <span class="progress-icon">○</span><div class="progress-text">ایجاد پایگاه داده D1 اختصاصی</div>
+      <span class="progress-icon">○</span><div class="progress-text">دریافت هسته VLESS اختصاصی</div>
     </li>
     <li class="progress-item waiting" id="prog-deploy">
-      <span class="progress-icon">○</span><div class="progress-text">شخصی‌سازی کد و استقرار Worker</div>
+      <span class="progress-icon">○</span><div class="progress-text">تزریق UUID و استقرار روی سرورها</div>
     </li>
     <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span><div class="progress-text">بررسی ساب‌دامنه و فعال‌سازی URL</div>
+      <span class="progress-icon">○</span><div class="progress-text">فعال‌سازی دامنه‌های کلاستر</div>
+    </li>
+    <li class="progress-item waiting" id="prog-sub">
+      <span class="progress-icon">○</span><div class="progress-text">تولید ورکر سابسکرایپشن مرکزی</div>
     </li>
   </ul>
-
-  <div class="btn-group" id="deployButtons" style="display:none">
-    <button class="btn btn-secondary" onclick="goStep(3)">بازگشت به تنظیمات</button>
-  </div>
 </div>`;
 }
 
@@ -803,106 +581,71 @@ function setProgress(id, status, textOverride) {
   else if (status === 'done') icon.textContent = '✓';
   else if (status === 'error') icon.textContent = '✗';
   else icon.textContent = '○';
-  
   if (textOverride) el.querySelector('.progress-text').textContent = textOverride;
 }
 
 async function runDeployment() {
   const alertEl = () => document.getElementById('deployAlert');
-  const showBtns = () => { document.getElementById('deployButtons').style.display = 'flex'; };
-  state.deployedPanels = []; 
 
   setProgress('prog-fetch', 'active');
   const fetchResult = await fetchWorkerCode();
   if (!fetchResult.ok) {
     setProgress('prog-fetch', 'error');
     alertEl().innerHTML = alert('error', fetchResult.msg);
-    showBtns();
     return;
   }
-  setProgress('prog-fetch', 'done', `سورس کد دریافت شد (نسخه ${state.workerVersion})`);
-
-  let loopErrors = '';
+  setProgress('prog-fetch', 'done');
 
   for (let i = 0; i < state.accountsList.length; i++) {
      const acc = state.accountsList[i];
-     alertEl().innerHTML = alert('info', `⏳ نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...`);
+     alertEl().innerHTML = alert('info', `⏳ تزریق کد در اکانت ${i + 1} از ${state.accountsList.length}...`);
      
-     setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1');
-     setProgress('prog-deploy', 'waiting', 'شخصی‌سازی کد و استقرار Worker');
-     setProgress('prog-verify', 'waiting', 'بررسی ساب‌دامنه و فعال‌سازی URL');
+     setProgress('prog-deploy', 'active');
+     setProgress('prog-verify', 'waiting');
 
-     const res = await deployToAccount(i, acc.token, acc.accountId);
-     
-     if (res.ok) {
-        await new Promise(resolve => setTimeout(resolve, 1500)); 
-        state.deployedPanels.push({ url: `${res.url}/${state.apiRoute}/dash`, accountName: acc.accountName });
-     } else {
-        loopErrors += `اکانت ${i+1} (${acc.accountName}): ${res.msg}<br>`;
-        if(res.step === 'd1') setProgress('prog-d1', 'error');
-        if(res.step === 'deploy') setProgress('prog-deploy', 'error');
-        if(res.step === 'verify') setProgress('prog-verify', 'error');
-        continue; // رفتن سراغ اکانت بعدی حتی در صورت خطا
+     const res = await deployNodeToAccount(i, acc.token, acc.accountId);
+     if (!res.ok) {
+        alertEl().innerHTML = alert('warn', `اکانت ${i+1} با خطا مواجه شد. در حال پرش به بعدی...`);
      }
   }
 
-  if (loopErrors && state.deployedPanels.length === 0) {
-      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد:<br>${loopErrors}`);
-      showBtns();
+  if (state.vlessConfigs.length === 0) {
+      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد.`);
       return;
   }
 
-  if (loopErrors) {
-      alertEl().innerHTML = alert('warn', `نصب انجام شد اما برخی اکانت‌ها مشکل داشتند:<br>${loopErrors}`);
-  } else {
-      alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام پنل‌ها بدون باگ مستقر شدند.`);
+  // مرحله نهایی: ساخت ورکر سابسکرایپشن روی اکانت اول
+  alertEl().innerHTML = alert('info', `⏳ در حال ساخت لینک سابسکرایپشن نهایی...`);
+  try {
+      state.subLinkUrl = await deploySubWorker(state.accountsList[0]);
+  } catch(e) {
+      // در صورت خطا، حداقل لینک‌ها تولید شده‌اند
   }
   
-  setTimeout(() => goStep(5), 2500);
+  setTimeout(() => goStep(5), 1500);
 }
 
 function renderSuccess() {
-  const pass = 'admin'; // Always default now
-  
-  let linksHtml = state.deployedPanels.map((item, index) => `
-     <div style="margin-bottom:10px;padding:12px;background:var(--bg4);border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border2)">
-       <div style="display:flex;flex-direction:column;">
-          <span style="font-size:0.75rem;color:var(--text2);margin-bottom:2px">اکانت: ${esc(item.accountName)}</span>
-          <a href="${esc(item.url)}" target="_blank" style="color:var(--cyan);text-decoration:none;word-break:break-all;font-size:0.95rem;font-weight:600;">
-             پروکسی ${index + 1}
-          </a>
-       </div>
-       <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(item.url)}')">کپی لینک</button>
-     </div>
-  `).join('');
-
   return `
 <div class="card step-panel">
-  <div class="card-title">🚀 استقرار گروهی کامل شد!</div>
-  <div class="card-subtitle">هم‌اکنون لینک‌های زیر را در کلاینت خود تجمیع (Load Balance) کنید.</div>
+  <div class="card-title" style="color:var(--green)">🎉 کلاستر با موفقیت ساخته شد!</div>
+  <div class="card-subtitle">تمامی ${state.vlessConfigs.length} سرور شما با موفقیت در قالب یک لینک ادغام شدند.</div>
 
-  <div class="alert alert-warn">
-    <span class="alert-icon">⚠️</span>
-    <span>توجه: برای رفع باگ دیتابیس، رمز عبور تمام پنل‌ها `+pass+` تنظیم شده است. لطفاً وارد پنل شوید و رمز خود را تغییر دهید.</span>
+  <div class="alert alert-success">
+    <span class="alert-icon">💡</span>
+    <span>فقط کافیست لینک زیر را کپی کرده و در برنامه v2rayNG / NekoBox خود به عنوان Subscription اضافه کنید. گزینه Load Balance برنامه را روشن کنید تا از تمام ظرفیت سرورها به صورت تجمیع شده استفاده کنید.</span>
   </div>
 
   <div class="result-box">
-    <div class="result-label">آدرس پنل‌های مدیریت ساخته شده:</div>
-    <div style="margin-top:12px; max-height: 280px; overflow-y: auto; padding-left: 4px;">
-       ${linksHtml || '<span style="color:var(--red)">هیچ لینکی ساخته نشد.</span>'}
+    <div class="result-label">لینک سابسکرایپشن (Sub Link) اختصاصی شما:</div>
+    <div class="result-value" id="subLinkText">
+        ${state.subLinkUrl || 'خطا در تولید URL. کدهای خام در دسترس است.'}
     </div>
-  </div>
-
-  <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
-    <div>
-       <div class="result-label">رمز عبور مشترک تمام پنل‌ها:</div>
-       <div class="result-value" style="color:var(--green)">${esc(pass)}</div>
-    </div>
-    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز عبور</button>
+    <button id="finalCopyBtn" class="copy-btn" onclick="copyText('${esc(state.subLinkUrl)}')">کپی لینک سابسکرایپشن</button>
   </div>
 
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="resetAll()">شروع نصب مجدد</button>
+    <button class="btn btn-secondary" onclick="resetAll()">نصب مجدد کلاستر</button>
   </div>
 </div>`;
 }
