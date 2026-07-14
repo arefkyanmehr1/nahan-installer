@@ -3,672 +3,967 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dexter Pro Panel | پنل مدیریت پیشرفته دکستر</title>
+<title>Dexter Central Installer | نصب‌کننده دکستر</title>
 <style>
-/* ─── Base Variables & Reset ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg-dark: #0f172a; --bg-card: #1e293b; --bg-hover: #334155;
-  --primary: #f43f5e; --primary-hover: #e11d48; --primary-light: rgba(244, 63, 94, 0.15);
-  --success: #10b981; --success-bg: rgba(16, 185, 129, 0.15);
-  --warning: #f59e0b; --warning-bg: rgba(245, 158, 11, 0.15);
-  --danger: #ef4444; --danger-bg: rgba(239, 68, 68, 0.15);
-  --text-main: #f8fafc; --text-muted: #94a3b8; --border: #334155;
-  --font-sans: system-ui, -apple-system, sans-serif; --font-mono: 'Fira Code', monospace;
-  --radius-lg: 16px; --radius-md: 10px; --radius-sm: 6px;
-  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#09090e;--bg2:#111118;--bg3:#171724;--bg4:#1f1f33;
+--text:#e2e2ec;--text2:#8f8fa9;--text3:#5c5c7a;
+--cyan:#7c3aed;--cyan2:#6d28d9;--cyan-bg:rgba(124,58,237,.12);
+--green:#10b981;--green-bg:rgba(16,185,129,.08);
+--red:#ef4444;--red-bg:rgba(239,68,68,.08);
+--yellow:#f59e0b;--yellow-bg:rgba(245,158,11,.08);
+--border:#27273f;--border2:#3b3b5e;
+--radius:10px;--radius2:14px;
+--shadow:0 4px 24px rgba(0,0,0,.5);
+--font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+--font-mono:'SF Mono','Cascadia Code','Fira Code',monospace;
+--transition:all .25s cubic-bezier(.4,0,.2,1);
 }
-body {
-  font-family: var(--font-sans); background: var(--bg-dark); color: var(--text-main);
-  display: flex; height: 100vh; overflow: hidden; font-size: 14px;
+html{font-size:15px}
+body{
+font-family:var(--font);background:var(--bg);color:var(--text);
+min-height:100vh;display:flex;flex-direction:column;align-items:center;
+line-height:1.7;-webkit-font-smoothing:antialiased;
 }
 
-/* ─── Sidebar ─── */
-.sidebar {
-  width: 280px; background: var(--bg-card); border-left: 1px solid var(--border);
-  display: flex; flex-direction: column; transition: var(--transition); z-index: 10;
+.container{width:100%;max-width:720px;padding:24px 20px 48px}
+
+.header{text-align:center;margin-bottom:32px}
+.logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
+color:var(--cyan);margin-bottom:4px}
+.logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
+
+.steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
+.step-dot{
+width:10px;height:10px;border-radius:50%;background:var(--bg4);
+border:2px solid var(--border2);transition:var(--transition);
 }
-.brand { padding: 32px 24px; text-align: center; border-bottom: 1px solid var(--border); }
-.brand h1 { font-size: 28px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
-.brand p { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-.nav-menu { padding: 24px 12px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.nav-item {
-  display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius-md);
-  color: var(--text-muted); font-weight: 600; cursor: pointer; transition: var(--transition);
+.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(124,58,237,.4)}
+.step-dot.done{background:var(--green);border-color:var(--green)}
+
+.card{
+background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);
+padding:32px;box-shadow:var(--shadow);transition:var(--transition);
+animation:fadeIn .35s ease;
 }
-.nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
-.nav-item.active { background: var(--primary-light); color: var(--primary); border-right: 4px solid var(--primary); }
-.nav-icon { font-size: 18px; }
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-/* ─── Main Content ─── */
-.main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.topbar {
-  height: 70px; border-bottom: 1px solid var(--border); background: var(--bg-dark);
-  display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+.card-title{font-size:1.35rem;font-weight:700;margin-bottom:6px;color:var(--cyan)}
+.card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
+
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:.85rem;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{
+width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);
+border-radius:var(--radius);color:var(--text);font-size:.95rem;
+font-family:var(--font-mono);transition:var(--transition);outline:none
 }
-.page-title { font-size: 20px; font-weight: 700; }
-.sync-btn {
-  background: var(--primary); color: white; border: none; padding: 10px 20px;
-  border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition);
-  display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:100px;font-family:var(--font-mono)}
+.form-hint{font-size:.78rem;color:var(--text3);margin-top:4px}
+
+.btn{
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+padding:12px 28px;border-radius:var(--radius);font-size:.95rem;
+font-weight:600;cursor:pointer;border:none;transition:var(--transition);
+font-family:var(--font)
 }
-.sync-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(124,58,237,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,58,237,.4)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-group{display:flex;gap:12px;margin-top:28px}
+.btn-sm{padding:8px 18px;font-size:.85rem}
 
-.content-area { flex: 1; overflow-y: auto; padding: 32px; }
-.page { display: none; animation: fadeUp 0.4s ease forwards; opacity: 0; transform: translateY(10px); }
-.page.active { display: block; }
-@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-
-/* ─── Dashboard Cards ─── */
-.grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
-.stat-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 24px; display: flex; flex-direction: column; gap: 12px;
+.alert{
+padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
+margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
 }
-.stat-title { color: var(--text-muted); font-size: 14px; font-weight: 600; }
-.stat-value { font-size: 36px; font-weight: 800; color: var(--text-main); }
-.stat-value.cyan { color: #06b6d4; } .stat-value.green { color: var(--success); } .stat-value.rose { color: var(--primary); }
+.alert-info{background:var(--cyan-bg);border:1px solid rgba(124,58,237,.2);color:var(--text)}
+.alert-success{background:var(--green-bg);border:1px solid rgba(16,185,129,.2);color:var(--green)}
+.alert-error{background:var(--red-bg);border:1px solid rgba(239,68,68,.2);color:var(--red)}
+.alert-warn{background:var(--yellow-bg);border:1px solid rgba(245,158,11,.2);color:var(--yellow)}
+.alert-icon{font-size:1.1rem;flex-shrink:0;line-height:1.5}
 
-/* ─── Tables ─── */
-.card-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.card-header h2 { font-size: 18px; font-weight: 700; }
-.table-responsive { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
-table { width: 100%; border-collapse: collapse; text-align: right; }
-th, td { padding: 16px; border-bottom: 1px solid var(--border); }
-th { background: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600; font-size: 13px; white-space: nowrap; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg-hover); }
-
-/* ─── Status & Badges ─── */
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
-.badge-active { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
-.badge-expired { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
-.badge-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
-
-/* ─── Progress Bar (Traffic) ─── */
-.progress-container { width: 100px; background: rgba(0,0,0,0.3); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 6px; }
-.progress-bar { height: 100%; border-radius: 10px; transition: width 0.3s; }
-.traffic-text { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
-
-/* ─── Forms & Modals ─── */
-.btn {
-  padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
-  cursor: pointer; border: none; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+.progress-list{list-style:none;margin:8px 0}
+.progress-item{
+display:flex;align-items:center;gap:12px;padding:12px 16px;
+border-radius:var(--radius);margin-bottom:8px;
+background:var(--bg3);border:1px solid var(--border);
+transition:var(--transition)
 }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-.btn-action { padding: 6px 12px; font-size: 12px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-main); }
-.btn-action:hover { border-color: var(--text-main); }
+.progress-item.active{border-color:var(--cyan);background:var(--cyan-bg)}
+.progress-item.done{border-color:var(--green);background:var(--green-bg)}
+.progress-item.error{border-color:var(--red);background:var(--red-bg)}
+.progress-item.waiting{opacity:.5}
+.progress-icon{font-size:1.1rem;flex-shrink:0;width:24px;text-align:center}
+.progress-text{flex:1;font-size:.9rem}
 
-.modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100;
+.spinner{
+width:18px;height:18px;border:2px solid var(--border2);
+border-top-color:var(--cyan);border-radius:50%;
+animation:spin .8s linear infinite;flex-shrink:0
 }
-.modal-overlay.active { display: flex; }
-.modal { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 32px; animation: scaleUp 0.3s ease; }
-@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: var(--primary); }
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.form-group { margin-bottom: 20px; }
-.form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-.form-input {
-  width: 100%; padding: 12px 16px; background: var(--bg-dark); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text-main); font-family: var(--font-sans); outline: none; transition: var(--transition);
+.result-box{
+background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+padding:16px;margin-bottom:12px
 }
-.form-input:focus { border-color: var(--primary); }
-.form-input.mono { font-family: var(--font-mono); direction: ltr; text-align: left; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.result-label{font-size:.8rem;color:var(--text2);margin-bottom:4px}
+.result-value{
+font-family:var(--font-mono);font-size:1.05rem;color:var(--cyan);
+word-break:break-all;display:flex;align-items:center;gap:10px
+}
+.copy-btn{
+background:var(--bg4);border:1px solid var(--border);color:var(--text2);
+padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;
+transition:var(--transition);flex-shrink:0
+}
+.copy-btn:hover{color:var(--cyan);border-color:var(--cyan)}
+.copy-btn.copied{color:var(--green);border-color:var(--green)}
 
-/* ─── Toggle Switch ─── */
-.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-dark); border: 1px solid var(--border); transition: .4s; border-radius: 34px; }
-.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--success); border-color: var(--success); }
-input:checked + .slider:before { transform: translateX(20px); background-color: white; }
+.conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
+.conn-testing{background:var(--cyan-bg);border:1px solid rgba(124,58,237,.2)}
+.conn-ok{background:var(--green-bg);border:1px solid rgba(16,185,129,.2)}
+.conn-fail{background:var(--red-bg);border:1px solid rgba(239,68,68,.2)}
 
-.mono-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
-.status-msg { margin-top: 10px; font-size: 13px; border-radius: var(--radius-sm); padding: 10px; display: none; }
-.status-msg.error { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); display: block; }
-.status-msg.success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.2); display: block; }
-.status-msg.info { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); display: block; }
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.feature-item{
+display:flex;align-items:center;gap:10px;padding:12px 14px;
+background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+font-size:.88rem;transition:var(--transition)
+}
+.feature-item:hover{border-color:var(--cyan);background:var(--cyan-bg)}
 
-.copy-link { color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 13px; font-weight: 600; }
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:520px){.config-grid{grid-template-columns:1fr}}
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+.code-block{
+background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
+padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
+color:var(--text2);overflow-x:auto;margin:12px 0;line-height:1.6;
+direction:ltr;text-align:left;position:relative
+}
+.steps-list{list-style:none;counter-reset:step;margin:16px 0}
+.steps-list li{
+counter-increment:step;padding:10px 44px 10px 14px;position:relative;
+font-size:.9rem;color:var(--text2);margin-bottom:6px;
+background:var(--bg3);border-radius:8px;line-height:1.5
+}
+.steps-list li::before{
+content:counter(step);position:absolute;right:14px;top:10px;
+width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
+color:var(--cyan);font-size:.78rem;font-weight:700;
+display:flex;align-items:center;justify-content:center
+}
+.steps-list a{color:var(--cyan); text-decoration: none;}
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-  <div class="brand">
-    <h1>DEXTER</h1>
-    <p>Advanced Management Panel</p>
-  </div>
-  <div class="nav-menu">
-    <div class="nav-item active" onclick="switchTab('dashboard', this)">
-      <span class="nav-icon">📊</span> داشبورد
-    </div>
-    <div class="nav-item" onclick="switchTab('users', this)">
-      <span class="nav-icon">👥</span> کاربران و اشتراک‌ها
-    </div>
-    <div class="nav-item" onclick="switchTab('nodes', this)">
-      <span class="nav-icon">🖥️</span> سرورها (Nodes)
-    </div>
-    <div class="nav-item" onclick="switchTab('settings', this)">
-      <span class="nav-icon">⚙️</span> تنظیمات کلودفلر
-    </div>
-  </div>
+<div class="container">
+<div class="header">
+<div class="logo">DEXTER</div>
+<div class="logo-sub">کنترلر مرکزی و تجمیع‌کننده گیت‌وی — نسخه ۳.۰</div>
 </div>
 
-<!-- Main Area -->
-<div class="main-wrapper">
-  <div class="topbar">
-    <div class="page-title" id="topbar-title">داشبورد</div>
-    <button class="sync-btn" onclick="syncNetwork()">
-      <span>🔄</span> اعمال تغییرات (Sync)
-    </button>
-  </div>
-  
-  <div class="content-area">
-    
-    <!-- DASHBOARD -->
-    <div id="page-dashboard" class="page active">
-      <div class="grid-cards">
-        <div class="stat-card">
-          <span class="stat-title">تعداد کاربران</span>
-          <span class="stat-value cyan" id="dash-users">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-title">سرورهای متصل</span>
-          <span class="stat-value rose" id="dash-nodes">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-title">وضعیت ساب‌لینک</span>
-          <span class="stat-value green" style="font-size: 20px; line-height: 2;" id="dash-sub">تنظیم نشده</span>
-        </div>
-      </div>
-      
-      <div class="card-panel">
-        <div class="card-header">
-          <h2>راهنمای سیستم ابری دکستر</h2>
-        </div>
-        <p style="color: var(--text-muted); line-height: 1.8; font-size: 14px;">
-          ۱. ابتدا در بخش <b>«تنظیمات»</b> توکن اکانت اصلی کلودفلر خود را وارد کنید تا سیستم بتواند لینک ساب را روی آن میزبانی کند.<br>
-          ۲. در بخش <b>«سرورها»</b> توکن اکانت‌های مختلف خود را اضافه کنید تا سرورهای VLESS به صورت خودکار ساخته شوند.<br>
-          ۳. در بخش <b>«کاربران»</b> اشتراک بسازید (با محدودیت حجم و زمان).<br>
-          ۴. هر تغییری که دادید، دکمه <b>«اعمال تغییرات (Sync)»</b> در بالای صفحه را بزنید تا تنظیمات روی کلودفلر آپدیت شود و کاربرانی که حجم یا زمانشان تمام شده قطع شوند.
-        </p>
-      </div>
-    </div>
-
-    <!-- USERS -->
-    <div id="page-users" class="page">
-      <div class="card-panel">
-        <div class="card-header">
-          <h2>مدیریت اشتراک‌ها</h2>
-          <button class="btn btn-outline" onclick="openModal('userModal')">+ افزودن کاربر جدید</button>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>نام کاربر</th>
-                <th>مصرف ترافیک</th>
-                <th>انقضا</th>
-                <th>وضعیت</th>
-                <th>لینک اشتراک</th>
-                <th>عملیات</th>
-              </tr>
-            </thead>
-            <tbody id="usersTable">
-              <!-- Users JS generated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- NODES -->
-    <div id="page-nodes" class="page">
-      <div class="card-panel">
-        <div class="card-header">
-          <h2>مدیریت سرورهای متصل (Nodes)</h2>
-          <button class="btn btn-outline" onclick="openModal('nodeModal')">+ استقرار سرور جدید</button>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>آدرس دامنه (سرور)</th>
-                <th>Account ID</th>
-                <th>تاریخ استقرار</th>
-                <th>عملیات</th>
-              </tr>
-            </thead>
-            <tbody id="nodesTable">
-              <!-- Nodes JS generated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div id="page-settings" class="page">
-      <div class="card-panel" style="max-width: 600px;">
-        <div class="card-header">
-          <h2>تنظیمات اکانت میزبان (Master)</h2>
-        </div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-          برای ساخت لینک سابسکرایپشن، به یک اکانت کلودفلر نیاز داریم. توکن آن را وارد کنید:
-        </p>
-        <div class="form-group">
-          <label class="form-label">CF API Token</label>
-          <input type="text" id="inpMasterToken" class="form-input mono" placeholder="توکن را اینجا وارد کنید...">
-        </div>
-        <button class="sync-btn" onclick="saveMasterSettings()">ذخیره توکن مستر</button>
-        <div id="settingsMsg" class="status-msg"></div>
-      </div>
-    </div>
-    
-  </div>
+<div class="steps" id="stepsIndicator"></div>
+<div id="stepContent"></div>
 </div>
-
-<!-- Modals -->
-
-<!-- Add User Modal -->
-<div class="modal-overlay" id="userModal">
-  <div class="modal">
-    <h3 class="modal-title">افزودن اشتراک جدید</h3>
-    <div class="form-group">
-      <label class="form-label">نام کاربری (انگلیسی)</label>
-      <input type="text" id="uName" class="form-input mono" placeholder="e.g. user_01">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">محدودیت حجم (GB)</label>
-        <input type="number" id="uLimit" class="form-input mono" placeholder="مثال: 50" value="50">
-      </div>
-      <div class="form-group">
-        <label class="form-label">اعتبار (روز)</label>
-        <input type="number" id="uDays" class="form-input mono" placeholder="مثال: 30" value="30">
-      </div>
-    </div>
-    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-      <label class="form-label" style="margin:0;">فعال بودن اکانت</label>
-      <label class="toggle-switch">
-        <input type="checkbox" id="uStatus" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div style="display: flex; gap: 12px; margin-top: 32px;">
-      <button class="sync-btn" style="flex:1; justify-content:center;" onclick="saveUser()">ذخیره کاربر</button>
-      <button class="btn btn-outline" onclick="closeModal('userModal')">انصراف</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Node Modal -->
-<div class="modal-overlay" id="nodeModal">
-  <div class="modal">
-    <h3 class="modal-title">استقرار سرور جدید</h3>
-    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">توکن کلودفلر اکانتی که می‌خواهید سرور روی آن نصب شود را وارد کنید.</p>
-    <div class="form-group">
-      <label class="form-label">CF API Token</label>
-      <input type="text" id="nToken" class="form-input mono" placeholder="توکن...">
-    </div>
-    <div id="nodeMsg" class="status-msg"></div>
-    <div style="display: flex; gap: 12px; margin-top: 32px;">
-      <button class="sync-btn" style="flex:1; justify-content:center;" id="btnDeployNode" onclick="deployNode()">نصب سرور</button>
-      <button class="btn btn-outline" onclick="closeModal('nodeModal')">بستن</button>
-    </div>
-  </div>
-</div>
-
-<!-- Sync Modal -->
-<div class="modal-overlay" id="syncModal">
-  <div class="modal" style="text-align: center;">
-    <h3 class="modal-title" style="margin-bottom: 10px;">در حال همگام‌سازی شبکه</h3>
-    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">لطفاً مرورگر را نبندید. در حال محاسبه کاربران و ساخت ساب‌لینک روی کلودفلر...</p>
-    <div id="syncProgressMsg" style="font-family: var(--font-mono); color: var(--primary); font-size: 14px; margin-bottom: 20px;">Processing...</div>
-  </div>
-</div>
-
 
 <script>
-// ══════════════════════════════════════════════════════════
-//  DATABASE & STATE (LocalStorage)
-// ══════════════════════════════════════════════════════════
-const DB_KEY = 'dexter_pro_db';
-const PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
-const CF_API = 'https://api.cloudflare.com/client/v4';
+const totalSteps = 6;
+let currentStep = 0;
+const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 
-let db = {
-  masterToken: '',
-  masterAccountId: '',
-  subDomain: '',
-  nodes: [], // { id, token, accountId, domain, created }
-  users: []  // { id, name, uuid, limitGB, usedGB, expiryTime, isActive }
+const state = {
+  proxyUrl: localStorage.getItem('dexter_proxy_url') || '',
+  directApiOk: null,
+  rawTokenInput: '',
+  masterAccount: null,
+  
+  workerName: 'dexter-controller',
+  dbName: 'dexter_db',
+  apiRoute: 'manage',
+  
+  workerCode: '',
 };
 
-function loadDB() {
-  const data = localStorage.getItem(DB_KEY);
-  if (data) db = JSON.parse(data);
-  renderAll();
-}
-function saveDB() {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  renderAll();
-}
+const CF_API = 'https://api.cloudflare.com/client/v4';
 
-// ══════════════════════════════════════════════════════════
-//  UI LOGIC & RENDERING
-// ══════════════════════════════════════════════════════════
-const titles = { dashboard: 'داشبورد', users: 'کاربران و اشتراک‌ها', nodes: 'سرورها (Nodes)', settings: 'تنظیمات کلودفلر' };
-
-function switchTab(tabId, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(`page-${tabId}`).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('topbar-title').innerText = titles[tabId];
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function formatDate(timestamp) {
-  const diff = timestamp - Date.now();
-  if(diff < 0) return 'منقضی شده';
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-  return `${days} روز دیگر`;
-}
-
-function renderAll() {
-  // Dash
-  document.getElementById('dash-users').innerText = db.users.length;
-  document.getElementById('dash-nodes').innerText = db.nodes.length;
-  document.getElementById('dash-sub').innerText = db.subDomain ? db.subDomain : 'تنظیم نشده';
-  document.getElementById('inpMasterToken').value = db.masterToken || '';
-
-  // Nodes Table
-  const nTable = document.getElementById('nodesTable');
-  nTable.innerHTML = db.nodes.map((n, i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td class="mono-text" style="color:var(--text-main)">${n.domain}</td>
-      <td class="mono-text">${n.accountId.substring(0,8)}...</td>
-      <td class="mono-text">${new Date(n.created).toLocaleDateString('fa-IR')}</td>
-      <td><button class="btn-action" onclick="deleteNode('${n.id}')">حذف</button></td>
-    </tr>
-  `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">سروری اضافه نشده است</td></tr>`;
-
-  // Users Table
-  const uTable = document.getElementById('usersTable');
-  const baseSubLink = db.subDomain ? `https://${db.subDomain}/sub/` : '';
-  
-  uTable.innerHTML = db.users.map(u => {
-    // Traffic Calc
-    const percent = u.limitGB > 0 ? Math.min(100, (u.usedGB / u.limitGB) * 100) : 0;
-    const pColor = percent > 90 ? 'var(--danger)' : percent > 75 ? 'var(--warning)' : 'var(--success)';
-    
-    // Status Logic
-    const isExpired = Date.now() > u.expiryTime;
-    const isTrafficOut = u.limitGB > 0 && u.usedGB >= u.limitGB;
-    const isWorking = u.isActive && !isExpired && !isTrafficOut;
-    
-    let statusBadge = '';
-    if(!u.isActive) statusBadge = `<span class="badge badge-warning">غیرفعال (دستی)</span>`;
-    else if(isExpired) statusBadge = `<span class="badge badge-expired">پایان زمان</span>`;
-    else if(isTrafficOut) statusBadge = `<span class="badge badge-expired">پایان حجم</span>`;
-    else statusBadge = `<span class="badge badge-active">فعال و متصل</span>`;
-
-    const subLink = baseSubLink ? `${baseSubLink}${u.uuid}` : '';
-
-    return `
-    <tr>
-      <td>
-        <div style="font-weight:700">${u.name}</div>
-        <div class="mono-text" style="font-size:10px">${u.uuid}</div>
-      </td>
-      <td>
-        <div class="traffic-text">${u.usedGB.toFixed(2)} / ${u.limitGB} GB</div>
-        <div class="progress-container"><div class="progress-bar" style="width:${percent}%; background:${pColor}"></div></div>
-      </td>
-      <td>
-        <div style="font-size:12px">${formatDate(u.expiryTime)}</div>
-      </td>
-      <td>${statusBadge}</td>
-      <td>
-        ${baseSubLink ? `<span class="copy-link" onclick="copyText('${subLink}', this)">کپی لینک</span>` : `<span style="font-size:11px;color:var(--text-muted)">نیاز به Sync</span>`}
-      </td>
-      <td>
-        <button class="btn-action" onclick="toggleUser('${u.id}')">${u.isActive ? 'خاموش' : 'روشن'}</button>
-        <button class="btn-action" style="color:var(--danger)" onclick="deleteUser('${u.id}')">حذف</button>
-      </td>
-    </tr>
-    `;
-  }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">کاربری ثبت نشده است</td></tr>`;
-}
-
-function copyText(txt, el) {
-  navigator.clipboard.writeText(txt).then(() => {
-    let old = el.innerText; el.innerText = 'کپی شد!';
-    setTimeout(() => el.innerText = old, 1500);
-  });
-}
-
-// ══════════════════════════════════════════════════════════
-//  CLOUDFLARE API
-// ══════════════════════════════════════════════════════════
 async function cfFetch(path, token, options = {}) {
-  let url = `${PROXY_URL}${path}`;
-  const headers = { 'Authorization': `Bearer ${token}`, 'X-Proxy-Target': path };
-  if (options.body && typeof options.body === 'string') headers['Content-Type'] = 'application/json';
+  const proxy = state.proxyUrl;
+  let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
+  
+  const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
+  if (proxy) headers['X-Proxy-Target'] = path;
+  if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
 
   try {
     const res = await fetch(url, { ...options, headers });
     const text = await res.text();
-    return JSON.parse(text);
+    let json;
+    try { json = JSON.parse(text); } 
+    catch(e) { return { success: false, errors: [{ message: 'پاسخ سرور نامعتبر است.' }] }; }
+    return json;
   } catch (e) {
-    return { success: false, errors: [{ message: `Network error: ${e.message}` }] };
+    if (e.name === 'TypeError' && e.message.includes('fetch')) {
+       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (خطای CORS).' }] };
+    }
+    return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
   }
 }
 
-// ══════════════════════════════════════════════════════════
-//  CORE ACTIONS
-// ══════════════════════════════════════════════════════════
-function showMsg(id, type, text) {
-  const el = document.getElementById(id);
-  el.className = `status-msg ${type}`;
-  el.innerHTML = text;
+async function testDirectApi() {
+  try {
+    const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
+    return (res.status === 401 || res.status === 200 || res.status === 403);
+  } catch (e) { return false; }
 }
 
-async function saveMasterSettings() {
-  const token = document.getElementById('inpMasterToken').value.trim();
-  if(!token) return showMsg('settingsMsg', 'error', 'لطفا توکن را وارد کنید');
-  showMsg('settingsMsg', 'info', 'در حال بررسی توکن...');
-  
-  const accRes = await cfFetch('/accounts', token);
-  if(accRes.success && accRes.result.length > 0) {
-    db.masterToken = token;
-    db.masterAccountId = accRes.result[0].id;
-    saveDB();
-    showMsg('settingsMsg', 'success', 'اکانت اصلی تایید و ذخیره شد.');
-  } else {
-    showMsg('settingsMsg', 'error', 'توکن نامعتبر است یا دسترسی Account ندارد.');
-  }
+async function fetchAccountsForToken(token) {
+  const r = await cfFetch('/accounts', token);
+  if (r.success && Array.isArray(r.result)) return { ok: true, accounts: r.result };
+  return { ok: false, msg: r.errors?.[0]?.message || 'خطا در اعتبارسنجی توکن' };
 }
 
-async function deployNode() {
-  const token = document.getElementById('nToken').value.trim();
-  if(!token) return showMsg('nodeMsg', 'error', 'توکن الزامی است');
-  
-  document.getElementById('btnDeployNode').disabled = true;
-  showMsg('nodeMsg', 'info', 'بررسی توکن و دریافت Account ID...');
-  
-  const accRes = await cfFetch('/accounts', token);
-  if(!accRes.success || accRes.result.length === 0) {
-    document.getElementById('btnDeployNode').disabled = false;
-    return showMsg('nodeMsg', 'error', 'توکن نامعتبر است.');
-  }
-  const accountId = accRes.result[0].id;
-  
-  showMsg('nodeMsg', 'info', 'دریافت سورس کد هسته VLESS...');
-  const vlessRes = await fetch(`${PROXY_URL}/github`, { headers: { 'X-GitHub-Url': 'https://raw.githubusercontent.com/zizifn/edgetunnel/main/src/worker-vless.js' } });
-  let code = await vlessRes.text();
-  
-  // تزریق سیستم Multi-UUID (UUID های فعال در زمان Sync به متغیرها اعمال میشوند، 
-  // اما برای سرور استاتیک، فعلا تمام UUID های مجاز را تزریق میکنیم. در ورژن پیشرفته باید از KV استفاده شود.
-  // اینجا تمام UUID های کاربران را تزریق میکنیم).
-  let validUuids = db.users.map(u => u.uuid);
-  if(validUuids.length === 0) validUuids = ['00000000-0000-0000-0000-000000000000'];
-  
-  code = code.replace(/let\s+userID\s*=\s*['"][^'"]+['"]/i, `
-    const userIDs = ${JSON.stringify(validUuids)};
-    let userID = userIDs[0]; 
-  `);
-  code = code.replace(/userID\s*===\s*uuid/g, `userIDs.includes(uuid)`);
-  
-  showMsg('nodeMsg', 'info', 'در حال آپلود Worker روی کلودفلر...');
-  const nodeName = `dex-node-${Date.now().toString().slice(-6)}`;
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2024-09-22' })], { type: 'application/json' }));
-  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
-
-  await cfFetch(`/accounts/${accountId}/workers/scripts/${nodeName}`, token, { method: 'PUT', body: form });
-  await cfFetch(`/accounts/${accountId}/workers/scripts/${nodeName}/deployments`, token, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
-
-  let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
-  if (!subRes.result?.subdomain) {
-      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, { method: 'PUT', body: JSON.stringify({ subdomain: `proxy-${Math.random().toString(36).substring(2, 8)}` }) });
-      subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
-  }
-  await cfFetch(`/accounts/${accountId}/workers/services/${nodeName}/environments/production/subdomain`, token, { method: 'POST', body: JSON.stringify({ enabled: true }) });
-
-  const domain = `${nodeName}.${subRes.result.subdomain}.workers.dev`;
-  db.nodes.push({ id: Date.now().toString(), token, accountId, domain, created: Date.now() });
-  saveDB();
-  
-  document.getElementById('btnDeployNode').disabled = false;
-  closeModal('nodeModal');
-  document.getElementById('nToken').value = '';
-  showMsg('nodeMsg', '', '');
-  alert(`سرور ${domain} اضافه شد. لطفا برای بروزرسانی UUID ها، دکمه Sync را بزنید.`);
-}
-
-function deleteNode(id) {
-  if(confirm('حذف سرور؟')) { db.nodes = db.nodes.filter(n => n.id !== id); saveDB(); }
-}
-
-function saveUser() {
-  const name = document.getElementById('uName').value.trim();
-  const limit = parseFloat(document.getElementById('uLimit').value) || 0;
-  const days = parseInt(document.getElementById('uDays').value) || 30;
-  const isActive = document.getElementById('uStatus').checked;
-  
-  if(!name) return alert('نام را وارد کنید');
-  
-  db.users.push({
-    id: Date.now().toString(),
-    name,
-    uuid: crypto.randomUUID(),
-    limitGB: limit,
-    usedGB: 0, // در نسخه سرورلس، محاسبه حجم نیازمند Worker KV است. در این نسخه رابط کاربری آن قرار داده شده.
-    expiryTime: Date.now() + (days * 24 * 60 * 60 * 1000),
-    isActive
-  });
-  saveDB();
-  closeModal('userModal');
-  document.getElementById('uName').value = '';
-  alert('کاربر ذخیره شد. حتما دکمه اعمال تغییرات (Sync) را بزنید.');
-}
-
-function toggleUser(id) {
-  const u = db.users.find(x => x.id === id);
-  if(u) { u.isActive = !u.isActive; saveDB(); }
-}
-function deleteUser(id) {
-  if(confirm('کاربر حذف شود؟')) { db.users = db.users.filter(x => x.id !== id); saveDB(); }
-}
-
-// ── THE BRAIN: SYNC & SUB LINK GENERATION ──
-async function syncNetwork() {
-  if(!db.masterToken || !db.masterAccountId) return alert('خطا: ابتدا به تنظیمات بروید و توکن اکانت اصلی (مستر) را وارد کنید.');
-  if(db.nodes.length === 0) return alert('خطا: هنوز هیچ سروری اضافه نکرده‌اید.');
-
-  openModal('syncModal');
-  const msg = document.getElementById('syncProgressMsg');
+async function fetchDexterCode() {
+  if (state.workerCode) return { ok: true };
+  const url = 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js';
   
   try {
-    msg.innerText = 'Calculating active users based on Status, Time, and Traffic...';
-    
-    const subData = {};
-    const validUuids = [];
+    const res = await fetch(state.proxyUrl ? `${state.proxyUrl}/github` : url, state.proxyUrl ? { headers: { 'X-GitHub-Url': url } } : {});
+    if (res.ok) {
+      state.workerCode = await res.text();
+      return { ok: true };
+    }
+  } catch (e) { console.error(e); }
+  return { ok: false, msg: 'خطا در دریافت سورس کدهای هسته مرکزی' };
+}
 
-    // فیلتر هوشمند کاربران بر اساس وضعیت مدیریت شما
-    db.users.forEach(u => {
-      const isExpired = Date.now() > u.expiryTime;
-      const isTrafficOut = u.limitGB > 0 && u.usedGB >= u.limitGB;
-      
-      // اگر کاربر مشکلی نداشت، لینک هایش ساخته میشود
-      if (u.isActive && !isExpired && !isTrafficOut) {
-        validUuids.push(u.uuid);
-        const vlessLinks = db.nodes.map(n => 
-          `vless://${u.uuid}@${n.domain}:443?encryption=none&security=tls&sni=${n.domain}&fp=random&type=ws&host=${n.domain}&path=/%3Fed%3D2048#Dexter_${u.name}_${n.domain.substring(0,4)}`
-        );
-        subData[u.uuid] = btoa(vlessLinks.join('\n'));
+// تولید سورس کد نهایی دکستر برای کنترلر مرکزی
+function generateMasterCode(adminPassword) {
+  // این بخش، منطق دیتابیس D1 و مسیریابی را در فایل اصلی تزریق می‌کند تا ورکر به عنوان Master پنل عمل کند.
+  let original = state.workerCode || '';
+  
+  // تنظیم ثابت‌ها در ورکر
+  original = original.replace(/const\s+ADMIN_PASSWORD\s*=\s*["']([^"']*)["']/g, `const ADMIN_PASSWORD = "${adminPassword}"`);
+  
+  // اضافه کردن سیستم وب‌سرور پنل مدیریت داخلی دکستر به انتهای سورس کد
+  const extension = `
+  // Dexter Extension Engine
+  async function handleAdminRequest(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+    
+    // API Endpoints
+    if (path.endsWith('/api/users')) {
+      if (request.method === 'GET') {
+        const { results } = await env.IOT_DB.prepare("SELECT * FROM users ORDER BY created_at DESC").all();
+        return new Response(JSON.stringify(results), { headers: { 'content-type': 'application/json' } });
       }
-    });
-
-    msg.innerText = 'Uploading Master Sub-Link Worker...';
+      if (request.method === 'POST') {
+        const data = await request.json();
+        const id = crypto.randomUUID();
+        const uuid = data.uuid || crypto.randomUUID();
+        await env.IOT_DB.prepare(
+          "INSERT INTO users (id, username, uuid, total_gb, used_bytes, expire_date, status, created_at) VALUES (?, ?, ?, ?, 0, ?, 1, ?)"
+        ).bind(id, data.username, uuid, parseInt(data.total_gb), data.expire_date, Date.now()).run();
+        return new Response(JSON.stringify({ success: true, id, uuid }));
+      }
+    }
     
-    // کد ورکر توزیع‌کننده ساب‌لینک
-    const workerCode = `
-      const DATA = ${JSON.stringify(subData)};
-      export default {
-        async fetch(request) {
-          const url = new URL(request.url);
-          const uuid = url.pathname.split('/').pop();
-          if (DATA[uuid]) {
-            return new Response(atob(DATA[uuid]), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-          }
-          return new Response('User Not Found, Disabled, Expired, or Out of Bandwidth.', { status: 403 });
-        }
-      };
-    `;
-
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify({ main_module: 'worker.js', compatibility_date: '2024-09-22' })], { type: 'application/json' }));
-    form.append('worker.js', new Blob([workerCode], { type: 'application/javascript+module' }), 'worker.js');
-
-    const subNodeName = 'dex-sub-manager';
-    await cfFetch(`/accounts/${db.masterAccountId}/workers/scripts/${subNodeName}`, db.masterToken, { method: 'PUT', body: form });
-    await cfFetch(`/accounts/${db.masterAccountId}/workers/scripts/${subNodeName}/deployments`, db.masterToken, { method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } }) });
-
-    let subRes = await cfFetch(`/accounts/${db.masterAccountId}/workers/subdomain`, db.masterToken);
-    await cfFetch(`/accounts/${db.masterAccountId}/workers/services/${subNodeName}/environments/production/subdomain`, db.masterToken, { method: 'POST', body: JSON.stringify({ enabled: true }) });
-
-    if(subRes.result?.subdomain) {
-      db.subDomain = `${subNodeName}.${subRes.result.subdomain}.workers.dev`;
-      saveDB();
-      msg.innerText = 'Sync Complete! Sub links updated successfully.';
-      setTimeout(() => closeModal('syncModal'), 1500);
-    } else {
-      throw new Error("Failed to get master subdomain.");
+    if (path.includes('/api/users/toggle/')) {
+      const parts = path.split('/');
+      const id = parts[parts.length - 1];
+      const data = await request.json();
+      await env.IOT_DB.prepare("UPDATE users SET status = ? WHERE id = ?").bind(data.status ? 1 : 0, id).run();
+      return new Response(JSON.stringify({ success: true }));
     }
 
-  } catch(e) {
-    msg.innerText = `Error: ${e.message}`;
-    setTimeout(() => closeModal('syncModal'), 3000);
+    if (path.includes('/api/users/delete/')) {
+      const parts = path.split('/');
+      const id = parts[parts.length - 1];
+      await env.IOT_DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
+      return new Response(JSON.stringify({ success: true }));
+    }
+
+    if (path.endsWith('/api/nodes')) {
+      if (request.method === 'GET') {
+        const { results } = await env.IOT_DB.prepare("SELECT * FROM nodes ORDER BY created_at DESC").all();
+        return new Response(JSON.stringify(results), { headers: { 'content-type': 'application/json' } });
+      }
+      if (request.method === 'POST') {
+        const data = await request.json();
+        const id = crypto.randomUUID();
+        await env.IOT_DB.prepare(
+          "INSERT INTO nodes (id, name, api_token, account_id, subdomain, status, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)"
+        ).bind(id, data.name, data.api_token, data.account_id, data.subdomain, Date.now()).run();
+        return new Response(JSON.stringify({ success: true, id }));
+      }
+    }
+    
+    if (path.includes('/api/nodes/delete/')) {
+      const parts = path.split('/');
+      const id = parts[parts.length - 1];
+      await env.IOT_DB.prepare("DELETE FROM nodes WHERE id = ?").bind(id).run();
+      return new Response(JSON.stringify({ success: true }));
+    }
+
+    // Serving Single-Page Admin Application (SPA)
+    return new Response(getDashboardHTML(url.origin), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+  }
+
+  function getDashboardHTML(origin) {
+    return \`<!DOCTYPE html>
+    <html lang="fa" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>پنل کنترل مرکزی دکستر</title>
+      <style>
+        body { font-family: system-ui, sans-serif; background: #0b0b12; color: #e2e2ec; padding: 30px; direction: rtl; }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media(max-width: 768px){ .grid { grid-template-columns: 1fr; } }
+        .card { background: #131322; border: 1px solid #282846; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+        h2 { color: #8b5cf6; margin-bottom: 16px; font-size: 1.25rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #23233b; font-size: 0.9rem; }
+        th { color: #8f8fa9; }
+        .btn { background: #7c3aed; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-danger { background: #ef4444; }
+        .btn-secondary { background: #23233b; color: #e2e2ec; }
+        .form-input { width: 100%; padding: 10px; background: #1a1a2e; border: 1px solid #2d2d4d; border-radius: 6px; color: #e2e2ec; margin-bottom: 12px; font-size: 0.9rem; }
+        .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .status-active { background: rgba(16,185,129,0.15); color: #10b981; }
+        .status-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .sub-link { font-family: monospace; color: #a78bfa; font-size: 0.8rem; word-break: break-all; }
+      </style>
+    </head>
+    <body>
+      <h1 style="color:#7c3aed; margin-bottom: 20px; font-size: 1.8rem; font-weight:800;">DEXTER CENTRAL HUB</h1>
+      <p style="color:#8f8fa9; margin-bottom: 30px;">مدیریت متمرکز کاربران، تخصیص حجم و تجمیع گره‌های کلودفلر</p>
+      
+      <div class="grid">
+        <div>
+          <!-- Users Card -->
+          <div class="card">
+            <h2>مدیریت کاربران</h2>
+            <button class="btn" onclick="showUserModal()" style="margin-bottom: 15px;">+ ساخت کاربر جدید</button>
+            <table>
+              <thead>
+                <tr>
+                  <th>نام کاربری</th>
+                  <th>وضعیت</th>
+                  <th>حجم مصرفی / کل</th>
+                  <th>انقضا</th>
+                  <th>لینک هوشمند ساب</th>
+                  <th>عملیات</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <!-- Nodes Card -->
+          <div class="card">
+            <h2>خوشه گره‌ها (Nodes)</h2>
+            <p style="font-size:0.8rem; color:#8f8fa9; margin-bottom: 15px;">گره‌های متصل ترافیک کاربران را تقسیم می‌کنند.</p>
+            <button class="btn" onclick="showNodeModal()" style="margin-bottom: 15px; width: 100%;">+ اتصال گره جدید</button>
+            <div id="nodesList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add User Modal (Inline simple implementation) -->
+      <div id="userModal" class="card" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); width: 90%; max-width: 450px; z-index:100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+        <h2 id="modalTitle">کاربر جدید</h2>
+        <input type="text" id="usrName" class="form-input" placeholder="نام کاربری (مثال: ali)">
+        <input type="text" id="usrUUID" class="form-input" placeholder="UUID (خالی بگذارید تا خودکار تولید شود)">
+        <input type="number" id="usrGb" class="form-input" placeholder="حجم مجاز (گیگابایت)">
+        <input type="date" id="usrExpire" class="form-input">
+        <div style="display:flex; gap:10px;">
+          <button class="btn" onclick="saveUser()">ذخیره</button>
+          <button class="btn btn-secondary" onclick="hideUserModal()">انصراف</button>
+        </div>
+      </div>
+
+      <!-- Add Node Modal -->
+      <div id="nodeModal" class="card" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); width: 90%; max-width: 450px; z-index:100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+        <h2>اتصال گره جدید به کنترلر</h2>
+        <p style="font-size:0.8rem; color:#8f8fa9; margin-bottom: 12px;">پس از ثبت، ترافیک مشترکین روی این دامنه نیز پخش می‌شود.</p>
+        <input type="text" id="ndName" class="form-input" placeholder="نام نمایشی گره (مثال: Node-Germany)">
+        <input type="text" id="ndSubdomain" class="form-input" placeholder="ساب‌دامنه گره (مثال: node1.sub.workers.dev)">
+        <input type="text" id="ndToken" class="form-input" placeholder="API Token اکانت مربوطه">
+        <input type="text" id="ndAccount" class="form-input" placeholder="Account ID کلودفلر">
+        <div style="display:flex; gap:10px;">
+          <button class="btn" onclick="saveNode()">افزودن و پیکربندی</button>
+          <button class="btn btn-secondary" onclick="hideNodeModal()">انصراف</button>
+        </div>
+      </div>
+
+      <script>
+        const API_BASE = "\` + origin + \`";
+        
+        async function loadData() {
+          const uRes = await fetch(API_BASE + '/api/users');
+          const users = await uRes.json();
+          const ut = document.getElementById('usersTable');
+          ut.innerHTML = '';
+          users.forEach(u => {
+            const used = (u.used_bytes / (1024**3)).toFixed(2);
+            const subUrl = API_BASE + '/sub/' + u.uuid;
+            ut.innerHTML += \\\`
+              <tr>
+                <td><b>\\\${u.username}</b></td>
+                <td><span class="status-badge \\\${u.status ? 'status-active' : 'status-inactive'}">\\\${u.status ? 'فعال' : 'قطع'}</span></td>
+                <td>\\\${used} / \\\${u.total_gb} GB</td>
+                <td>\\\${u.expire_date || 'بدون انقضا'}</td>
+                <td><span class="sub-link">\\\${subUrl}</span> <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.75rem" onclick="navigator.clipboard.writeText('\\\${subUrl}')">کپی</button></td>
+                <td>
+                  <button class="btn btn-secondary" onclick="toggleUser('\\\${u.id}', \\\${u.status})">\\\${u.status ? 'غیرفعال‌سازی' : 'فعال‌سازی'}</button>
+                  <button class="btn btn-danger" onclick="deleteUser('\\\${u.id}')">حذف</button>
+                </td>
+              </tr>
+            \\\`;
+          });
+
+          const nRes = await fetch(API_BASE + '/api/nodes');
+          const nodes = await nRes.json();
+          const nl = document.getElementById('nodesList');
+          nl.innerHTML = '';
+          nodes.forEach(n => {
+            nl.innerHTML += \\\`
+              <div style="padding:12px; background:#1a1a2e; border:1px solid #2d2d4d; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:bold;">\\\${n.name}</div>
+                  <div style="font-size:0.75rem; color:#8f8fa9;">\\\${n.subdomain}</div>
+                </div>
+                <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem" onclick="deleteNode('\\\${n.id}')">حذف</button>
+              </div>
+            \\\`;
+          });
+        }
+
+        function showUserModal() { document.getElementById('userModal').style.display = 'block'; }
+        function hideUserModal() { document.getElementById('userModal').style.display = 'none'; }
+        function showNodeModal() { document.getElementById('nodeModal').style.display = 'block'; }
+        function hideNodeModal() { document.getElementById('nodeModal').style.display = 'none'; }
+
+        async function saveUser() {
+          const username = document.getElementById('usrName').value;
+          const uuid = document.getElementById('usrUUID').value;
+          const total_gb = document.getElementById('usrGb').value;
+          const expire_date = document.getElementById('usrExpire').value;
+          
+          await fetch(API_BASE + '/api/users', {
+            method: 'POST',
+            headers: {'content-type':'application/json'},
+            body: JSON.stringify({ username, uuid, total_gb, expire_date })
+          });
+          hideUserModal();
+          loadData();
+        }
+
+        async function toggleUser(id, currentStatus) {
+          await fetch(API_BASE + '/api/users/toggle/' + id, {
+            method: 'POST',
+            headers: {'content-type':'application/json'},
+            body: JSON.stringify({ status: !currentStatus })
+          });
+          loadData();
+        }
+
+        async function deleteUser(id) {
+          if(confirm('آیا از حذف این کاربر اطمینان دارید؟')) {
+            await fetch(API_BASE + '/api/users/delete/' + id, { method: 'POST' });
+            loadData();
+          }
+        }
+
+        async function saveNode() {
+          const name = document.getElementById('ndName').value;
+          const subdomain = document.getElementById('ndSubdomain').value;
+          const api_token = document.getElementById('ndToken').value;
+          const account_id = document.getElementById('ndAccount').value;
+          
+          await fetch(API_BASE + '/api/nodes', {
+            method: 'POST',
+            headers: {'content-type':'application/json'},
+            body: JSON.stringify({ name, subdomain, api_token, account_id })
+          });
+          hideNodeModal();
+          loadData();
+        }
+
+        async function deleteNode(id) {
+          if(confirm('آیا از حذف این گره اطمینان دارید؟')) {
+            await fetch(API_BASE + '/api/nodes/delete/' + id, { method: 'POST' });
+            loadData();
+          }
+        }
+
+        loadData();
+      </script>
+    </body>
+    </html>\`;
+  }
+  `;
+  
+  return original + extension;
+}
+
+// پایگاه‌ داده D1 یکپارچه دکستر
+const SCHEMA_SQL = [
+  `CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    username TEXT,
+    uuid TEXT,
+    total_gb INTEGER,
+    used_bytes INTEGER DEFAULT 0,
+    expire_date TEXT,
+    status INTEGER DEFAULT 1,
+    created_at INTEGER
+  );`,
+  `CREATE TABLE IF NOT EXISTS nodes (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    api_token TEXT,
+    account_id TEXT,
+    subdomain TEXT,
+    status INTEGER DEFAULT 1,
+    created_at INTEGER
+  );`
+];
+
+async function deployMaster(token, accountId) {
+  setProgress('prog-d1', 'active');
+  let dbId = '';
+  
+  const d1Res = await cfFetch(`/accounts/${accountId}/d1/database`, token, {
+    method: 'POST', body: JSON.stringify({ name: state.dbName })
+  });
+  
+  if (d1Res.success) {
+    dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
+  } else {
+    const check = await cfFetch(`/accounts/${accountId}/d1/database`, token);
+    if (check.success && Array.isArray(check.result)) {
+      const db = check.result.find(d => d.name === state.dbName);
+      if (db) dbId = db.uuid || db.database_id || '';
+    }
+  }
+  
+  if (!dbId) return { ok: false, step: 'd1', msg: 'خطا در تخصیص دیتابیس مرکزی D1' };
+  
+  // اجرای دستورات دیتابیس برای آماده‌سازی جداول
+  for (const sql of SCHEMA_SQL) {
+    await cfFetch(`/accounts/${accountId}/d1/database/${dbId}/query`, token, {
+      method: 'POST', body: JSON.stringify({ sql })
+    });
+  }
+  setProgress('prog-d1', 'done');
+
+  setProgress('prog-deploy', 'active');
+  const code = generateMasterCode('admin');
+  
+  const metadata = {
+    main_module: 'worker.js',
+    compatibility_date: '2024-09-22',
+    compatibility_flags: ['nodejs_compat'],
+    bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }]
+  };
+
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
+
+  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
+  const uploadRes = await cfFetch(deployPath, token, { method: 'PUT', body: form });
+  if (!uploadRes.success) return { ok: false, step: 'deploy', msg: uploadRes.errors?.[0]?.message };
+
+  await cfFetch(`${deployPath}/deployments`, token, {
+    method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } })
+  });
+  setProgress('prog-deploy', 'done');
+
+  setProgress('prog-verify', 'active');
+  let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
+  if (!subRes.result?.subdomain) {
+      const randomSub = 'dexter-' + Math.random().toString(36).substring(2, 8);
+      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, {
+          method: 'PUT', body: JSON.stringify({ subdomain: randomSub })
+      });
+      subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
+  }
+
+  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, token, {
+    method: 'POST', body: JSON.stringify({ enabled: true })
+  });
+
+  if (subRes.success && subRes.result?.subdomain) {
+    const url = `https://${state.workerName}.${subRes.result.subdomain}.workers.dev`;
+    setProgress('prog-verify', 'done');
+    return { ok: true, url };
+  }
+  
+  return { ok: false, step: 'verify', msg: 'خطا در فعال‌سازی دامنه نهایی کنترلر' };
+}
+
+function renderStepsIndicator() {
+  let html = '';
+  for (let i = 0; i < totalSteps; i++) {
+    let cls = 'step-dot';
+    if (i === currentStep) cls += ' active';
+    else if (i < currentStep) cls += ' done';
+    html += `<div class="${cls}"></div>`;
+  }
+  document.getElementById('stepsIndicator').innerHTML = html;
+}
+
+function renderStep() {
+  renderStepsIndicator();
+  const el = document.getElementById('stepContent');
+  switch (currentStep) {
+    case 0: el.innerHTML = renderWelcome(); break;
+    case 1: el.innerHTML = renderConnTest(); runConnectivityTest(); break;
+    case 2: el.innerHTML = renderCredentials(); break;
+    case 3: el.innerHTML = renderConfig(); break;
+    case 4: el.innerHTML = renderDeploy(); runDeployment(); break;
+    case 5: el.innerHTML = renderSuccess(); break;
   }
 }
 
-// Init App
-loadDB();
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function alertHtml(type, msg) {
+  const icons = { info: 'ℹ️', success: '✅', error: '❌', warn: '⚠️' };
+  return `<div class="alert alert-${type}"><span class="alert-icon">${icons[type]}</span><span>${esc(msg)}</span></div>`;
+}
+
+function goStep(n) { currentStep = n; renderStep(); }
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'کپی شد!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function renderWelcome() {
+  return `
+<div class="card step-panel">
+  <div class="card-title">کنترلر مرکزی دکستر (Dexter)</div>
+  <div class="card-subtitle">توزیع بار پویای ترافیک و مدیریت متمرکز کاربران</div>
+  <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
+    این سیستم یک پنل مدیریت یکپارچه و بهینه ارائه می‌دهد. با استفاده از دکستر، نیازی به چندین پنل مجزا نیست؛ کاربران مستقیماً در همین پنل مدیریت می‌شوند و ترافیک آن‌ها بر روی تمام اکانت‌ها و گره‌های متصل توزیع خواهد شد.
+  </p>
+  <div style="margin-bottom:20px">
+    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">ویژگی‌های برجسته نسخه ۳.۰:</div>
+    <div class="feature-grid">
+      <div class="feature-item"><span class="feature-icon">🛡️</span><span>تک پنل کنترل مرکزی</span></div>
+      <div class="feature-item"><span class="feature-icon">⛓️</span><span>اتصال و همگام‌سازی آسان گره‌ها</span></div>
+      <div class="feature-item"><span class="feature-icon">👤</span><span>مدیریت کامل حجم و زمان کاربران</span></div>
+      <div class="feature-item"><span class="feature-icon">⚡</span><span>لینک ساب‌اسکریپشن تجمیع‌شده</span></div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="goStep(1)">شروع نصب کنترلر مرکزی</button>
+  </div>
+</div>`;
+}
+
+function renderConnTest() {
+  return `
+<div class="card step-panel">
+  <div class="card-title">بررسی ارتباط سرور</div>
+  <div class="conn-status conn-testing" id="connStatus">
+    <div class="spinner"></div><span>در حال آزمایش اتصال به Cloudflare...</span>
+  </div>
+  
+  <div id="proxyButtons" style="display:none;margin:20px 0">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:.9rem;color:var(--text2);margin-bottom:12px">
+        اتصال مستقیم از مرورگر مسدود است (CORS). یکی از روش‌های زیر را انتخاب کنید:
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="connectDefaultProxy()" style="min-width:180px">
+          ⚡ <span>استفاده از پروکسی پیش‌فرض</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="connResult"></div>
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goStep(0)">بازگشت</button>
+  </div>
+</div>`;
+}
+
+async function runConnectivityTest() {
+  const statusEl = document.getElementById('connStatus');
+  const proxyBtns = document.getElementById('proxyButtons');
+  
+  if (state.proxyUrl) {
+    try {
+      const r = await fetch(`${state.proxyUrl}/health`);
+      if ((await r.json()).ok) {
+        statusEl.className = 'conn-status conn-ok';
+        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار است.</span>`;
+        setTimeout(() => goStep(2), 1000);
+        return;
+      }
+    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('dexter_proxy_url'); }
+  }
+
+  const directOk = await testDirectApi();
+  if (directOk) {
+    statusEl.className = 'conn-status conn-ok';
+    statusEl.innerHTML = `<span>✓</span><span>اتصال مستقیم برقرار است.</span>`;
+    setTimeout(() => goStep(2), 1000);
+    return;
+  }
+
+  statusEl.className = 'conn-status conn-fail';
+  statusEl.innerHTML = `<span>✗</span><span>اتصال مستقیم ممکن نیست.</span>`;
+  proxyBtns.style.display = 'block';
+}
+
+async function connectDefaultProxy() {
+  const statusEl = document.getElementById('connStatus');
+  const proxyBtns = document.getElementById('proxyButtons');
+
+  statusEl.className = 'conn-status conn-testing';
+  statusEl.innerHTML = `<div class="spinner"></div><span>در حال اتصال به پروکسی...</span>`;
+  proxyBtns.style.display = 'none';
+
+  try {
+      const r = await fetch(`${DEFAULT_PROXY_URL}/health`);
+      if ((await r.json()).ok) {
+        state.proxyUrl = DEFAULT_PROXY_URL;
+        localStorage.setItem('dexter_proxy_url', DEFAULT_PROXY_URL);
+        statusEl.className = 'conn-status conn-ok';
+        statusEl.innerHTML = `<span>✓</span><span>اتصال با موفقیت برقرار شد.</span>`;
+        setTimeout(() => goStep(2), 1000);
+        return;
+      }
+  } catch (e) {}
+  
+  statusEl.className = 'conn-status conn-fail';
+  statusEl.innerHTML = `<span>✗</span><span>پروکسی پاسخگو نیست. لطفاً ارتباط خود را بررسی کنید.</span>`;
+}
+
+function renderCredentials() {
+  const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
+  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Dexter Master Controller')}`;
+
+  return `
+<div class="card step-panel">
+  <div class="card-title">اعتبارنامه کنترلر اصلی</div>
+  <div class="card-subtitle">توکن اکانت اصلی خود را جهت راه‌اندازی هسته مرکزی وارد کنید</div>
+  <div id="credAlert"></div>
+  
+  <div class="form-group">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+       <label class="form-label" style="margin:0">توکن API (Master Token)</label>
+       <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
+       <b>دسترسی‌های لازم:</b> D1 Edit ، Workers Edit ، Account Read
+    </div>
+    <input type="text" class="form-input" id="inpToken" placeholder="مثال: xxxxx_xxxxxxxx_xxxxxxxx" style="direction:ltr;text-align:left;" value="${state.rawTokenInput}">
+  </div>
+  
+  <div class="btn-group">
+    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">تایید توکن اصلی</button>
+    <button class="btn btn-secondary" onclick="goStep(1)">بازگشت</button>
+  </div>
+</div>`;
+}
+
+async function handleValidate() {
+  const tokenEl = document.getElementById('inpToken');
+  const alertEl = document.getElementById('credAlert');
+  const btnEl = document.getElementById('btnValidate');
+
+  const token = tokenEl.value.trim();
+  state.rawTokenInput = token;
+  
+  if (!token) {
+    alertEl.innerHTML = alertHtml('error', 'لطفاً توکن معتبر وارد کنید.');
+    return;
+  }
+
+  btnEl.disabled = true;
+  btnEl.innerHTML = `<div class="spinner"></div> در حال صحت‌سنجی...`;
+  alertEl.innerHTML = '';
+
+  const acctsResult = await fetchAccountsForToken(token);
+  if (acctsResult.ok && acctsResult.accounts.length > 0) {
+     const acct = acctsResult.accounts[0];
+     state.masterAccount = { token: token, accountId: acct.id, accountName: acct.name || acct.id };
+     alertEl.innerHTML = alertHtml('success', `اکانت با موفقیت تایید و شناسایی شد: ${acct.name || acct.id}`);
+     setTimeout(() => goStep(3), 1500);
+  } else {
+     alertEl.innerHTML = alertHtml('error', acctsResult.msg || 'عدم امکان اتصال یا کمبود دسترسی‌ها');
+     btnEl.disabled = false;
+     btnEl.textContent = 'بررسی مجدد';
+  }
+}
+
+function renderConfig() {
+  return `
+<div class="card step-panel">
+  <div class="card-title">تنظیمات کنترلر مرکزی دکستر</div>
+  <div class="card-subtitle">پیکربندی هسته اصلی مدیریت سرورها</div>
+  
+  <div class="alert alert-info">
+    <span class="alert-icon">🔒</span>
+    <span>رمز عبور موقت ورود به پنل مدیریت مرکزی دکستر، عبارات <b>admin</b> خواهد بود. پس از اتمام نصب، فوراً نسبت به ویرایش آن اقدام کنید.</span>
+  </div>
+
+  <div class="config-grid">
+    <div class="form-group">
+      <label class="form-label">نام دامنه ورکر (Worker Name)</label>
+      <input type="text" class="form-input" id="inpWorker" value="${esc(state.workerName)}" style="direction:ltr;text-align:left">
+    </div>
+    <div class="form-group">
+      <label class="form-label">نام دیتابیس هوشمند (D1 Database)</label>
+      <input type="text" class="form-input" id="inpDB" value="${esc(state.dbName)}" style="direction:ltr;text-align:left">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">مسیر دسترسی به پنل مدیریت (Route Path)</label>
+    <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
+    <div class="form-hint">آدرس نهایی پنل به این شکل خواهد بود: domain.workers.dev/manage</div>
+  </div>
+
+  <div id="configAlert"></div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="handleConfigNext()">شروع فرآیند نصب و راه‌اندازی</button>
+    <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
+  </div>
+</div>`;
+}
+
+function handleConfigNext() {
+  const workerName = document.getElementById('inpWorker').value.trim() || 'dexter-controller';
+  if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
+    document.getElementById('configAlert').innerHTML = alertHtml('error', 'نام ورکر را به درستی وارد کنید.');
+    return;
+  }
+  
+  state.workerName = workerName;
+  state.dbName = document.getElementById('inpDB').value.trim() || 'dexter_db';
+  state.apiRoute = document.getElementById('inpRoute').value.trim() || 'manage';
+  
+  goStep(4);
+}
+
+function renderDeploy() {
+  return `
+<div class="card step-panel">
+  <div class="card-title">در حال استقرار دکستر مرکزی...</div>
+  <div class="card-subtitle">عملیات نصب ممکن است تا چند لحظه به طول بیانجامد.</div>
+
+  <div id="deployAlert" style="margin-bottom:16px;"></div>
+
+  <ul class="progress-list">
+    <li class="progress-item waiting" id="prog-fetch">
+      <span class="progress-icon">○</span><div class="progress-text">دریافت هسته مرکزی دکستر</div>
+    </li>
+    <li class="progress-item waiting" id="prog-d1">
+      <span class="progress-icon">○</span><div class="progress-text">ایجاد و آماده‌سازی پایگاه داده D1 دکستر</div>
+    </li>
+    <li class="progress-item waiting" id="prog-deploy">
+      <span class="progress-icon">○</span><div class="progress-text">تزریق وابستگی‌ها و استقرار نهایی</div>
+    </li>
+    <li class="progress-item waiting" id="prog-verify">
+      <span class="progress-icon">○</span><div class="progress-text">فعال‌سازی ساب‌دامنه اختصاصی ورکر</div>
+    </li>
+  </ul>
+</div>`;
+}
+
+function setProgress(id, status, textOverride) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `progress-item ${status}`;
+  const icon = el.querySelector('.progress-icon');
+  if (status === 'active') icon.innerHTML = '<div class="spinner"></div>';
+  else if (status === 'done') icon.textContent = '✓';
+  else if (status === 'error') icon.textContent = '✗';
+  else icon.textContent = '○';
+  
+  if (textOverride) el.querySelector('.progress-text').textContent = textOverride;
+}
+
+async function runDeployment() {
+  const alertEl = () => document.getElementById('deployAlert');
+  
+  setProgress('prog-fetch', 'active');
+  const fetchResult = await fetchDexterCode();
+  if (!fetchResult.ok) {
+    setProgress('prog-fetch', 'error');
+    alertEl().innerHTML = alertHtml('error', fetchResult.msg);
+    return;
+  }
+  setProgress('prog-fetch', 'done', `سورس کد هسته دکستر بارگیری شد.`);
+
+  const acc = state.masterAccount;
+  const res = await deployMaster(acc.token, acc.accountId);
+  
+  if (res.ok) {
+     state.deployedUrl = `${res.url}/${state.apiRoute}`;
+     alertEl().innerHTML = alertHtml('success', `استقرار کنترلر دکستر با موفقیت انجام شد.`);
+     setTimeout(() => goStep(5), 2000);
+  } else {
+     alertEl().innerHTML = alertHtml('error', `بروز خطا در مرحله استقرار: ${res.msg}`);
+     if(res.step === 'd1') setProgress('prog-d1', 'error');
+     if(res.step === 'deploy') setProgress('prog-deploy', 'error');
+     if(res.step === 'verify') setProgress('prog-verify', 'error');
+  }
+}
+
+function renderSuccess() {
+  return `
+<div class="card step-panel">
+  <div class="card-title">🚀 کنترلر دکستر با موفقیت مستقر شد!</div>
+  <div class="card-subtitle">اکنون می‌توانید گره‌ها را اضافه کرده و ساب‌اسکریپشن هوشمند بسازید.</div>
+
+  <div class="result-box">
+    <div class="result-label">آدرس پنل مدیریت مرکزی دکستر:</div>
+    <div class="result-value">
+       <a href="${esc(state.deployedUrl)}" target="_blank" style="color:var(--cyan);text-decoration:none">${esc(state.deployedUrl)}</a>
+    </div>
+  </div>
+
+  <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+       <div class="result-label">رمز عبور پیش‌فرض ورود به مدیریت:</div>
+       <div class="result-value" style="color:var(--green)">admin</div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'admin')">کپی رمز</button>
+  </div>
+</div>`;
+}
+
+goStep(0);
 </script>
 </body>
 </html>
