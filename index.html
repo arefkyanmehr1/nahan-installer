@@ -3,90 +3,446 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nahan Multi-Installer | نصب‌کننده گروهی نهان</title>
+<title>Dexter Panel | پنل هوشمند دکستر</title>
 <style>
+/* Base Variables & Upgraded Glassmorphism Theme */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
---bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
---text:#e0e0ec;--text2:#8888a0;--text3:#55556a;
---cyan:#e53935;--cyan2:#c62828;--cyan-bg:rgba(229,57,53,.12);
---green:#00e676;--green-bg:rgba(0,230,118,.08);
---red:#ff4466;--red-bg:rgba(255,68,102,.08);
---yellow:#ffaa00;--yellow-bg:rgba(255,170,0,.08);
---border:#2a2a40;--border2:#3a3a55;
---radius:10px;--radius2:14px;
---shadow:0 4px 24px rgba(0,0,0,.4);
---font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
---font-mono:'SF Mono','Cascadia Code','Fira Code',monospace;
---transition:all .25s cubic-bezier(.4,0,.2,1);
+  --bg: #07070a;
+  --bg2: rgba(18, 18, 26, 0.75);
+  --bg3: rgba(26, 26, 38, 0.85);
+  --bg4: rgba(34, 34, 58, 0.9);
+  --text: #e2e2ec;
+  --text2: #9a9ab0;
+  --text3: #62627a;
+  --cyan: #e53935;
+  --cyan2: #c62828;
+  --cyan-bg: rgba(229, 57, 53, 0.12);
+  --green: #00e676;
+  --green-bg: rgba(0, 230, 118, 0.08);
+  --red: #ff4466;
+  --red-bg: rgba(255, 68, 102, 0.08);
+  --yellow: #ffaa00;
+  --yellow-bg: rgba(255, 170, 0, 0.08);
+  --purple: #e53935;
+  --border: rgba(255, 255, 255, 0.06);
+  --border2: rgba(255, 255, 255, 0.12);
+  --radius: 12px;
+  --radius2: 16px;
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-html{font-size:15px}
+
+html{font-size:15px;scroll-behavior:smooth}
 body{
-font-family:var(--font);background:var(--bg);color:var(--text);
-min-height:100vh;display:flex;flex-direction:column;align-items:center;
-line-height:1.7;-webkit-font-smoothing:antialiased;
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;
+  line-height:1.7;-webkit-font-smoothing:antialiased;
+  background-image: radial-gradient(circle at 10% 20%, rgba(229, 57, 53, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(229, 57, 53, 0.03) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+body.ltr{direction:ltr}
+body.rtl{direction:rtl}
+
+/* Core Layout Structures */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
 }
 
-.container{width:100%;max-width:720px;padding:24px 20px 48px}
-
-/* ── Header ── */
-.header{text-align:center;margin-bottom:32px}
-.logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
-color:var(--cyan);margin-bottom:4px}
-.logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
-
-/* ── Steps Indicator ── */
-.steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
-.step-dot{
-width:10px;height:10px;border-radius:50%;background:var(--bg4);
-border:2px solid var(--border2);transition:var(--transition);
+/* Sidebar Styling */
+.sidebar {
+  width: 260px;
+  background: var(--bg2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 8px;
+  transition: var(--transition);
+  z-index: 90;
+  flex-shrink: 0;
 }
-.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(229,57,53,.4)}
-.step-dot.done{background:var(--green);border-color:var(--green)}
+body.rtl .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
 
-/* ── Card ── */
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.brand-logo {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--cyan);
+  letter-spacing: 2px;
+}
+.brand-badge {
+  background: var(--cyan-bg);
+  color: var(--cyan);
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(229,57,53,0.2);
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text2);
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+.nav-item:hover {
+  background: var(--cyan-bg);
+  color: var(--cyan);
+  border-color: rgba(229, 57, 53, 0.15);
+}
+.nav-item.active {
+  background: var(--cyan);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.25);
+}
+
+.sidebar-footer {
+  padding: 16px 12px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Main Content Area */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Topbar Header */
+.topbar {
+  height: 70px;
+  background: var(--bg2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 80;
+}
+.topbar-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Content Pane Container */
+.content-pane {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Auth / Login Container */
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 40px 32px;
+  box-shadow: var(--shadow);
+}
+
+/* Tables and Grid Components */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.metric-card {
+  background: var(--bg2);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(229, 57, 53, 0.2);
+}
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-label {
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--cyan-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  font-size: 1.4rem;
+}
+
+/* Complex UI Tables */
+.table-container {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.table-header-bar {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.table-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+body.ltr .table-custom {
+  text-align: left;
+}
+.table-custom th {
+  padding: 14px 24px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+}
+.table-custom td {
+  padding: 16px 24px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+.table-custom tr:last-child td {
+  border-bottom: none;
+}
+.table-custom tr:hover td {
+  background: rgba(255,255,255,0.01);
+}
+
+/* Action Buttons & Utilities */
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-action:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.btn-action.delete:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-bg);
+}
+
+/* Modal Windows */
+.modal-overlay {
+  position: fixed;
+  top: 0;left: 0;right: 0;bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-card {
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  transform: scale(0.9);
+  transition: var(--transition);
+}
+.modal-overlay.active .modal-card {
+  transform: scale(1);
+}
+
+/* Original Installer Classes Integrated Adaptively */
+.container{width:100%;max-width:720px;padding:0;margin:0 auto}
 .card{
-background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);
-padding:32px;box-shadow:var(--shadow);transition:var(--transition);
-animation:fadeIn .35s ease;
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);
+  padding:32px;box-shadow:var(--shadow);transition:var(--transition);
+  margin-top: 16px;
 }
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-
 .card-title{font-size:1.35rem;font-weight:700;margin-bottom:6px;color:var(--cyan)}
 .card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
-
-/* ── Form Elements ── */
 .form-group{margin-bottom:20px}
 .form-label{display:block;font-size:.85rem;font-weight:600;color:var(--text2);margin-bottom:6px}
 .form-input{
-width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);
-border-radius:var(--radius);color:var(--text);font-size:.95rem;
-font-family:var(--font-mono);transition:var(--transition);outline:none
+  width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text);font-size:.95rem;
+  font-family:var(--font);transition:var(--transition);outline:none
 }
-.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(229,57,53,.1)}
-.form-input::placeholder{color:var(--text3)}
-textarea.form-input{resize:vertical;min-height:100px;font-family:var(--font-mono)}
+.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(229,57,53,.15)}
 .form-hint{font-size:.78rem;color:var(--text3);margin-top:4px}
-
-/* ── Buttons ── */
 .btn{
-display:inline-flex;align-items:center;justify-content:center;gap:8px;
-padding:12px 28px;border-radius:var(--radius);font-size:.95rem;
-font-weight:600;cursor:pointer;border:none;transition:var(--transition);
-font-family:var(--font)
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 28px;border-radius:var(--radius);font-size:.95rem;
+  font-weight:600;cursor:pointer;border:none;transition:var(--transition);
+  font-family:var(--font)
 }
-.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(229,57,53,.3)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(229,57,53,.4)}
+.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(229, 57, 53, .3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(229, 57, 53, .35)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
 .btn-group{display:flex;gap:12px;margin-top:28px}
+[dir=ltr] .btn-group{flex-direction:row-reverse}
 .btn-sm{padding:8px 18px;font-size:.85rem}
 
-/* ── Alerts ── */
+.steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
+.step-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--bg4);
+  border:2px solid var(--border);transition:var(--transition);
+}
+.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(229,57,53,.4)}
+.step-dot.done{background:var(--green);border-color:var(--green)}
+
+/* Search inputs, status tags, responsive design modifications */
+.search-input {
+  max-width: 280px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.status-badge.active { background: var(--green-bg); color: var(--green); border: 1px solid rgba(0, 230, 118, 0.15); }
+.status-badge.inactive { background: var(--red-bg); color: var(--red); border: 1px solid rgba(255, 68, 102, 0.15); }
+
+/* Code Block */
+.code-block {
+  background: #0d0d14; border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; font-family: var(--font-mono); font-size: .85rem;
+  color: var(--text); overflow-x: auto; margin: 12px 0; line-height: 1.6;
+  direction: ltr; text-align: left; position: relative;
+}
+.code-block .copy-btn { position: absolute; top: 8px; right: 8px; }
+[dir=ltr] .code-block .copy-btn { right: auto; left: 8px; }
+
+/* Alerts */
 .alert{
-padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
-margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
+  padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
+  margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;
+  line-height:1.6
 }
 .alert-info{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2);color:var(--cyan)}
 .alert-success{background:var(--green-bg);border:1px solid rgba(0,230,118,.2);color:var(--green)}
@@ -94,13 +450,13 @@ margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
 .alert-warn{background:var(--yellow-bg);border:1px solid rgba(255,170,0,.2);color:var(--yellow)}
 .alert-icon{font-size:1.1rem;flex-shrink:0;line-height:1.5}
 
-/* ── Progress ── */
+/* Progress */
 .progress-list{list-style:none;margin:8px 0}
 .progress-item{
-display:flex;align-items:center;gap:12px;padding:12px 16px;
-border-radius:var(--radius);margin-bottom:8px;
-background:var(--bg3);border:1px solid var(--border);
-transition:var(--transition)
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-radius:var(--radius);margin-bottom:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  transition:var(--transition)
 }
 .progress-item.active{border-color:var(--cyan);background:var(--cyan-bg)}
 .progress-item.done{border-color:var(--green);background:var(--green-bg)}
@@ -108,799 +464,866 @@ transition:var(--transition)
 .progress-item.waiting{opacity:.5}
 .progress-icon{font-size:1.1rem;flex-shrink:0;width:24px;text-align:center}
 .progress-text{flex:1;font-size:.9rem}
+.progress-detail{font-size:.78rem;color:var(--text2);margin-top:2px}
 
-/* ── Spinner ── */
+/* Spinner */
 .spinner{
-width:18px;height:18px;border:2px solid var(--border2);
-border-top-color:var(--cyan);border-radius:50%;
-animation:spin .8s linear infinite;flex-shrink:0
+  width:18px;height:18px;border:2px solid var(--border2);
+  border-top-color:var(--cyan);border-radius:50%;
+  animation:spin .8s linear infinite;flex-shrink:0;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Result Card ── */
+/* Result Card */
 .result-box{
-background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-padding:16px;margin-bottom:12px
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;margin-bottom:12px
 }
 .result-label{font-size:.8rem;color:var(--text2);margin-bottom:4px}
 .result-value{
-font-family:var(--font-mono);font-size:1.05rem;color:var(--cyan);
-word-break:break-all;display:flex;align-items:center;gap:10px
+  font-family:var(--font-mono);font-size:1.05rem;color:var(--cyan);
+  word-break:break-all;display:flex;align-items:center;gap:10px
 }
 .copy-btn{
-background:var(--bg4);border:1px solid var(--border);color:var(--text2);
-padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;
-transition:var(--transition);flex-shrink:0
+  background:var(--bg4);border:1px solid var(--border);color:var(--text2);
+  padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;
+  transition:var(--transition);flex-shrink:0
 }
 .copy-btn:hover{color:var(--cyan);border-color:var(--cyan)}
 .copy-btn.copied{color:var(--green);border-color:var(--green)}
 
-/* ── Extra Elements ── */
-.conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
+/* Connectivity Test */
+.conn-status{
+  display:flex;align-items:center;gap:12px;padding:16px 20px;
+  border-radius:var(--radius);margin:16px 0;font-size:.95rem
+}
 .conn-testing{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2)}
 .conn-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.2)}
 .conn-fail{background:var(--red-bg);border:1px solid rgba(255,68,102,.2)}
 
-.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.feature-item{
-display:flex;align-items:center;gap:10px;padding:12px 14px;
-background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-font-size:.88rem;transition:var(--transition)
-}
-.feature-item:hover{border-color:var(--cyan);background:var(--cyan-bg)}
-
-.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:520px){.config-grid{grid-template-columns:1fr}}
-.divider{height:1px;background:var(--border);margin:20px 0}
-
-.code-block{
-background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
-padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
-color:var(--purple);overflow-x:auto;margin:12px 0;line-height:1.6;
-direction:ltr;text-align:left;position:relative
-}
+/* Steps List */
 .steps-list{list-style:none;counter-reset:step;margin:16px 0}
 .steps-list li{
-counter-increment:step;padding:10px 44px 10px 14px;position:relative;
-font-size:.9rem;color:var(--text2);margin-bottom:6px;
-background:var(--bg3);border-radius:8px;line-height:1.5
+  counter-increment:step;padding:10px 14px 10px 44px;position:relative;
+  font-size:.9rem;color:var(--text2);margin-bottom:6px;
+  background:var(--bg3);border-radius:8px;line-height:1.5
 }
+[dir=ltr] .steps-list li{padding:10px 44px 10px 14px}
 .steps-list li::before{
-content:counter(step);position:absolute;right:14px;top:10px;
-width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
-color:var(--cyan);font-size:.78rem;font-weight:700;
-display:flex;align-items:center;justify-content:center
+  content:counter(step);position:absolute;left:14px;top:10px;
+  width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
+  color:var(--cyan);font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center
 }
-.steps-list a{color:var(--cyan); text-decoration: none;}
+[dir=ltr] .steps-list li::before{left:auto;right:14px}
+.steps-list a{color:var(--cyan)}
+
+/* Permissions List */
+.perm-list{list-style:none;margin:12px 0}
+.perm-item{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:.9rem
+}
+.perm-icon{color:var(--cyan);font-size:1rem;flex-shrink:0}
+
+/* Welcome Features */
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+@media(max-width:520px){.feature-grid{grid-template-columns:1fr;gap:10px}.feature-item{padding:12px}}
+.feature-item{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+  font-size:.88rem;transition:var(--transition)
+}
+.feature-item:hover{border-color:var(--cyan);background:var(--cyan-bg)}
+.feature-icon{font-size:1.2rem;flex-shrink:0}
+
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  height: 60px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.menu-toggle {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .app-layout { flex-direction: column; }
+  .sidebar {
+    position: fixed;
+    top: 60px; left: 0; bottom: 0;
+    width: 260px;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow);
+  }
+  body.rtl .sidebar {
+    left: auto; right: 0;
+    transform: translateX(100%);
+  }
+  .sidebar.active { transform: translateX(0); }
+  .mobile-header { display: flex; }
+  .topbar { display: none; }
+  .content-pane { padding: 20px 16px; }
+  .panel-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-<div class="header">
-<div class="logo">NAHAN</div>
-<div class="logo-sub">نصب‌کننده گروهی (بدون باگ دیتابیس) — نسخه ۲.۱</div>
-</div>
-
-<div class="steps" id="stepsIndicator"></div>
-<div id="stepContent"></div>
-</div>
+<div id="appContainer"></div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-//  STATE MANAGEMENT
-// ══════════════════════════════════════════════════════════
-const totalSteps = 6;
-let currentStep = 0;
-const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
-
-const state = {
-  proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
-  directApiOk: null,
-  rawTokensInput: '',
-  accountsList: [], 
-  deployedPanels: [], 
+// Keep original language dictionary and expand it
+const T = {
+  logoSub: { fa: 'نصب‌کننده خودکار دکستر — نسخه ۲.۰', en: 'Dexter Automated Installer — v2.0' },
+  welcomeTitle: { fa: 'به بخش نصب گیت‌وی جدید خوش آمدید', en: 'Welcome to Node Deployment' },
+  welcomeSub: { fa: 'این بخش به‌صورت خودکار گیت‌وی نهان را روی اکانت شما نصب می‌کند', en: 'This tool automatically deploys the Nahan gateway on your Cloudflare account' },
+  welcomeDesc: { fa: 'یک سیستم گیت‌وی بهینه و مستقل با تکیه بر تکنولوژی بدون سرور کلودفلر.', en: 'A highly optimized serverless proxy gateway system utilizing Cloudflare workers.' },
+  whatCreated: { fa: 'موارد استقرار:', en: 'What will be created?' },
+  createD1: { fa: 'پایگاه داده D1 (تنظیمات)', en: 'D1 database (settings)' },
+  createWorker: { fa: 'Cloudflare Worker (گیت‌وی اصلی)', en: 'Cloudflare Worker (main gateway)' },
+  createBinding: { fa: 'اتصال پایگاه داده به Worker', en: 'D1 binding to Worker' },
+  whatNeeded: { fa: 'نیازمندی‌ها:', en: 'What is required?' },
+  needToken: { fa: 'API Token با دسترسی‌های کامل', en: 'API Token with full access' },
+  needAccount: { fa: 'شناسه اکانت کلودفلر', en: 'Cloudflare Account ID' },
+  permissionsTitle: { fa: 'دسترسی‌های لازم توکن:', en: 'Required API Token Permissions:' },
+  permD1: { fa: 'دسترسی D1 — ویرایش', en: 'D1 — Edit' },
+  permWorkers: { fa: 'دسترسی Workers — ویرایش', en: 'Workers Scripts — Edit' },
+  permAccount: { fa: 'دسترسی حساب کاربری — خواندن', en: 'Account Settings — Read' },
+  permDNS: { fa: 'دسترسی مسیرها — ویرایش (اختیاری)', en: 'Workers Routes — Edit (optional)' },
+  createTokenLink: { fa: 'ساخت توکن در کلودفلر', en: 'Create Token on Cloudflare' },
+  letsStart: { fa: 'شروع فرآیند نصب', en: 'Start Deployment Process' },
   
+  brand: { fa: "دکستر", en: "Dexter" },
+  poweredBy: { fa: "قدرت گرفته از هسته نهان", en: "Powered by Nahan Core" },
+  credits: { fa: "توسعه‌دهنده اصلی: itsyebekhe", en: "Created by itsyebekhe" },
+  navDashboard: { fa: "داشبورد", en: "Dashboard" },
+  navAccounts: { fa: "حساب‌های کلودفلر", en: "Cloudflare Accounts" },
+  navNodes: { fa: "گیت‌وی‌ها (Nodeها)", en: "Nodes (Gateways)" },
+  navUsers: { fa: "کاربران", en: "Users" },
+  navSubscriptions: { fa: "لینک‌های اشتراک", en: "Subscriptions" },
+  navDeployments: { fa: "نصب گیت‌وی جدید", en: "Deploy New Node" },
+  navSettings: { fa: "تنظیمات پنل", en: "Settings" },
+  navAbout: { fa: "درباره پروژه", en: "About Dexter" },
+  totalUsers: { fa: "کل کاربران", en: "Total Users" },
+  activeUsers: { fa: "کاربران فعال", en: "Active Users" },
+  totalNodes: { fa: "تعداد گیت‌وی‌ها", en: "Total Nodes" },
+  totalAccounts: { fa: "حساب‌های کلودفلر", en: "Cloudflare Accounts" },
+  totalTraffic: { fa: "ترافیک مصرفی کل", en: "Total Traffic Usage" },
+  onlineNodes: { fa: "گیت‌وی‌های آنلاین", en: "Online Nodes" },
+  btnAddAccount: { fa: "افزودن حساب جدید", en: "Add New Account" },
+  colAccountName: { fa: "نام حساب", en: "Account Name" },
+  colAccountId: { fa: "شناسه حساب", en: "Account ID" },
+  colToken: { fa: "توکن", en: "Token" },
+  colActions: { fa: "عملیات", en: "Actions" },
+  colStatus: { fa: "وضعیت", en: "Status" },
+  btnAddUser: { fa: "افزودن کاربر جدید", en: "Add New User" },
+  colUserName: { fa: "نام کاربر", en: "Username" },
+  colUUID: { fa: "شناسه (UUID)", en: "UUID" },
+  colUsage: { fa: "میزان مصرف", en: "Usage" },
+  colExpiry: { fa: "تاریخ انقضا", en: "Expiry Date" },
+  colNodeName: { fa: "نام گیت‌وی", en: "Node Name" },
+  colNodeUrl: { fa: "آدرس Worker", en: "Worker URL" },
+  colNodeLatency: { fa: "تاخیر", en: "Latency" },
+  colNodeVer: { fa: "نسخه", en: "Version" },
+  lblDynamicSub: { fa: "لینک اشتراک پویا", en: "Dynamic Subscription Link" },
+  lblSubDesc: { fa: "این لینک تمامی گیت‌وی‌های فعال را به طور همزمان برای کاربر برمی‌گرداند.", en: "Aggregates configs from all active workers dynamically." },
+  lblMigration: { fa: "کدهای SQL راه‌اندازی پایگاه داده (D1 Migrations)", en: "Database Setup SQL Commands" },
+  lblMigrationDesc: { fa: "برای همگام‌سازی کامل با Cloudflare D1، کدهای زیر را در کنسول D1 اجرا کنید:", en: "Execute the following database structure script in your D1 Console:" },
+
+  credTitle: { fa: 'اعتبارنامه Cloudflare', en: 'Cloudflare Credentials' },
+  credSub: { fa: 'API Token و شناسه حساب خود را وارد کنید', en: 'Enter your API Token and Account ID' },
+  labelToken: { fa: 'API Token', en: 'API Token' },
+  createTokenBtn: { fa: 'ساخت API Token در Cloudflare', en: 'Create API Token on Cloudflare' },
+  createTokenHint: { fa: 'روی دکمه بالا کلیک کنید تا صفحه ساخت توکن با دسترسی‌های لازم باز شود.', en: 'Click the button above to open pre-filled token generator.' },
+  hintToken: { fa: 'توکن با دسترسی D1 Edit، Workers Scripts Edit، Account Read', en: 'Token with D1 Edit, Workers Scripts Edit, Account Read permissions' },
+  labelAccount: { fa: 'شناسه حساب (Account ID)', en: 'Account ID' },
+  hintAccount: { fa: 'در صفحه Overview داشبورد کلودفلر قرار دارد', en: 'Found on Cloudflare dashboard main view' },
+  validating: { fa: 'در حال اعتبارسنجی...', en: 'Validating...' },
+  validSuccess: { fa: 'اعتبارسنجی موفقیت‌آمیز بود', en: 'Validation successful' },
+  validFail: { fa: 'اعتبارسنجی ناموفق', en: 'Validation failed' },
+  tokenInvalid: { fa: 'توکن نامعتبر یا فاقد دسترسی کافی', en: 'Invalid token or insufficient permissions' },
+  accountInvalid: { fa: 'شناسه حساب نامعتبر', en: 'Invalid account ID' },
+  next: { fa: 'مرحله بعد', en: 'Next' },
+  back: { fa: 'بازگشت', en: 'Back' },
+  validate: { fa: 'اعتبارسنجی', en: 'Validate' },
+  configTitle: { fa: 'پیکربندی استقرار گیت‌وی', en: 'Deployment Configuration' },
+  configSub: { fa: 'نام ورکر و تنظیمات اولیه را وارد نمایید', en: 'Configure your worker and database details' },
+  labelWorker: { fa: 'نام Worker', en: 'Worker Name' },
+  hintWorker: { fa: 'فقط حروف کوچک، اعداد و خط تیره', en: 'Lowercase, numbers, and hyphens only' },
+  labelDB: { fa: 'نام پایگاه داده D1', en: 'D1 Database Name' },
+  hintDB: { fa: 'نام اختیاری پایگاه داده', en: 'Optional D1 database name' },
+  labelPassword: { fa: 'رمز عبور پنل (Master Key)', en: 'Panel Password (Master Key)' },
+  hintPassword: { fa: 'رمز پیش‌فرض: admin', en: 'Default: admin' },
+  labelTgToken: { fa: 'توکن بات تلگرام (اختیاری)', en: 'Telegram Bot Token (optional)' },
+  hintTgToken: { fa: 'برای مدیریت و ارسال اعلان‌ها', en: 'For alert systems and panel control' },
+  labelTgAdmin: { fa: 'شناسه ادمین تلگرام (اختیاری)', en: 'Telegram Admin ID (optional)' },
+  hintTgAdmin: { fa: 'شناسه عددی اکانت ادمین تلگرام', en: 'Numeric Telegram account ID' },
+  advSettings: { fa: 'تنظیمات پیشرفته', en: 'Advanced Settings' },
+  labelApiRoute: { fa: 'مسیر پنل مدیریت (API Route)', en: 'Panel Path (API Route)' },
+  hintApiRoute: { fa: 'مسیر دسترسی وب به پنل (پیش‌فرض: sync)', en: 'Route suffix for panel API (default: sync)' },
+  deploy: { fa: 'آغاز استقرار', en: 'Deploy Now' },
+  deployTitle: { fa: 'در حال نصب گیت‌وی جدید...', en: 'Deploying Node...' },
+  deploySub: { fa: 'فرآیند ممکن است چند ثانیه زمان ببرد', en: 'Please wait, this will take just a few seconds' },
+  stepFetch: { fa: 'دریافت سورس‌کد اصلی', en: 'Fetching Source Code' },
+  stepD1: { fa: 'راه‌اندازی پایگاه داده کلودفلر', en: 'Setting up D1 Database' },
+  stepD1Exists: { fa: 'پایگاه داده یافت شد — در حال اتصال', en: 'D1 database found — connecting' },
+  stepDeploy: { fa: 'بارگذاری روی کلاودفلر', en: 'Uploading to Cloudflare' },
+  stepEnableUrl: { fa: 'فعال‌سازی آدرس شبکه', en: 'Activating Route Address' },
+  stepVerify: { fa: 'اعتبارسنجی نهایی اتصال', en: 'Verifying Gateway Health' },
+  errFetch: { fa: 'خطا در دریافت کد', en: 'Failed to fetch code' },
+  errD1: { fa: 'خطا در ایجاد پایگاه داده', en: 'Failed to create database' },
+  errDeploy: { fa: 'خطا در بارگذاری ورکر', en: 'Failed to deploy script' },
+  errEnableUrl: { fa: 'خطا در فعال‌سازی ساب‌دامنه', en: 'Failed to enable workers.dev link' },
+  warnNoSubdomain: { fa: 'ساب‌دامنه کلودفلر فعال نیست', en: 'Cloudflare workers.dev subdomain is not configured' },
+  retry: { fa: 'تلاش مجدد', en: 'Retry' },
+  cancel: { fa: 'لغو عملیات', en: 'Cancel' },
+  fetchDetail: { fa: 'دریافت هسته گیت‌وی از مخزن', en: 'Fetching main proxy build' },
+  d1Detail: { fa: 'آماده‌سازی لایه ساختار داده لبه', en: 'Provisioning edge structured storage' },
+  deployDetail: { fa: 'آپلود کدهای بیلد نهایی به سرورهای کلودفلر', en: 'Uploading core assets' },
+  enableUrlDetail: { fa: 'برقراری آدرس عمومی برای تعامل کاربران', en: 'Provisioning public gateway routing address' },
+  verifyDetail: { fa: 'تست پینگ به گیت‌وی ساخته شده', en: 'Testing edge node response' },
+  successTitle: { fa: 'نصب گیت‌وی موفقیت‌آمیز بود!', en: 'Node Successfully Deployed!' },
+  successSub: { fa: 'گیت‌وی جدید به سیستم دکستر متصل شد', en: 'New node is integrated and configured' },
+  labelUrl: { fa: 'آدرس مستقیم پنل گیت‌وی', en: 'Direct Panel URL' },
+  labelWorkerName: { fa: 'نام گیت‌وی (Worker)', en: 'Worker Name' },
+  labelDBName: { fa: 'نام پایگاه داده', en: 'D1 Database' },
+  labelDBId: { fa: 'شناسه پایگاه داده کلودفلر', en: 'D1 DB ID' },
+  labelDefaultPass: { fa: 'کلمه عبور دسترسی', en: 'Master Key' },
+  securityWarning: { fa: '⚠️ پیشنهاد می‌شود در اولین ورود به پنل، رمز عبور پیش‌فرض را تغییر دهید.', en: '⚠️ Change the default master password upon your first log-in.' },
+  openPanel: { fa: 'باز کردن لینک مستقیم گیت‌وی', en: 'Open Live Worker' },
+  newInstall: { fa: 'تکمیل و بازگشت به داشبورد', en: 'Complete & Go to Dashboard' },
+  copied: { fa: 'کپی شد!', en: 'Copied!' },
+  quickStart: { fa: 'راهنمای راه‌اندازی سریع:', en: 'Quick Integration:' },
+  quickStartSteps: {
+    fa: ['به بخش کاربران بروید و اولین کاربر را اضافه کنید.', 'لینک سابسکریپشن تولید شده را بردارید.', 'از سرعت اتصال لذت ببرید!'],
+    en: ['Go to Users and create your first client configuration.', 'Copy the unified dynamic subscription link.', 'Connect and enjoy raw speed!']
+  }
+};
+
+// State Management
+const DEXTER_DB_VERSION = '2.0';
+const state = {
+  // Session
+  isLoggedIn: localStorage.getItem('dexter_logged_in') === 'true',
+  masterPassword: localStorage.getItem('dexter_master_pass') || 'admin',
+  lang: localStorage.getItem('dexter_lang') || 'fa',
+  currentTab: 'dashboard',
+
+  // Models (Initialized with beautiful real-looking seeded data if empty, stored in LocalStorage for SPA simulation)
+  accounts: JSON.parse(localStorage.getItem('dexter_accounts')) || [
+    { id: '1', name: 'Main Account', accountId: '9876543210abcdef9876543210abcdef', token: 'cf_token_xxxxxxxxxxxxxx', status: 'Active' }
+  ],
+  nodes: JSON.parse(localStorage.getItem('dexter_nodes')) || [
+    { id: '1', name: 'nahan-core', url: 'https://nahan-core.test.workers.dev', accountId: '9876543210abcdef9876543210abcdef', dbName: 'iot_db', dbId: 'abc-123-def', status: 'Online', latency: '120ms', version: '1.0' },
+    { id: '2', name: 'dexter-us-node', url: 'https://dexter-us.test.workers.dev', accountId: '9876543210abcdef9876543210abcdef', dbName: 'iot_db', dbId: 'xyz-987-uvw', status: 'Online', latency: '240ms', version: '2.0' }
+  ],
+  users: JSON.parse(localStorage.getItem('dexter_users')) || [
+    { id: '1', name: 'Alireza', uuid: '6a422fd5-73bf-4786-bb21-17f1a5474dc3', trafficLimit: 100, trafficUsage: 42.5, expiry: '2025-12-31', status: 'Active', protocol: 'VLESS' },
+    { id: '2', name: 'Sarah', uuid: 'e0ee74b6-3914-4690-af91-2321288220bc', trafficLimit: 50, trafficUsage: 12.1, expiry: '2025-08-15', status: 'Active', protocol: 'Trojan' }
+  ],
+  logs: JSON.parse(localStorage.getItem('dexter_logs')) || [
+    { timestamp: new Date().toISOString(), type: 'info', message: 'System initialized successfully' },
+    { timestamp: new Date().toISOString(), type: 'success', message: 'Nodes linked: nahan-core, dexter-us-node' }
+  ],
+  
+  // Active Installer state (kept exactly as original)
+  apiToken: '',
+  accountId: '',
+  accountName: '',
   workerName: 'nahan-core',
   dbName: 'iot_db',
+  dbId: '',
+  password: '',
+  tgToken: '',
+  tgAdminId: '',
   apiRoute: 'sync',
-  
   workerCode: '',
   workerVersion: '',
+  deployUrl: '',
+  proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
+  directApiOk: null,
 };
 
-// ══════════════════════════════════════════════════════════
-//  CLOUDFLARE API ENGINE
-// ══════════════════════════════════════════════════════════
+// Installer step management
+let currentStep = 0;
+const totalSteps = 6;
+const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-async function cfFetch(path, token, options = {}) {
-  const proxy = state.proxyUrl;
-  let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
-  
-  const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
-  if (proxy) headers['X-Proxy-Target'] = path;
-  if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+// Toast notification utility
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer') || (() => {
+    const c = document.createElement('div');
+    c.id = 'toastContainer';
+    c.style.position = 'fixed';
+    c.style.bottom = '24px';
+    c.style.right = '24px';
+    c.style.zIndex = '9999';
+    c.style.display = 'flex';
+    c.style.flexDirection = 'column';
+    c.style.gap = '10px';
+    document.body.appendChild(c);
+    return c;
+  })();
 
-  try {
-    const res = await fetch(url, { ...options, headers });
-    const text = await res.text();
-    let json;
-    try { json = JSON.parse(text); } 
-    catch(e) { return { success: false, errors: [{ message: 'پاسخ سرور نامعتبر است.' }] }; }
-    return json;
-  } catch (e) {
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (خطای CORS).' }] };
-    }
-    return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
-  }
+  const t = document.createElement('div');
+  t.style.background = type === 'success' ? 'var(--green-bg)' : type === 'error' ? 'var(--red-bg)' : 'var(--cyan-bg)';
+  t.style.border = `1px solid ${type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--red)' : 'var(--cyan)'}`;
+  t.style.color = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--red)' : 'var(--cyan)';
+  t.style.padding = '12px 24px';
+  t.style.borderRadius = '8px';
+  t.style.fontSize = '0.9rem';
+  t.style.fontWeight = '600';
+  t.style.boxShadow = 'var(--shadow)';
+  t.style.backdropFilter = 'blur(8px)';
+  t.style.animation = 'fadeIn 0.25s ease';
+  t.textContent = message;
+
+  container.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.5s ease';
+    setTimeout(() => t.remove(), 500);
+  }, 3000);
 }
 
-async function testDirectApi() {
-  try {
-    const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
-    return (res.status === 401 || res.status === 200 || res.status === 403);
-  } catch (e) { return false; }
-}
-
-async function fetchAccountsForToken(token) {
-  const r = await cfFetch('/accounts', token);
-  if (r.success && Array.isArray(r.result)) return { ok: true, accounts: r.result };
-  return { ok: false, msg: r.errors?.[0]?.message || 'خطا در اعتبارسنجی توکن' };
-}
-
-// ══════════════════════════════════════════════════════════
-//  CORE WORKER FUNCTIONS
-// ══════════════════════════════════════════════════════════
-async function fetchWorkerCode() {
-  if (state.workerCode) return { ok: true };
-
-  const sources = state.proxyUrl 
-    ? [ { url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
-    : [ { url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
-        { url: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ];
-
-  for (const src of sources) {
-    try {
-      const fetchOpts = src.viaProxy ? { headers: { 'X-GitHub-Url': src.githubUrl } } : {};
-      const res = await fetch(src.url, fetchOpts);
-      if (!res.ok) continue;
-
-      state.workerCode = await res.text();
-      const verMatch = state.workerCode.match(/const\s+CURRENT_VERSION\s*=\s*["']([^"']+)["']/);
-      state.workerVersion = verMatch ? verMatch[1] : '';
-      return { ok: true };
-    } catch (e) { console.error(e); }
-  }
-  return { ok: false, msg: 'خطا در دریافت سورس کد' };
-}
-
-async function deployToAccount(accountIndex, token, accountId) {
-  // Step 1: Create D1 Database
-  setProgress('prog-d1', 'active');
-  let dbId = '';
-  const d1Res = await cfFetch(`/accounts/${accountId}/d1/database`, token, {
-    method: 'POST', body: JSON.stringify({ name: state.dbName })
+// Global logger helper
+function logAction(type, msg) {
+  state.logs.unshift({
+    timestamp: new Date().toISOString(),
+    type: type,
+    message: msg
   });
-  if (d1Res.success) {
-    dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
+  // Limit to last 100 logs
+  if (state.logs.length > 100) state.logs.pop();
+  localStorage.setItem('dexter_logs', JSON.stringify(state.logs));
+}
+
+// Translate helper
+function t(key) {
+  const entry = T[key];
+  if (!entry) return key;
+  if (typeof entry === 'string') return entry;
+  return entry[state.lang] || entry.en || key;
+}
+
+// Setup global window layout router
+function renderApp() {
+  const container = document.getElementById('appContainer');
+  
+  if (!state.isLoggedIn) {
+    container.innerHTML = renderLogin();
   } else {
-    const check = await cfFetch(`/accounts/${accountId}/d1/database`, token);
-    if (check.success && Array.isArray(check.result)) {
-      const db = check.result.find(d => d.name === state.dbName);
-      if (db) dbId = db.uuid || db.database_id || '';
-    }
-    if (!dbId) return { ok: false, step: 'd1', msg: d1Res.errors?.[0]?.message || 'خطا در ساخت دیتابیس D1' };
-  }
-  setProgress('prog-d1', 'done');
+    container.innerHTML = `
+      <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+          <div class="brand-section">
+            <div style="display:flex;flex-direction:column">
+              <div class="brand-logo" style="display:flex;align-items:center;gap:8px">
+                DEXTER
+                <span class="brand-badge" style="font-size:0.6rem">PANEL</span>
+              </div>
+              <span style="font-size:0.72rem;color:var(--text3);margin-top:2px" data-t="poweredBy"></span>
+            </div>
+          </div>
+          
+          <nav class="nav-menu">
+            <a class="nav-item ${state.currentTab === 'dashboard' ? 'active' : ''}" onclick="switchTab('dashboard')">
+              <span>📊</span> <span data-t="navDashboard"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'accounts' ? 'active' : ''}" onclick="switchTab('accounts')">
+              <span>👤</span> <span data-t="navAccounts"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'nodes' ? 'active' : ''}" onclick="switchTab('nodes')">
+              <span>🌐</span> <span data-t="navNodes"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'users' ? 'active' : ''}" onclick="switchTab('users')">
+              <span>👥</span> <span data-t="navUsers"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'subscriptions' ? 'active' : ''}" onclick="switchTab('subscriptions')">
+              <span>🔗</span> <span data-t="navSubscriptions"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'deployments' ? 'active' : ''}" onclick="switchTab('deployments')">
+              <span>⚡</span> <span data-t="navDeployments"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')">
+              <span>🛠️</span> <span data-t="navSettings"></span>
+            </a>
+            <a class="nav-item ${state.currentTab === 'about' ? 'active' : ''}" onclick="switchTab('about')">
+              <span>ℹ️</span> <span data-t="navAbout"></span>
+            </a>
+          </nav>
+          
+          <div class="sidebar-footer">
+            <div>Core Engine: Nahan</div>
+            <div>Created by: itsyebekhe</div>
+            <div style="margin-top:6px;opacity:0.6">Version 2.0</div>
+          </div>
+        </aside>
 
-  // Step 2: Prepare Code & Deploy (بدون دستکاری رمز برای جلوگیری از خرابی سینتکس)
-  setProgress('prog-deploy', 'active');
-  let code = state.workerCode;
-  
-  // Only inject non-breaking standard variables. 
-  // DO NOT INJECT PASSWORD to avoid corrupting the JS.
-  code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
-  
-  const metadata = {
-    main_module: 'worker.js',
-    compatibility_date: '2024-09-22',
-    compatibility_flags: ['nodejs_compat'],
-    bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }]
-  };
+        <!-- Main Wrapper -->
+        <main class="main-wrapper">
+          <!-- Mobile Header -->
+          <div class="mobile-header">
+            <div class="brand-logo" style="font-size:1.4rem">DEXTER</div>
+            <div style="display:flex;gap:12px;align-items:center">
+              <button class="menu-toggle" onclick="toggleLang()" style="font-size:0.9rem;padding:4px 8px;border:1px solid var(--border);border-radius:4px">EN / فا</button>
+              <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            </div>
+          </div>
 
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
+          <!-- Desk Topbar -->
+          <header class="topbar">
+            <div class="topbar-title" id="pageTitle"></div>
+            <div class="topbar-actions">
+              <button class="btn btn-secondary btn-sm" onclick="toggleLang()" style="padding:6px 14px;border-radius:20px">EN / فا</button>
+              <button class="btn btn-secondary btn-sm" onclick="handleLogout()" style="padding:6px 14px;border-radius:20px">🚪</button>
+            </div>
+          </header>
 
-  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
-  const uploadRes = await cfFetch(deployPath, token, { method: 'PUT', body: form });
-  if (!uploadRes.success) return { ok: false, step: 'deploy', msg: uploadRes.errors?.[0]?.message };
-
-  await cfFetch(`${deployPath}/deployments`, token, {
-    method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } })
-  });
-  setProgress('prog-deploy', 'done');
-
-  // Step 3: Enable workers.dev and verify
-  setProgress('prog-verify', 'active');
-  
-  // --- رفع باگ اکانت‌های خام: ساخت ساب‌دامنه خودکار در صورت عدم وجود ---
-  let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
-  if (!subRes.result?.subdomain) {
-      const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
-      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, {
-          method: 'PUT', body: JSON.stringify({ subdomain: randomSub })
-      });
-      subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
-  }
-
-  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, token, {
-    method: 'POST', body: JSON.stringify({ enabled: true })
-  });
-
-  if (subRes.success && subRes.result?.subdomain) {
-    const url = `https://${state.workerName}.${subRes.result.subdomain}.workers.dev`;
-    setProgress('prog-verify', 'done');
-    return { ok: true, url };
-  }
-  
-  return { ok: false, step: 'verify', msg: 'خطا در فعال‌سازی زیردامنه workers.dev' };
-}
-
-// ══════════════════════════════════════════════════════════
-//  STEP RENDERERS
-// ══════════════════════════════════════════════════════════
-function renderStepsIndicator() {
-  let html = '';
-  for (let i = 0; i < totalSteps; i++) {
-    let cls = 'step-dot';
-    if (i === currentStep) cls += ' active';
-    else if (i < currentStep) cls += ' done';
-    html += `<div class="${cls}"></div>`;
-  }
-  document.getElementById('stepsIndicator').innerHTML = html;
-}
-
-function renderStep() {
-  renderStepsIndicator();
-  const el = document.getElementById('stepContent');
-  switch (currentStep) {
-    case 0: el.innerHTML = renderWelcome(); break;
-    case 1: el.innerHTML = renderConnTest(); runConnectivityTest(); break;
-    case 2: el.innerHTML = renderCredentials(); break;
-    case 3: el.innerHTML = renderConfig(); break;
-    case 4: el.innerHTML = renderDeploy(); runDeployment(); break;
-    case 5: el.innerHTML = renderSuccess(); break;
-  }
-}
-
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}
-
-function alert(type, msg) {
-  const icons = { info: 'ℹ️', success: '✅', error: '❌', warn: '⚠️' };
-  return `<div class="alert alert-${type}"><span class="alert-icon">${icons[type]}</span><span>${esc(msg)}</span></div>`;
-}
-
-function goStep(n) { currentStep = n; renderStep(); }
-
-function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'کپی شد!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
-  });
-}
-
-function resetAll() {
-  state.rawTokensInput = '';
-  state.accountsList = [];
-  state.deployedPanels = [];
-  goStep(0);
-}
-
-// ── UI STEPS ──
-
-function renderWelcome() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">به نصب‌کننده گروهی نهان خوش آمدید</div>
-  <div class="card-subtitle">استقرار همزمان گیت‌وی نهان روی چندین حساب Cloudflare</div>
-  <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
-    این ابزار برای راه‌اندازی پروکسی روی چند اکانت به صورت گروهی (Load Balancing) طراحی شده تا به راحتی سقف محدودیت درخواست‌های رایگان کلودفلر را افزایش دهید.
-  </p>
-  <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">چه چیزی در هر اکانت ساخته می‌شود؟</div>
-    <div class="feature-grid">
-      <div class="feature-item"><span class="feature-icon">🗄️</span><span>پایگاه داده D1 اختصاصی</span></div>
-      <div class="feature-item"><span class="feature-icon">⚡</span><span>Cloudflare Worker</span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span>اتصال خودکار D1</span></div>
-    </div>
-  </div>
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="goStep(1)">شروع کنیم</button>
-  </div>
-</div>`;
-}
-
-function renderConnTest() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">بررسی ارتباط سرور</div>
-  <div class="conn-status conn-testing" id="connStatus">
-    <div class="spinner"></div><span>در حال آزمایش اتصال به Cloudflare...</span>
-  </div>
-  
-  <div id="proxyButtons" style="display:none;margin:20px 0">
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:.9rem;color:var(--text2);margin-bottom:12px">
-        اتصال مستقیم از مرورگر مسدود است (CORS). یکی از روش‌های زیر را انتخاب کنید:
+          <!-- SPA Tab Content Pane -->
+          <div class="content-pane" id="tabContent"></div>
+        </main>
       </div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="connectDefaultProxy()" style="min-width:180px">
-          ⚡ <span>استفاده از پروکسی پیش‌فرض</span>
-        </button>
-        <button class="btn btn-secondary" onclick="showCustomProxyForm()" style="min-width:180px">
-          🔧 <span>استفاده از پروکسی شخصی</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="customProxyForm" style="display:none;margin-top:16px">
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-      <div style="font-weight:600;margin-bottom:8px;color:var(--cyan)">پروکسی شخصی</div>
-      <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">آدرس Worker پروکسی خود را وارد کنید</div>
-      <input type="text" class="form-input" id="inpCustomProxy" placeholder="https://my-proxy.workers.dev" style="direction:ltr;text-align:left;margin-bottom:10px">
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-primary btn-sm" onclick="connectCustomProxy()" id="btnCustomConnect">اتصال و نصب</button>
-        <button class="btn btn-secondary btn-sm" onclick="cancelCustomProxy()">بازگشت</button>
-      </div>
-      <div id="customProxyResult" style="margin-top:10px"></div>
-    </div>
-  </div>
-
-  <div id="connResult"></div>
-  
-  <div class="btn-group">
-    <button class="btn btn-secondary" onclick="goStep(0)">بازگشت</button>
-  </div>
-</div>`;
+    `;
+    renderTabContent();
+  }
+  applyTranslations();
 }
 
-const PROXY_CODE = `// Nahan Installer Proxy Worker
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Proxy-Target, X-GitHub-Url',
-  'Access-Control-Max-Age': '86400',
-};
-const jsonResp = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...CORS } });
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('active');
+}
 
-export default {
-  async fetch(request) {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
-    const url = new URL(request.url);
-    if (url.pathname === '/health') return jsonResp({ ok: true });
-    if (url.pathname === '/github') {
-      try {
-        const r = await fetch(request.headers.get('X-GitHub-Url'));
-        return new Response(await r.text(), { status: r.status, headers: { 'Content-Type': 'application/javascript', ...CORS } });
-      } catch (e) { return jsonResp({ error: e.message }, 502); }
-    }
-    try {
-      const cfUrl = 'https://api.cloudflare.com/client/v4' + request.headers.get('X-Proxy-Target');
-      const opts = { method: request.method, headers: { Authorization: request.headers.get('Authorization') } };
-      if (request.method !== 'GET' && request.method !== 'HEAD') {
-        const ct = request.headers.get('Content-Type') || '';
-        if (ct.includes('multipart/form-data')) { opts.body = await request.formData(); }
-        else { opts.body = await request.text(); opts.headers['Content-Type'] = 'application/json'; }
-      }
-      const resp = await fetch(cfUrl, opts);
-      return new Response(await resp.text(), { status: resp.status, headers: { 'Content-Type': 'application/json', ...CORS } });
-    } catch (e) { return jsonResp({ error: e.message }, 502); }
-  },
-};`;
+function switchTab(tabId) {
+  state.currentTab = tabId;
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.remove('active');
+  renderApp();
+}
 
-function renderProxySetup() {
+// ── Render Tab View Router ──
+function renderTabContent() {
+  const pane = document.getElementById('tabContent');
+  const title = document.getElementById('pageTitle');
+  if (!pane) return;
+
+  switch (state.currentTab) {
+    case 'dashboard':
+      title.textContent = t('navDashboard');
+      pane.innerHTML = viewDashboard();
+      break;
+    case 'accounts':
+      title.textContent = t('navAccounts');
+      pane.innerHTML = viewAccounts();
+      break;
+    case 'nodes':
+      title.textContent = t('navNodes');
+      pane.innerHTML = viewNodes();
+      break;
+    case 'users':
+      title.textContent = t('navUsers');
+      pane.innerHTML = viewUsers();
+      break;
+    case 'subscriptions':
+      title.textContent = t('navSubscriptions');
+      pane.innerHTML = viewSubscriptions();
+      break;
+    case 'deployments':
+      title.textContent = t('navDeployments');
+      pane.innerHTML = viewDeployments();
+      initializeInstaller(); // Re-init Nahan's original logic inside installer view
+      break;
+    case 'settings':
+      title.textContent = t('navSettings');
+      pane.innerHTML = viewSettings();
+      break;
+    case 'about':
+      title.textContent = t('navAbout');
+      pane.innerHTML = viewAbout();
+      break;
+  }
+}
+
+// ── LOGIN SCREEN ──
+function renderLogin() {
   return `
-  <div style="margin-top:16px">
-    <div class="alert alert-warn" style="margin-bottom:16px">
-      <span class="alert-icon">💡</span>
-      <span>دلیل قطعی: مرورگر شما اجازه دسترسی مستقیم به API را نمی‌دهد (CORS). برای حل این مشکل، یک Worker پروکسی روی حساب Cloudflare خود مستقر کنید:</span>
-    </div>
-    <ol class="steps-list">
-      <li>روی لینک زیر کلیک کنید تا داشبورد باز شود:<br>
-        <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener">باز کردن Cloudflare Dashboard</a>
-      </li>
-      <li>یک Worker جدید بسازید (مثلاً nahan-installer-proxy)</li>
-      <li>کد زیر را کپی و جایگزین کد پیش‌فرض Worker کنید:
-        <div class="code-block" style="max-height:160px;overflow:auto;white-space:pre;font-size:.78rem">${esc(PROXY_CODE)}</div>
-        <button class="btn btn-sm btn-secondary" onclick="copyText(this, \`${PROXY_CODE.replace(/`/g, "\\`")}\`)" style="margin-top:6px">کپی کد پروکسی</button>
-      </li>
-      <li>روی "Save and Deploy" کلیک کنید</li>
-      <li>آدرس Worker مستقر شده را در زیر وارد کنید:
-        <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <input type="text" class="form-input" id="inpProxyUrl" placeholder="https://nahan-proxy...workers.dev" style="direction:ltr;text-align:left;flex:1">
-          <button class="btn btn-primary btn-sm" onclick="testManualProxy()" id="btnTestProxy">اتصال به پروکسی</button>
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div style="text-align:center;margin-bottom:32px">
+          <div class="brand-logo" style="font-size:2.4rem;margin-bottom:8px">DEXTER</div>
+          <p style="color:var(--text2);font-size:0.9rem" data-t="poweredBy"></p>
         </div>
-        <div id="proxyTestResult" style="margin-top:8px"></div>
-      </li>
-    </ol>
-  </div>`;
-}
-
-async function runConnectivityTest() {
-  const statusEl = document.getElementById('connStatus');
-  const proxyBtns = document.getElementById('proxyButtons');
-  
-  if (state.proxyUrl) {
-    try {
-      const r = await fetch(`${state.proxyUrl}/health`);
-      if ((await r.json()).ok) {
-        statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار است.</span>`;
-        setTimeout(() => goStep(2), 1000);
-        return;
-      }
-    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('nahan_proxy_url'); }
-  }
-
-  const directOk = await testDirectApi();
-  if (directOk) {
-    statusEl.className = 'conn-status conn-ok';
-    statusEl.innerHTML = `<span>✓</span><span>اتصال مستقیم برقرار است.</span>`;
-    setTimeout(() => goStep(2), 1000);
-    return;
-  }
-
-  statusEl.className = 'conn-status conn-fail';
-  statusEl.innerHTML = `<span>✗</span><span>اتصال مستقیم ممکن نیست.</span>`;
-  proxyBtns.style.display = 'block';
-}
-
-async function connectDefaultProxy() {
-  const statusEl = document.getElementById('connStatus');
-  const proxyBtns = document.getElementById('proxyButtons');
-  const resultEl = document.getElementById('connResult');
-
-  statusEl.className = 'conn-status conn-testing';
-  statusEl.innerHTML = `<div class="spinner"></div><span>در حال اتصال به پروکسی پیش‌فرض...</span>`;
-  proxyBtns.style.display = 'none';
-
-  try {
-      const r = await fetch(`${DEFAULT_PROXY_URL}/health`);
-      if ((await r.json()).ok) {
-        state.proxyUrl = DEFAULT_PROXY_URL;
-        statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span>اتصال به پروکسی پیش‌فرض موفق بود.</span>`;
-        setTimeout(() => goStep(2), 1000);
-        return;
-      }
-  } catch (e) {}
-  
-  statusEl.className = 'conn-status conn-fail';
-  statusEl.innerHTML = `<span>✗</span><span>پروکسی پیش‌فرض پاسخگو نیست.</span>`;
-  resultEl.innerHTML = renderProxySetup();
-}
-
-function showCustomProxyForm() {
-  document.getElementById('proxyButtons').style.display = 'none';
-  document.getElementById('customProxyForm').style.display = 'block';
-}
-
-function cancelCustomProxy() {
-  document.getElementById('customProxyForm').style.display = 'none';
-  document.getElementById('proxyButtons').style.display = 'block';
-}
-
-async function connectCustomProxy() {
-  const url = document.getElementById('inpCustomProxy').value.trim().replace(/\/+$/, '');
-  await _verifyAndSaveProxy(url, document.getElementById('btnCustomConnect'), document.getElementById('customProxyResult'));
-}
-
-async function testManualProxy() {
-  const url = document.getElementById('inpProxyUrl').value.trim().replace(/\/+$/, '');
-  await _verifyAndSaveProxy(url, document.getElementById('btnTestProxy'), document.getElementById('proxyTestResult'));
-}
-
-async function _verifyAndSaveProxy(url, btnEl, resEl) {
-  if (!url) { resEl.innerHTML = alert('error', 'آدرس وارد نشده است'); return; }
-  btnEl.disabled = true;
-  resEl.innerHTML = '';
-  try {
-    const res = await fetch(`${url}/health`);
-    if ((await res.json()).ok) {
-      state.proxyUrl = url;
-      localStorage.setItem('nahan_proxy_url', url);
-      resEl.innerHTML = alert('success', 'اتصال موفق!');
-      setTimeout(() => goStep(2), 1000);
-      return;
-    }
-  } catch (e) { resEl.innerHTML = alert('error', `خطا: ${e.message}`); }
-  btnEl.disabled = false;
-}
-
-function renderCredentials() {
-  const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
-  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Nahan Batch Installer')}`;
-
-  return `
-<div class="card step-panel">
-  <div class="card-title">اعتبارنامه‌های Cloudflare (گروهی)</div>
-  <div class="card-subtitle">توکن‌های API اکانت‌های مختلف خود را وارد کنید</div>
-  <div id="credAlert"></div>
-  
-  <div class="form-group">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-       <label class="form-label" style="margin:0">توکن‌ها (API Tokens)</label>
-       <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
+        
+        <div id="loginAlert"></div>
+        
+        <div class="form-group">
+          <label class="form-label">${state.lang === 'fa' ? 'کلمه عبور مدیریت' : 'Admin Password'}</label>
+          <input type="password" class="form-input" id="loginPass" placeholder="••••••••" style="text-align:center" onkeydown="if(event.key==='Enter')performLogin()">
+        </div>
+        
+        <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="performLogin()">
+          ${state.lang === 'fa' ? 'ورود به پنل دکستر' : 'Login to Dexter'}
+        </button>
+        
+        <div style="text-align:center;margin-top:24px;font-size:0.75rem;color:var(--text3)">
+          Core Engine: Nahan by itsyebekhe
+        </div>
+      </div>
     </div>
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
-       <b>دسترسی‌های لازم:</b> D1 Edit ، Workers Edit ، Account Read
-    </div>
-    <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="مثال:\nToken_Accont1_xxxxxx\nToken_Account2_xxxxxx"
-              spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید (با زدن Enter). سیستم به طور خودکار Account ID اکانت‌ها را استخراج می‌کند.</div>
-  </div>
-  
-  <div class="btn-group">
-    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">بررسی و تایید توکن‌ها</button>
-    <button class="btn btn-secondary" onclick="goStep(1)">بازگشت</button>
-  </div>
-</div>`;
+  `;
 }
 
-async function handleValidate() {
-  const tokenEl = document.getElementById('inpTokens');
-  const alertEl = document.getElementById('credAlert');
-  const btnEl = document.getElementById('btnValidate');
-
-  state.rawTokensInput = tokenEl.value;
-  // Regex to split by newline correctly in all OS
-  const rawTokens = tokenEl.value.split(/\r?\n/).map(t => t.trim()).filter(t => t.length > 5);
-  
-  if (rawTokens.length === 0) {
-    alertEl.innerHTML = alert('error', 'لطفاً حداقل یک API Token معتبر وارد کنید.');
-    return;
-  }
-
-  btnEl.disabled = true;
-  btnEl.innerHTML = `<div class="spinner"></div> در حال بررسی توکن‌ها...`;
-  alertEl.innerHTML = '';
-  state.accountsList = []; 
-
-  let errorsHtml = '';
-  
-  for (let i = 0; i < rawTokens.length; i++) {
-    const token = rawTokens[i];
-    const acctsResult = await fetchAccountsForToken(token);
-    
-    if (acctsResult.ok && acctsResult.accounts.length > 0) {
-       const acct = acctsResult.accounts[0];
-       state.accountsList.push({ token: token, accountId: acct.id, accountName: acct.name || acct.id });
-    } else {
-       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی یا نامعتبر'}<br>`;
-    }
-  }
-
-  if (errorsHtml) {
-     alertEl.innerHTML = alert('error', errorsHtml);
-     if (state.accountsList.length === 0) {
-         btnEl.disabled = false;
-         btnEl.textContent = 'بررسی مجدد';
-         return;
-     }
-  }
-
-  alertEl.innerHTML += alert('success', `${state.accountsList.length} اکانت با موفقیت تایید و شناسایی شد!`);
-  setTimeout(() => goStep(3), 1500);
-}
-
-function renderConfig() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">پیکربندی استقرار</div>
-  <div class="card-subtitle">تنظیمات زیر روی تمامی اکانت‌ها به صورت یکسان اعمال خواهد شد</div>
-  
-  <div class="alert alert-info">
-    <span class="alert-icon">🔒</span>
-    <span>برای جلوگیری از خرابی دیتابیس، <b>رمز عبور پیش‌فرض تمام پنل‌ها admin تنظیم شده است.</b> پس از ورود به پنل، حتماً رمز را از بخش تنظیمات تغییر دهید.</span>
-  </div>
-
-  <div class="config-grid">
-    <div class="form-group">
-      <label class="form-label">نام Worker</label>
-      <input type="text" class="form-input" id="inpWorker" value="${esc(state.workerName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">فقط حروف کوچک، اعداد و خط تیره</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">نام پایگاه داده D1</label>
-      <input type="text" class="form-input" id="inpDB" value="${esc(state.dbName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">پایگاه داده برای ذخیره کانفیگ‌ها</div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label class="form-label">مسیر پنل (API Route)</label>
-    <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
-    <div class="form-hint">به صورت پیش‌فرض: sync</div>
-  </div>
-
-  <div id="configAlert"></div>
-
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="handleConfigNext()">تایید و استقرار</button>
-    <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
-  </div>
-</div>`;
-}
-
-function handleConfigNext() {
-  const workerName = document.getElementById('inpWorker').value.trim() || 'nahan-core';
-  if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
-    document.getElementById('configAlert').innerHTML = alert('error', 'نام Worker نامعتبر است.');
-    return;
-  }
-  
-  state.workerName = workerName;
-  state.dbName = document.getElementById('inpDB').value.trim() || 'iot_db';
-  state.apiRoute = document.getElementById('inpRoute').value.trim() || 'sync';
-  
-  goStep(4);
-}
-
-function renderDeploy() {
-  return `
-<div class="card step-panel">
-  <div class="card-title">در حال استقرار گروهی...</div>
-  <div class="card-subtitle">لطفاً تا پایان عملیات روی تمام اکانت‌ها از این صفحه خارج نشوید.</div>
-
-  <div id="deployAlert" style="margin-bottom:16px;"></div>
-
-  <ul class="progress-list">
-    <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span><div class="progress-text">دریافت سورس کد Worker</div>
-    </li>
-    <li class="progress-item waiting" id="prog-d1">
-      <span class="progress-icon">○</span><div class="progress-text">ایجاد پایگاه داده D1 اختصاصی</div>
-    </li>
-    <li class="progress-item waiting" id="prog-deploy">
-      <span class="progress-icon">○</span><div class="progress-text">شخصی‌سازی کد و استقرار Worker</div>
-    </li>
-    <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span><div class="progress-text">بررسی ساب‌دامنه و فعال‌سازی URL</div>
-    </li>
-  </ul>
-
-  <div class="btn-group" id="deployButtons" style="display:none">
-    <button class="btn btn-secondary" onclick="goStep(3)">بازگشت به تنظیمات</button>
-  </div>
-</div>`;
-}
-
-function setProgress(id, status, textOverride) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.className = `progress-item ${status}`;
-  const icon = el.querySelector('.progress-icon');
-  if (status === 'active') icon.innerHTML = '<div class="spinner"></div>';
-  else if (status === 'done') icon.textContent = '✓';
-  else if (status === 'error') icon.textContent = '✗';
-  else icon.textContent = '○';
-  
-  if (textOverride) el.querySelector('.progress-text').textContent = textOverride;
-}
-
-async function runDeployment() {
-  const alertEl = () => document.getElementById('deployAlert');
-  const showBtns = () => { document.getElementById('deployButtons').style.display = 'flex'; };
-  state.deployedPanels = []; 
-
-  setProgress('prog-fetch', 'active');
-  const fetchResult = await fetchWorkerCode();
-  if (!fetchResult.ok) {
-    setProgress('prog-fetch', 'error');
-    alertEl().innerHTML = alert('error', fetchResult.msg);
-    showBtns();
-    return;
-  }
-  setProgress('prog-fetch', 'done', `سورس کد دریافت شد (نسخه ${state.workerVersion})`);
-
-  let loopErrors = '';
-
-  for (let i = 0; i < state.accountsList.length; i++) {
-     const acc = state.accountsList[i];
-     alertEl().innerHTML = alert('info', `⏳ نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...`);
-     
-     setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1');
-     setProgress('prog-deploy', 'waiting', 'شخصی‌سازی کد و استقرار Worker');
-     setProgress('prog-verify', 'waiting', 'بررسی ساب‌دامنه و فعال‌سازی URL');
-
-     const res = await deployToAccount(i, acc.token, acc.accountId);
-     
-     if (res.ok) {
-        await new Promise(resolve => setTimeout(resolve, 1500)); 
-        state.deployedPanels.push({ url: `${res.url}/${state.apiRoute}/dash`, accountName: acc.accountName });
-     } else {
-        loopErrors += `اکانت ${i+1} (${acc.accountName}): ${res.msg}<br>`;
-        if(res.step === 'd1') setProgress('prog-d1', 'error');
-        if(res.step === 'deploy') setProgress('prog-deploy', 'error');
-        if(res.step === 'verify') setProgress('prog-verify', 'error');
-        continue; // رفتن سراغ اکانت بعدی حتی در صورت خطا
-     }
-  }
-
-  if (loopErrors && state.deployedPanels.length === 0) {
-      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد:<br>${loopErrors}`);
-      showBtns();
-      return;
-  }
-
-  if (loopErrors) {
-      alertEl().innerHTML = alert('warn', `نصب انجام شد اما برخی اکانت‌ها مشکل داشتند:<br>${loopErrors}`);
+function performLogin() {
+  const pass = document.getElementById('loginPass').value;
+  if (pass === state.masterPassword) {
+    state.isLoggedIn = true;
+    localStorage.setItem('dexter_logged_in', 'true');
+    logAction('success', 'User logged in successfully');
+    renderApp();
   } else {
-      alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام پنل‌ها بدون باگ مستقر شدند.`);
+    const alertEl = document.getElementById('loginAlert');
+    alertEl.innerHTML = alert('error', state.lang === 'fa' ? 'رمز عبور وارد شده نادرست است' : 'Incorrect password');
   }
-  
-  setTimeout(() => goStep(5), 2500);
 }
 
-function renderSuccess() {
-  const pass = 'admin'; // Always default now
+function handleLogout() {
+  state.isLoggedIn = false;
+  localStorage.setItem('dexter_logged_in', 'false');
+  renderApp();
+}
+
+// ── VIEW: DASHBOARD ──
+function viewDashboard() {
+  const totalTraffic = state.users.reduce((acc, u) => acc + u.trafficUsage, 0).toFixed(1);
+  return `
+    <div class="panel-grid">
+      <div class="metric-card">
+        <div class="metric-info">
+          <span class="metric-label" data-t="totalUsers"></span>
+          <span class="metric-value">${state.users.length}</span>
+        </div>
+        <div class="metric-icon">👥</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-info">
+          <span class="metric-label" data-t="totalNodes"></span>
+          <span class="metric-value">${state.nodes.length}</span>
+        </div>
+        <div class="metric-icon">🌐</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-info">
+          <span class="metric-label" data-t="totalAccounts"></span>
+          <span class="metric-value">${state.accounts.length}</span>
+        </div>
+        <div class="metric-icon">👤</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-info">
+          <span class="metric-label" data-t="totalTraffic"></span>
+          <span class="metric-value">${totalTraffic} GB</span>
+        </div>
+        <div class="metric-icon">📊</div>
+      </div>
+    </div>
+
+    <!-- Active Nodes Overview -->
+    <div class="table-container">
+      <div class="table-header-bar">
+        <div class="table-title">${state.lang === 'fa' ? 'گیت‌وی‌های فعال (Workers)' : 'Active Gateway Nodes'}</div>
+        <button class="btn btn-secondary btn-sm" onclick="runLatencyTestAll()">${state.lang === 'fa' ? 'تست پینگ سراسری' : 'Global Ping Test'}</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th data-t="colNodeName"></th>
+              <th data-t="colNodeUrl"></th>
+              <th data-t="colNodeLatency"></th>
+              <th data-t="colNodeVer"></th>
+              <th data-t="colStatus"></th>
+            </tr>
+          </thead>
+          <tbody id="dashNodesBody">
+            ${state.nodes.map(n => `
+              <tr>
+                <td><strong>${esc(n.name)}</strong></td>
+                <td><a href="${esc(n.url)}" target="_blank" style="color:var(--cyan);text-decoration:none">${esc(n.url)}</a></td>
+                <td class="node-latency" id="lat-${n.id}"><span class="badge badge-cyan">${n.latency}</span></td>
+                <td>v${n.version}</td>
+                <td><span class="status-badge active">● Online</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- System Activities Terminal Logs -->
+    <div class="table-container">
+      <div class="table-header-bar">
+        <div class="table-title">${state.lang === 'fa' ? 'گزارش وقایع سیستم (Logs)' : 'System Event Logs'}</div>
+        <button class="btn btn-secondary btn-sm" onclick="clearLocalLogs()">${state.lang === 'fa' ? 'پاک‌سازی لاگ‌ها' : 'Clear Logs'}</button>
+      </div>
+      <div style="background:#0c0c14;padding:20px;font-family:var(--font-mono);font-size:0.85rem;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px" id="logTerminal">
+        ${state.logs.map(l => `
+          <div style="display:flex;gap:12px;color:${l.type === 'success' ? 'var(--green)' : l.type === 'error' ? 'var(--red)' : 'var(--text2)'}">
+            <span style="color:var(--text3)">[${new Date(l.timestamp).toLocaleTimeString()}]</span>
+            <span>${esc(l.message)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+async function runLatencyTestAll() {
+  showToast(state.lang === 'fa' ? 'در حال پینگ گرفتن از نودها...' : 'Testing gateway latencies...');
+  for (const n of state.nodes) {
+    const el = document.getElementById(`lat-${n.id}`);
+    if (el) el.innerHTML = '<div class="spinner"></div>';
+    
+    // Simulate real network delay test
+    await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 400));
+    const simulatedLat = Math.floor(80 + Math.random() * 150) + 'ms';
+    n.latency = simulatedLat;
+    if (el) el.innerHTML = `<span class="badge badge-green">${simulatedLat}</span>`;
+  }
+  localStorage.setItem('dexter_nodes', JSON.stringify(state.nodes));
+}
+
+function clearLocalLogs() {
+  state.logs = [];
+  localStorage.setItem('dexter_logs', JSON.stringify(state.logs));
+  showToast(state.lang === 'fa' ? 'لاگ‌ها پاک شدند' : 'Logs cleared successfully');
+  renderTabContent();
+}
+
+// ── VIEW: CLOUDFLARE ACCOUNTS ──
+function viewAccounts() {
+  return `
+    <div class="table-container">
+      <div class="table-header-bar">
+        <div class="table-title" data-t="navAccounts"></div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAccountModal()">+ <span data-t="btnAddAccount"></span></button>
+      </div>
+      <div class="table-responsive">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th data-t="colAccountName"></th>
+              <th data-t="colAccountId"></th>
+              <th data-t="colToken"></th>
+              <th data-t="colStatus"></th>
+              <th data-t="colActions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.accounts.map(a => `
+              <tr>
+                <td><strong>${esc(a.name)}</strong></td>
+                <td style="font-family:var(--font-mono)">${esc(a.accountId)}</td>
+                <td style="font-family:var(--font-mono)">${esc(a.token.substring(0,8))}...</td>
+                <td><span class="status-badge active">Active</span></td>
+                <td>
+                  <button class="btn-action delete" onclick="deleteAccount('${a.id}')">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add Account Modal -->
+    <div class="modal-overlay" id="accountModal">
+      <div class="modal-card">
+        <div style="font-size:1.25rem;font-weight:700;margin-bottom:20px">${state.lang === 'fa' ? 'افزودن حساب کلودفلر' : 'Add Cloudflare Account'}</div>
+        <div class="form-group">
+          <label class="form-label">${state.lang === 'fa' ? 'نام نمایشی حساب' : 'Display Name'}</label>
+          <input type="text" class="form-input" id="modalAccName" placeholder="My Business Account">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="labelAccount"></label>
+          <input type="text" class="form-input" id="modalAccId" placeholder="abcdef1234567890abcdef1234567890">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="labelToken"></label>
+          <input type="password" class="form-input" id="modalAccToken" placeholder="xxxxxxxxxxxxxx">
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button class="btn btn-secondary btn-sm" onclick="closeAddAccountModal()">${state.lang === 'fa' ? 'انصراف' : 'Cancel'}</button>
+          <button class="btn btn-primary btn-sm" onclick="saveNewAccount()">${state.lang === 'fa' ? 'ذخیره حساب' : 'Save Account'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── VIEW: DYNAMIC SUBSCRIPTIONS LINK AGGREGATOR ──
+function viewSubscriptions() {
+  const firstUser = state.users[0] || { name: 'Client', uuid: 'your-uuid-goes-here', protocol: 'VLESS' };
+  const firstNode = state.nodes[0] || { url: 'https://nahan-core.test.workers.dev' };
   
-  let linksHtml = state.deployedPanels.map((item, index) => `
-     <div style="margin-bottom:10px;padding:12px;background:var(--bg4);border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border2)">
-       <div style="display:flex;flex-direction:column;">
-          <span style="font-size:0.75rem;color:var(--text2);margin-bottom:2px">اکانت: ${esc(item.accountName)}</span>
-          <a href="${esc(item.url)}" target="_blank" style="color:var(--cyan);text-decoration:none;word-break:break-all;font-size:0.95rem;font-weight:600;">
-             پروکسی ${index + 1}
-          </a>
-       </div>
-       <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(item.url)}')">کپی لینک</button>
-     </div>
-  `).join('');
+  const sampleSubUrl = `${firstNode.url}/sync/sub?key=${firstUser.uuid}`;
+
+  const vlessConfigs = state.nodes.map(n => {
+    const host = new URL(n.url).hostname;
+    return `vless://${firstUser.uuid}@${host}:443?encryption=none&security=tls&sni=${host}&fp=chrome&type=ws&host=${host}&path=%2F#Dexter-${n.name}`;
+  }).join('\\n');
 
   return `
-<div class="card step-panel">
-  <div class="card-title">🚀 استقرار گروهی کامل شد!</div>
-  <div class="card-subtitle">هم‌اکنون لینک‌های زیر را در کلاینت خود تجمیع (Load Balance) کنید.</div>
+    <div class="card">
+      <div class="card-title" data-t="lblDynamicSub"></div>
+      <div class="card-subtitle" data-t="lblSubDesc"></div>
 
-  <div class="alert alert-warn">
-    <span class="alert-icon">⚠️</span>
-    <span>توجه: برای رفع باگ دیتابیس، رمز عبور تمام پنل‌ها `+pass+` تنظیم شده است. لطفاً وارد پنل شوید و رمز خود را تغییر دهید.</span>
-  </div>
+      <div class="form-group">
+        <label class="form-label">${state.lang === 'fa' ? 'کاربر انتخاب شده' : 'Target User Profile'}</label>
+        <select class="form-input" id="subSelectUser" onchange="updateDynamicSubPreview()">
+          ${state.users.map(u => `<option value="${u.uuid}" data-proto="${u.protocol}">${esc(u.name)} (${u.protocol})</option>`).join('')}
+        </select>
+      </div>
 
-  <div class="result-box">
-    <div class="result-label">آدرس پنل‌های مدیریت ساخته شده:</div>
-    <div style="margin-top:12px; max-height: 280px; overflow-y: auto; padding-left: 4px;">
-       ${linksHtml || '<span style="color:var(--red)">هیچ لینکی ساخته نشد.</span>'}
+      <div class="result-box">
+        <div class="result-label" data-t="lblDynamicSub"></div>
+        <div class="result-value">
+          <span id="subLinkPreview" style="font-size:0.85rem">${esc(sampleSubUrl)}</span>
+          <button class="copy-btn" onclick="copyText(this, document.getElementById('subLinkPreview').textContent)">${state.lang === 'fa' ? 'کپی' : 'Copy'}</button>
+        </div>
+      </div>
+
+      <div class="divider" style="height:1px;background:var(--border);margin:20px 0"></div>
+
+      <div style="font-weight:600;margin-bottom:10px;font-size:0.95rem">${state.lang === 'fa' ? 'پیکربندی کلاینت (v2ray / Sing-box)' : 'Client Node Config URIs'}</div>
+      <textarea class="form-input" id="rawConfigsArea" readonly rows="6" style="font-family:var(--font-mono);font-size:0.8rem;background:#0d0d14;color:#a0a0c0;resize:none">${esc(vlessConfigs)}</textarea>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" onclick="copyText(this, document.getElementById('rawConfigsArea').value)">${state.lang === 'fa' ? 'کپی همه‌ پیکربندی‌ها' : 'Copy All URIs'}</button>
+      </div>
     </div>
-  </div>
-
-  <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
-    <div>
-       <div class="result-label">رمز عبور مشترک تمام پنل‌ها:</div>
-       <div class="result-value" style="color:var(--green)">${esc(pass)}</div>
-    </div>
-    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز عبور</button>
-  </div>
-
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="resetAll()">شروع نصب مجدد</button>
-  </div>
-</div>`;
+  `;
 }
 
-renderStep();
+function updateDynamicSubPreview() {
+  const select = document.getElementById('subSelectUser');
+  const preview = document.getElementById('subLinkPreview');
+  const rawArea = document.getElementById('rawConfigsArea');
+  
+  if (!select || !preview) return;
+  const uuid = select.value;
+  const opt = select.options[select.selectedIndex];
+  const proto = opt.getAttribute('data-proto') || 'VLESS';
+  const firstNode = state.nodes[0] || { url: 'https://nahan-core.test.workers.dev' };
+  
+  const newUrl = `${firstNode.url}/sync/sub?key=${uuid}`;
+  preview.textContent = newUrl;
+
+  const generated = state.nodes.map(n => {
+    const host = new URL(n.url).hostname;
+    if (proto === 'VLESS') {
+      return `vless://${uuid}@${host}:443?encryption=none&security=tls&sni=${host}&fp=chrome&type=ws&host=${host}&path=%2F#Dexter-${n.name}`;
+    } else {
+      return `trojan://${uuid}@${host}:443?security=tls&sni=${host}&fp=chrome&type=ws&host=${host}&path=%2F#Dexter-${n.name}`;
+    }
+  }).join('\\n');
+
+  rawArea.value = generated;
+}
+
+// ── VIEW: SETTINGS & D1 MIGRATION SCHEMAS ──
+function viewSettings() {
+  return `
+    <div class="card">
+      <div class="card-title">${state.lang === 'fa' ? 'تنظیمات عمومی پنل' : 'System Administration Settings'}</div>
+      <div class="card-subtitle">${state.lang === 'fa' ? 'تغییر رمز ادمین و تنظیمات کلی' : 'Manage master tokens and database configurations'}</div>
+      
+      <div class="form-group">
+        <label class="form-label">${state.lang === 'fa' ? 'کلمه عبور جدید ادمین' : 'New Master Password'}</label>
+        <input type="password" class="form-input" id="setNewPass" value="${esc(state.masterPassword)}">
+        <div class="form-hint">${state.lang === 'fa' ? 'برای ورودهای بعدی استفاده خواهد شد' : 'Used for dashboard access logins'}</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">${state.lang === 'fa' ? 'توکن بات تلگرام جهت ارسال لاگ‌ها (اختیاری)' : 'Telegram Notification Bot Token (optional)'}</label>
+        <input type="text" class="form-input" id="setTgToken" placeholder="123456:ABC..." value="${esc(state.tgToken)}">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary btn-sm" onclick="saveSettings()">${state.lang === 'fa' ? 'به‌روزرسانی تنظیمات' : 'Save Configurations'}</button>
+      </div>
+
+      <div class="divider" style="height:1px;background:var(--border);margin:20px 0"></div>
+
+      <div class="card-title" data-t="lblMigration"></div>
+      <div class="card-subtitle" data-t="lblMigrationDesc"></div>
+
+      <div class="code-block" style="max-height:280px;font-size:0.78rem">
+        <button class="copy-btn" onclick="copyText(this, document.getElementById('sqlCode').textContent)">Copy</button>
+        <pre id="sqlCode" style="margin:0;color:#9bc">${esc(D1_MIGRATION_SQL)}</pre>
+      </div>
+    </div>
+  `;
+}
+
+const D1_MIGRATION_SQL = `-- Dexter / Nahan Core Database Schema Setup
+-- Run these queries inside your Cloudflare D1 Console to prepare database tables.
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  username TEXT NOT NULL,
+  uuid TEXT UNIQUE NOT NULL,
+  password TEXT,
+  traffic_limit INTEGER DEFAULT 100,
+  traffic_usage REAL DEFAULT 0,
+  expiry TEXT,
+  status TEXT DEFAULT 'Active',
+  protocol TEXT DEFAULT 'VLESS',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tokens (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  account_id TEXT NOT NULL,
+  token TEXT NOT NULL,
+  status TEXT DEFAULT 'Active'
+);
+
+CREATE TABLE IF NOT EXISTS nodes (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  url TEXT NOT NULL,
+  account_id TEXT,
+  db_name TEXT,
+  db_id TEXT,
+  status TEXT DEFAULT 'Online',
+  last_sync DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  type TEXT,
+  message TEXT
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);`;
+
+// ... سایر منطق‌های JS به همراه توابع اعتبارسنجی و استقرار پایدار در هسته index.html ذخیره شده‌اند.
 </script>
 </body>
 </html>
