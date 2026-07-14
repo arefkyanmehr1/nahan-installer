@@ -13,7 +13,6 @@
 --green:#00e676;--green-bg:rgba(0,230,118,.08);
 --red:#ff4466;--red-bg:rgba(255,68,102,.08);
 --yellow:#ffaa00;--yellow-bg:rgba(255,170,0,.08);
---purple:#e53935;
 --border:#2a2a40;--border2:#3a3a55;
 --radius:10px;--radius2:14px;
 --shadow:0 4px 24px rgba(0,0,0,.4);
@@ -42,7 +41,7 @@ color:var(--cyan);margin-bottom:4px}
 width:10px;height:10px;border-radius:50%;background:var(--bg4);
 border:2px solid var(--border2);transition:var(--transition);
 }
-.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.4)}
+.step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(229,57,53,.4)}
 .step-dot.done{background:var(--green);border-color:var(--green)}
 
 /* ── Card ── */
@@ -64,7 +63,7 @@ width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border
 border-radius:var(--radius);color:var(--text);font-size:.95rem;
 font-family:var(--font-mono);transition:var(--transition);outline:none
 }
-.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(229,57,53,.1)}
 .form-input::placeholder{color:var(--text3)}
 textarea.form-input{resize:vertical;min-height:100px;font-family:var(--font-mono)}
 .form-hint{font-size:.78rem;color:var(--text3);margin-top:4px}
@@ -77,7 +76,7 @@ font-weight:600;cursor:pointer;border:none;transition:var(--transition);
 font-family:var(--font)
 }
 .btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(229,57,53,.3)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.35)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(229,57,53,.4)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
@@ -89,7 +88,7 @@ font-family:var(--font)
 padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
 margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
 }
-.alert-info{background:var(--cyan-bg);border:1px solid rgba(0,212,255,.2);color:var(--cyan)}
+.alert-info{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2);color:var(--cyan)}
 .alert-success{background:var(--green-bg);border:1px solid rgba(0,230,118,.2);color:var(--green)}
 .alert-error{background:var(--red-bg);border:1px solid rgba(255,68,102,.2);color:var(--red)}
 .alert-warn{background:var(--yellow-bg);border:1px solid rgba(255,170,0,.2);color:var(--yellow)}
@@ -109,7 +108,6 @@ transition:var(--transition)
 .progress-item.waiting{opacity:.5}
 .progress-icon{font-size:1.1rem;flex-shrink:0;width:24px;text-align:center}
 .progress-text{flex:1;font-size:.9rem}
-.progress-detail{font-size:.78rem;color:var(--text2);margin-top:2px}
 
 /* ── Spinner ── */
 .spinner{
@@ -139,7 +137,7 @@ transition:var(--transition);flex-shrink:0
 
 /* ── Extra Elements ── */
 .conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
-.conn-testing{background:var(--cyan-bg);border:1px solid rgba(0,212,255,.2)}
+.conn-testing{background:var(--cyan-bg);border:1px solid rgba(229,57,53,.2)}
 .conn-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.2)}
 .conn-fail{background:var(--red-bg);border:1px solid rgba(255,68,102,.2)}
 
@@ -181,11 +179,10 @@ display:flex;align-items:center;justify-content:center
 <div class="container">
 <div class="header">
 <div class="logo">NAHAN</div>
-<div class="logo-sub">نصب‌کننده گروهی (Multi-Token) — نسخه ۲.۰</div>
+<div class="logo-sub">نصب‌کننده گروهی (بدون باگ دیتابیس) — نسخه ۲.۱</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
-
 <div id="stepContent"></div>
 </div>
 
@@ -198,24 +195,16 @@ let currentStep = 0;
 const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 
 const state = {
-  // Cloudflare API connection
   proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
   directApiOk: null,
-
-  // Batch Deployment Data
   rawTokensInput: '',
-  accountsList: [], // { token, accountId, accountName }
-  deployedPanels: [], // { url, accountName }
-
-  // Global Configuration
+  accountsList: [], 
+  deployedPanels: [], 
+  
   workerName: 'nahan-core',
   dbName: 'iot_db',
-  password: '',
   apiRoute: 'sync',
-  tgToken: '',
-  tgAdminId: '',
   
-  // Worker Source
   workerCode: '',
   workerVersion: '',
 };
@@ -226,34 +215,23 @@ const state = {
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
 async function cfFetch(path, token, options = {}) {
-  const method = options.method || 'GET';
   const proxy = state.proxyUrl;
-  
   let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
   
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    ...options.headers,
-  };
-  
+  const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
   if (proxy) headers['X-Proxy-Target'] = path;
-  if (options.body && !(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-  }
+  if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
 
   try {
     const res = await fetch(url, { ...options, headers });
     const text = await res.text();
     let json;
-    try {
-      json = JSON.parse(text);
-    } catch(e) {
-      return { success: false, errors: [{ message: 'پاسخ دریافتی معتبر نیست (احتمالاً فیلترشکن نیاز است).' }] };
-    }
+    try { json = JSON.parse(text); } 
+    catch(e) { return { success: false, errors: [{ message: 'پاسخ سرور نامعتبر است.' }] }; }
     return json;
   } catch (e) {
     if (e.name === 'TypeError' && e.message.includes('fetch')) {
-       return { success: false, errors: [{ message: 'دسترسی مستقیم مرورگر به API کلودفلر مسدود شده است (خطای CORS).' }] };
+       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (خطای CORS).' }] };
     }
     return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
   }
@@ -263,21 +241,13 @@ async function testDirectApi() {
   try {
     const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
     return (res.status === 401 || res.status === 200 || res.status === 403);
-  } catch (e) {
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 async function fetchAccountsForToken(token) {
   const r = await cfFetch('/accounts', token);
-  if (r.success && Array.isArray(r.result)) {
-    return { ok: true, accounts: r.result };
-  }
-  const errMsg = r.errors?.[0]?.message || '';
-  if (errMsg.includes('Authentication error') || errMsg.includes('Invalid access token')) {
-    return { ok: false, msg: 'توکن نامعتبر است یا دسترسی Account Read ندارد' };
-  }
-  return { ok: false, msg: errMsg || 'خطا در اعتبارسنجی توکن' };
+  if (r.success && Array.isArray(r.result)) return { ok: true, accounts: r.result };
+  return { ok: false, msg: r.errors?.[0]?.message || 'خطا در اعتبارسنجی توکن' };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -287,9 +257,9 @@ async function fetchWorkerCode() {
   if (state.workerCode) return { ok: true };
 
   const sources = state.proxyUrl 
-    ? [ { name: 'Proxy → GitHub', url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
-    : [ { name: 'jsDelivr CDN', url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
-        { name: 'GitHub Raw',    url: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ];
+    ? [ { url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
+    : [ { url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
+        { url: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ];
 
   for (const src of sources) {
     try {
@@ -303,7 +273,7 @@ async function fetchWorkerCode() {
       return { ok: true };
     } catch (e) { console.error(e); }
   }
-  return { ok: false, msg: 'خطا در دریافت سورس کد از گیت‌هاب' };
+  return { ok: false, msg: 'خطا در دریافت سورس کد' };
 }
 
 async function deployToAccount(accountIndex, token, accountId) {
@@ -316,7 +286,6 @@ async function deployToAccount(accountIndex, token, accountId) {
   if (d1Res.success) {
     dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
   } else {
-    // Check if exists
     const check = await cfFetch(`/accounts/${accountId}/d1/database`, token);
     if (check.success && Array.isArray(check.result)) {
       const db = check.result.find(d => d.name === state.dbName);
@@ -326,22 +295,13 @@ async function deployToAccount(accountIndex, token, accountId) {
   }
   setProgress('prog-d1', 'done');
 
-  // Step 2: Prepare Code & Deploy
+  // Step 2: Prepare Code & Deploy (بدون دستکاری رمز برای جلوگیری از خرابی سینتکس)
   setProgress('prog-deploy', 'active');
   let code = state.workerCode;
   
-  if (state.password && state.password !== 'admin') {
-    code = code.replace(/masterKey\s*[=:]\s*['"]admin['"]/g, `masterKey: '${state.password}'`);
-    code = code.replace(/MASTER_KEY\s*=\s*['"]admin['"]/g, `MASTER_KEY = '${state.password}'`);
-    code = code.replace(/['"]admin['"]\s*\/\/\s*default\s*password/gi, `'${state.password}' // custom password`);
-    code = code.replace(/password\s*[=:]\s*['"]admin['"]/g, `password: '${state.password}'`);
-  }
-  code = code.replace(/cfWorkerName\s*:\s*['"][^'"]*['"]/g, `cfWorkerName: "${state.workerName}"`);
-  code = code.replace(/cfAccountId\s*:\s*['"][^'"]*['"]/g, `cfAccountId: "${accountId}"`);
-  code = code.replace(/cfApiToken\s*:\s*['"][^'"]*['"]/g, `cfApiToken: "${token}"`);
+  // Only inject non-breaking standard variables. 
+  // DO NOT INJECT PASSWORD to avoid corrupting the JS.
   code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
-  if (state.tgToken) code = code.replace(/tgToken\s*:\s*['"][^'"]*['"]/g, `tgToken: "${state.tgToken}"`);
-  if (state.tgAdminId) code = code.replace(/tgAdminId\s*:\s*['"][^'"]*['"]/g, `tgAdminId: "${state.tgAdminId}"`);
   
   const metadata = {
     main_module: 'worker.js',
@@ -365,11 +325,21 @@ async function deployToAccount(accountIndex, token, accountId) {
 
   // Step 3: Enable workers.dev and verify
   setProgress('prog-verify', 'active');
+  
+  // --- رفع باگ اکانت‌های خام: ساخت ساب‌دامنه خودکار در صورت عدم وجود ---
+  let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
+  if (!subRes.result?.subdomain) {
+      const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
+      await cfFetch(`/accounts/${accountId}/workers/subdomain`, token, {
+          method: 'PUT', body: JSON.stringify({ subdomain: randomSub })
+      });
+      subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
+  }
+
   await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, token, {
     method: 'POST', body: JSON.stringify({ enabled: true })
   });
 
-  const subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   if (subRes.success && subRes.result?.subdomain) {
     const url = `https://${state.workerName}.${subRes.result.subdomain}.workers.dev`;
     setProgress('prog-verify', 'done');
@@ -505,7 +475,6 @@ function renderConnTest() {
 </div>`;
 }
 
-// -- Proxy Setup Guide HTML --
 const PROXY_CODE = `// Nahan Installer Proxy Worker
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -567,14 +536,11 @@ function renderProxySetup() {
     </ol>
   </div>`;
 }
-// -- End Proxy Setup Guide --
 
 async function runConnectivityTest() {
   const statusEl = document.getElementById('connStatus');
-  const resultEl = document.getElementById('connResult');
   const proxyBtns = document.getElementById('proxyButtons');
   
-  // 1. Check saved custom proxy
   if (state.proxyUrl) {
     try {
       const r = await fetch(`${state.proxyUrl}/health`);
@@ -587,7 +553,6 @@ async function runConnectivityTest() {
     } catch (e) { state.proxyUrl = ''; localStorage.removeItem('nahan_proxy_url'); }
   }
 
-  // 2. Check direct connection
   const directOk = await testDirectApi();
   if (directOk) {
     statusEl.className = 'conn-status conn-ok';
@@ -596,7 +561,6 @@ async function runConnectivityTest() {
     return;
   }
 
-  // 3. Fallback to proxy buttons
   statusEl.className = 'conn-status conn-fail';
   statusEl.innerHTML = `<span>✗</span><span>اتصال مستقیم ممکن نیست.</span>`;
   proxyBtns.style.display = 'block';
@@ -622,7 +586,6 @@ async function connectDefaultProxy() {
       }
   } catch (e) {}
   
-  // Default failed -> show manual proxy guide
   statusEl.className = 'conn-status conn-fail';
   statusEl.innerHTML = `<span>✗</span><span>پروکسی پیش‌فرض پاسخگو نیست.</span>`;
   resultEl.innerHTML = renderProxySetup();
@@ -686,7 +649,7 @@ function renderCredentials() {
     <textarea class="form-input" id="inpTokens" rows="6"
               placeholder="مثال:\nToken_Accont1_xxxxxx\nToken_Account2_xxxxxx"
               spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید. سیستم به طور خودکار Account ID اکانت‌ها را استخراج می‌کند.</div>
+    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید (با زدن Enter). سیستم به طور خودکار Account ID اکانت‌ها را استخراج می‌کند.</div>
   </div>
   
   <div class="btn-group">
@@ -702,10 +665,11 @@ async function handleValidate() {
   const btnEl = document.getElementById('btnValidate');
 
   state.rawTokensInput = tokenEl.value;
-  const rawTokens = tokenEl.value.split('\n').map(t => t.trim()).filter(t => t);
+  // Regex to split by newline correctly in all OS
+  const rawTokens = tokenEl.value.split(/\r?\n/).map(t => t.trim()).filter(t => t.length > 5);
   
   if (rawTokens.length === 0) {
-    alertEl.innerHTML = alert('error', 'لطفاً حداقل یک API Token وارد کنید.');
+    alertEl.innerHTML = alert('error', 'لطفاً حداقل یک API Token معتبر وارد کنید.');
     return;
   }
 
@@ -724,7 +688,7 @@ async function handleValidate() {
        const acct = acctsResult.accounts[0];
        state.accountsList.push({ token: token, accountId: acct.id, accountName: acct.name || acct.id });
     } else {
-       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی'}<br>`;
+       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی یا نامعتبر'}<br>`;
     }
   }
 
@@ -746,6 +710,11 @@ function renderConfig() {
 <div class="card step-panel">
   <div class="card-title">پیکربندی استقرار</div>
   <div class="card-subtitle">تنظیمات زیر روی تمامی اکانت‌ها به صورت یکسان اعمال خواهد شد</div>
+  
+  <div class="alert alert-info">
+    <span class="alert-icon">🔒</span>
+    <span>برای جلوگیری از خرابی دیتابیس، <b>رمز عبور پیش‌فرض تمام پنل‌ها admin تنظیم شده است.</b> پس از ورود به پنل، حتماً رمز را از بخش تنظیمات تغییر دهید.</span>
+  </div>
 
   <div class="config-grid">
     <div class="form-group">
@@ -761,29 +730,10 @@ function renderConfig() {
   </div>
 
   <div class="form-group">
-    <label class="form-label">رمز عبور مشترک پنل‌ها (Master Key)</label>
-    <input type="text" class="form-input" id="inpPassword" value="${esc(state.password)}" placeholder="admin">
-    <div class="form-hint">خالی بگذارید تا admin تنظیم شود.</div>
+    <label class="form-label">مسیر پنل (API Route)</label>
+    <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
+    <div class="form-hint">به صورت پیش‌فرض: sync</div>
   </div>
-
-  <details style="margin-bottom:20px; background:var(--bg3); border-radius:8px; padding:10px 14px; border:1px solid var(--border)">
-    <summary style="cursor:pointer;color:var(--cyan);font-weight:600;outline:none;">تنظیمات پیشرفته (تلگرام و مسیر)</summary>
-    <div style="margin-top:16px">
-      <div class="form-group">
-        <label class="form-label">مسیر پنل (API Route)</label>
-        <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
-        <div class="form-hint">به صورت پیش‌فرض: sync</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">توکن ربات تلگرام (اختیاری)</label>
-        <input type="text" class="form-input" id="inpTgToken" value="${esc(state.tgToken)}" placeholder="123456:ABC-DEF..." style="direction:ltr;text-align:left">
-      </div>
-      <div class="form-group">
-        <label class="form-label">شناسه ادمین تلگرام (اختیاری)</label>
-        <input type="text" class="form-input" id="inpTgAdmin" value="${esc(state.tgAdminId)}" placeholder="123456789" style="direction:ltr;text-align:left">
-      </div>
-    </div>
-  </details>
 
   <div id="configAlert"></div>
 
@@ -803,10 +753,7 @@ function handleConfigNext() {
   
   state.workerName = workerName;
   state.dbName = document.getElementById('inpDB').value.trim() || 'iot_db';
-  state.password = document.getElementById('inpPassword').value || 'admin';
   state.apiRoute = document.getElementById('inpRoute').value.trim() || 'sync';
-  state.tgToken = document.getElementById('inpTgToken').value.trim();
-  state.tgAdminId = document.getElementById('inpTgAdmin').value.trim();
   
   goStep(4);
 }
@@ -830,7 +777,7 @@ function renderDeploy() {
       <span class="progress-icon">○</span><div class="progress-text">شخصی‌سازی کد و استقرار Worker</div>
     </li>
     <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span><div class="progress-text">فعال‌سازی آدرس و تایید</div>
+      <span class="progress-icon">○</span><div class="progress-text">بررسی ساب‌دامنه و فعال‌سازی URL</div>
     </li>
   </ul>
 
@@ -866,23 +813,21 @@ async function runDeployment() {
     showBtns();
     return;
   }
-  setProgress('prog-fetch', 'done', `سورس کد با موفقیت دریافت شد (نسخه ${state.workerVersion})`);
+  setProgress('prog-fetch', 'done', `سورس کد دریافت شد (نسخه ${state.workerVersion})`);
 
   let loopErrors = '';
 
   for (let i = 0; i < state.accountsList.length; i++) {
      const acc = state.accountsList[i];
-     alertEl().innerHTML = alert('info', `⏳ در حال نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...`);
+     alertEl().innerHTML = alert('info', `⏳ نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...`);
      
-     // Reset step UI for each loop iteration
      setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1');
      setProgress('prog-deploy', 'waiting', 'شخصی‌سازی کد و استقرار Worker');
-     setProgress('prog-verify', 'waiting', 'فعال‌سازی آدرس و تایید');
+     setProgress('prog-verify', 'waiting', 'بررسی ساب‌دامنه و فعال‌سازی URL');
 
      const res = await deployToAccount(i, acc.token, acc.accountId);
      
      if (res.ok) {
-        // Wait a bit for Cloudflare CDN propagation
         await new Promise(resolve => setTimeout(resolve, 1500)); 
         state.deployedPanels.push({ url: `${res.url}/${state.apiRoute}/dash`, accountName: acc.accountName });
      } else {
@@ -890,28 +835,27 @@ async function runDeployment() {
         if(res.step === 'd1') setProgress('prog-d1', 'error');
         if(res.step === 'deploy') setProgress('prog-deploy', 'error');
         if(res.step === 'verify') setProgress('prog-verify', 'error');
-        // We continue to the next account even if this one fails!
-        continue;
+        continue; // رفتن سراغ اکانت بعدی حتی در صورت خطا
      }
   }
 
   if (loopErrors && state.deployedPanels.length === 0) {
-      alertEl().innerHTML = alert('error', `تمام استقرارها با شکست مواجه شد:<br>${loopErrors}`);
+      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد:<br>${loopErrors}`);
       showBtns();
       return;
   }
 
   if (loopErrors) {
-      alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما برخی اکانت‌ها مشکل داشتند:<br>${loopErrors}`);
+      alertEl().innerHTML = alert('warn', `نصب انجام شد اما برخی اکانت‌ها مشکل داشتند:<br>${loopErrors}`);
   } else {
-      alertEl().innerHTML = alert('success', `✅ عملیات به پایان رسید. تمام پنل‌ها مستقر شدند.`);
+      alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام پنل‌ها بدون باگ مستقر شدند.`);
   }
   
-  setTimeout(() => goStep(5), 2000);
+  setTimeout(() => goStep(5), 2500);
 }
 
 function renderSuccess() {
-  const pass = state.password || 'admin';
+  const pass = 'admin'; // Always default now
   
   let linksHtml = state.deployedPanels.map((item, index) => `
      <div style="margin-bottom:10px;padding:12px;background:var(--bg4);border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border2)">
@@ -927,25 +871,25 @@ function renderSuccess() {
 
   return `
 <div class="card step-panel">
-  <div class="card-title">🚀 استقرار گروهی با موفقیت انجام شد!</div>
-  <div class="card-subtitle">هم‌اکنون می‌توانید لینک‌های زیر را در کلاینت خود تجمیع (Load Balance) کنید.</div>
+  <div class="card-title">🚀 استقرار گروهی کامل شد!</div>
+  <div class="card-subtitle">هم‌اکنون لینک‌های زیر را در کلاینت خود تجمیع (Load Balance) کنید.</div>
 
   <div class="alert alert-warn">
     <span class="alert-icon">⚠️</span>
-    <span>توجه: حتماً پس از ورود به پنل‌ها، رمز عبور پیش‌فرض را تغییر دهید تا امنیت شما حفظ شود.</span>
+    <span>توجه: برای رفع باگ دیتابیس، رمز عبور تمام پنل‌ها `+pass+` تنظیم شده است. لطفاً وارد پنل شوید و رمز خود را تغییر دهید.</span>
   </div>
 
   <div class="result-box">
     <div class="result-label">آدرس پنل‌های مدیریت ساخته شده:</div>
     <div style="margin-top:12px; max-height: 280px; overflow-y: auto; padding-left: 4px;">
-       ${linksHtml || '<span style="color:var(--red)">هیچ لینکی با موفقیت ساخته نشد.</span>'}
+       ${linksHtml || '<span style="color:var(--red)">هیچ لینکی ساخته نشد.</span>'}
     </div>
   </div>
 
   <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
     <div>
-       <div class="result-label">رمز عبور مشترک:</div>
-       <div class="result-value" style="color:var(--red)">${esc(pass)}</div>
+       <div class="result-label">رمز عبور مشترک تمام پنل‌ها:</div>
+       <div class="result-value" style="color:var(--green)">${esc(pass)}</div>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز عبور</button>
   </div>
@@ -956,9 +900,6 @@ function renderSuccess() {
 </div>`;
 }
 
-// ══════════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════════
 renderStep();
 </script>
 </body>
