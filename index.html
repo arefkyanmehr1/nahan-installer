@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nahan Multi-Installer | نصب‌کننده گروهی نهان</title>
+<title>Dexter Multi-Installer | نصب‌کننده گروهی دکستر</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -33,7 +33,9 @@ line-height:1.7;-webkit-font-smoothing:antialiased;
 .header{text-align:center;margin-bottom:32px}
 .logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
 color:var(--cyan);margin-bottom:4px}
-.logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
+.logo-sub{color:var(--text2);font-size:.85rem;font-weight:400; line-height: 1.8;}
+.credit{display:inline-block; margin-top: 6px; padding: 4px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; color: var(--text2);}
+.credit b{color: var(--text);}
 
 /* ── Steps Indicator ── */
 .steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
@@ -156,7 +158,7 @@ font-size:.88rem;transition:var(--transition)
 .code-block{
 background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
 padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
-color:var(--purple);overflow-x:auto;margin:12px 0;line-height:1.6;
+color:var(--cyan);overflow-x:auto;margin:12px 0;line-height:1.6;
 direction:ltr;text-align:left;position:relative
 }
 .steps-list{list-style:none;counter-reset:step;margin:16px 0}
@@ -178,8 +180,11 @@ display:flex;align-items:center;justify-content:center
 
 <div class="container">
 <div class="header">
-<div class="logo">NAHAN</div>
-<div class="logo-sub">نصب‌کننده گروهی (بدون باگ دیتابیس) — نسخه ۲.۱</div>
+<div class="logo">DEXTER</div>
+<div class="logo-sub">
+    نصب‌کننده گروهی دکستر (بدون باگ دیتابیس) — نسخه ۲.۱ <br>
+    <div class="credit">ساخته شده بر پایه نسخه اصلی اثر: <b>ی ب خ (itsyebekhe)</b></div>
+</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
@@ -192,16 +197,17 @@ display:flex;align-items:center;justify-content:center
 // ══════════════════════════════════════════════════════════
 const totalSteps = 6;
 let currentStep = 0;
+// URL زیر برای حفظ کارکرد پروکسی پیش‌فرض دست‌نخورده باقی مانده است
 const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 
 const state = {
-  proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
+  proxyUrl: localStorage.getItem('dexter_proxy_url') || '',
   directApiOk: null,
   rawTokensInput: '',
   accountsList: [], 
   deployedPanels: [], 
   
-  workerName: 'nahan-core',
+  workerName: 'dexter-core',
   dbName: 'iot_db',
   apiRoute: 'sync',
   
@@ -256,6 +262,7 @@ async function fetchAccountsForToken(token) {
 async function fetchWorkerCode() {
   if (state.workerCode) return { ok: true };
 
+  // آدرس‌های مخزن گیت‌هاب اصلی برای دریافت سورس کد صحیح ثابت نگه داشته شده است
   const sources = state.proxyUrl 
     ? [ { url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
     : [ { url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
@@ -411,8 +418,8 @@ function resetAll() {
 function renderWelcome() {
   return `
 <div class="card step-panel">
-  <div class="card-title">به نصب‌کننده گروهی نهان خوش آمدید</div>
-  <div class="card-subtitle">استقرار همزمان گیت‌وی نهان روی چندین حساب Cloudflare</div>
+  <div class="card-title">به نصب‌کننده گروهی دکستر خوش آمدید</div>
+  <div class="card-subtitle">استقرار همزمان گیت‌وی دکستر روی چندین حساب Cloudflare</div>
   <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
     این ابزار برای راه‌اندازی پروکسی روی چند اکانت به صورت گروهی (Load Balancing) طراحی شده تا به راحتی سقف محدودیت درخواست‌های رایگان کلودفلر را افزایش دهید.
   </p>
@@ -475,7 +482,7 @@ function renderConnTest() {
 </div>`;
 }
 
-const PROXY_CODE = `// Nahan Installer Proxy Worker
+const PROXY_CODE = `// Dexter Installer Proxy Worker
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -520,7 +527,7 @@ function renderProxySetup() {
       <li>روی لینک زیر کلیک کنید تا داشبورد باز شود:<br>
         <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener">باز کردن Cloudflare Dashboard</a>
       </li>
-      <li>یک Worker جدید بسازید (مثلاً nahan-installer-proxy)</li>
+      <li>یک Worker جدید بسازید (مثلاً dexter-installer-proxy)</li>
       <li>کد زیر را کپی و جایگزین کد پیش‌فرض Worker کنید:
         <div class="code-block" style="max-height:160px;overflow:auto;white-space:pre;font-size:.78rem">${esc(PROXY_CODE)}</div>
         <button class="btn btn-sm btn-secondary" onclick="copyText(this, \`${PROXY_CODE.replace(/`/g, "\\`")}\`)" style="margin-top:6px">کپی کد پروکسی</button>
@@ -528,7 +535,7 @@ function renderProxySetup() {
       <li>روی "Save and Deploy" کلیک کنید</li>
       <li>آدرس Worker مستقر شده را در زیر وارد کنید:
         <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <input type="text" class="form-input" id="inpProxyUrl" placeholder="https://nahan-proxy...workers.dev" style="direction:ltr;text-align:left;flex:1">
+          <input type="text" class="form-input" id="inpProxyUrl" placeholder="https://dexter-proxy...workers.dev" style="direction:ltr;text-align:left;flex:1">
           <button class="btn btn-primary btn-sm" onclick="testManualProxy()" id="btnTestProxy">اتصال به پروکسی</button>
         </div>
         <div id="proxyTestResult" style="margin-top:8px"></div>
@@ -550,7 +557,7 @@ async function runConnectivityTest() {
         setTimeout(() => goStep(2), 1000);
         return;
       }
-    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('nahan_proxy_url'); }
+    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('dexter_proxy_url'); }
   }
 
   const directOk = await testDirectApi();
@@ -619,7 +626,7 @@ async function _verifyAndSaveProxy(url, btnEl, resEl) {
     const res = await fetch(`${url}/health`);
     if ((await res.json()).ok) {
       state.proxyUrl = url;
-      localStorage.setItem('nahan_proxy_url', url);
+      localStorage.setItem('dexter_proxy_url', url);
       resEl.innerHTML = alert('success', 'اتصال موفق!');
       setTimeout(() => goStep(2), 1000);
       return;
@@ -630,7 +637,7 @@ async function _verifyAndSaveProxy(url, btnEl, resEl) {
 
 function renderCredentials() {
   const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
-  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Nahan Batch Installer')}`;
+  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Dexter Batch Installer')}`;
 
   return `
 <div class="card step-panel">
@@ -745,7 +752,7 @@ function renderConfig() {
 }
 
 function handleConfigNext() {
-  const workerName = document.getElementById('inpWorker').value.trim() || 'nahan-core';
+  const workerName = document.getElementById('inpWorker').value.trim() || 'dexter-core';
   if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
     document.getElementById('configAlert').innerHTML = alert('error', 'نام Worker نامعتبر است.');
     return;
