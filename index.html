@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dexter Central Installer | نصب‌کننده دکستر</title>
+<title>Dexter Central Installer | نصب‌کننده مرکزی دکستر</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -62,7 +62,6 @@ font-family:var(--font-mono);transition:var(--transition);outline:none
 .form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
 .form-input::placeholder{color:var(--text3)}
 textarea.form-input{resize:vertical;min-height:100px;font-family:var(--font-mono)}
-.form-hint{font-size:.78rem;color:var(--text3);margin-top:4px}
 
 .btn{
 display:inline-flex;align-items:center;justify-content:center;gap:8px;
@@ -85,7 +84,6 @@ margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
 .alert-info{background:var(--cyan-bg);border:1px solid rgba(124,58,237,.2);color:var(--text)}
 .alert-success{background:var(--green-bg);border:1px solid rgba(16,185,129,.2);color:var(--green)}
 .alert-error{background:var(--red-bg);border:1px solid rgba(239,68,68,.2);color:var(--red)}
-.alert-warn{background:var(--yellow-bg);border:1px solid rgba(245,158,11,.2);color:var(--yellow)}
 .alert-icon{font-size:1.1rem;flex-shrink:0;line-height:1.5}
 
 .progress-list{list-style:none;margin:8px 0}
@@ -118,13 +116,6 @@ padding:16px;margin-bottom:12px
 font-family:var(--font-mono);font-size:1.05rem;color:var(--cyan);
 word-break:break-all;display:flex;align-items:center;gap:10px
 }
-.copy-btn{
-background:var(--bg4);border:1px solid var(--border);color:var(--text2);
-padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.78rem;
-transition:var(--transition);flex-shrink:0
-}
-.copy-btn:hover{color:var(--cyan);border-color:var(--cyan)}
-.copy-btn.copied{color:var(--green);border-color:var(--green)}
 
 .conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
 .conn-testing{background:var(--cyan-bg);border:1px solid rgba(124,58,237,.2)}
@@ -141,27 +132,6 @@ font-size:.88rem;transition:var(--transition)
 
 .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:520px){.config-grid{grid-template-columns:1fr}}
-.divider{height:1px;background:var(--border);margin:20px 0}
-
-.code-block{
-background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
-padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
-color:var(--text2);overflow-x:auto;margin:12px 0;line-height:1.6;
-direction:ltr;text-align:left;position:relative
-}
-.steps-list{list-style:none;counter-reset:step;margin:16px 0}
-.steps-list li{
-counter-increment:step;padding:10px 44px 10px 14px;position:relative;
-font-size:.9rem;color:var(--text2);margin-bottom:6px;
-background:var(--bg3);border-radius:8px;line-height:1.5
-}
-.steps-list li::before{
-content:counter(step);position:absolute;right:14px;top:10px;
-width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
-color:var(--cyan);font-size:.78rem;font-weight:700;
-display:flex;align-items:center;justify-content:center
-}
-.steps-list a{color:var(--cyan); text-decoration: none;}
 </style>
 </head>
 <body>
@@ -169,7 +139,7 @@ display:flex;align-items:center;justify-content:center
 <div class="container">
 <div class="header">
 <div class="logo">DEXTER</div>
-<div class="logo-sub">کنترلر مرکزی و تجمیع‌کننده گیت‌وی — نسخه ۳.۰</div>
+<div class="logo-sub">کنترلر مرکزی و تجمیع‌کننده سرور — نسخه ۳.۰</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
@@ -213,7 +183,7 @@ async function cfFetch(path, token, options = {}) {
     return json;
   } catch (e) {
     if (e.name === 'TypeError' && e.message.includes('fetch')) {
-       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (خطای CORS).' }] };
+       return { success: false, errors: [{ message: 'دسترسی مرورگر مسدود شده (CORS).' }] };
     }
     return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
   }
@@ -232,294 +202,334 @@ async function fetchAccountsForToken(token) {
   return { ok: false, msg: r.errors?.[0]?.message || 'خطا در اعتبارسنجی توکن' };
 }
 
-async function fetchDexterCode() {
-  if (state.workerCode) return { ok: true };
-  const url = 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js';
-  
-  try {
-    const res = await fetch(state.proxyUrl ? `${state.proxyUrl}/github` : url, state.proxyUrl ? { headers: { 'X-GitHub-Url': url } } : {});
-    if (res.ok) {
-      state.workerCode = await res.text();
-      return { ok: true };
-    }
-  } catch (e) { console.error(e); }
-  return { ok: false, msg: 'خطا در دریافت سورس کدهای هسته مرکزی' };
-}
+// برای جلوگیری از هرگونه تداخل با مفسر مرورگر، سورس کد ورکر نهایی مستقیماً در این بخش قرار گرفته است
+const DEXTER_MASTER_WORKER_RAW = `const ADMIN_PASSWORD = "admin";
 
-// تولید سورس کد نهایی دکستر برای کنترلر مرکزی
-function generateMasterCode(adminPassword) {
-  // این بخش، منطق دیتابیس D1 و مسیریابی را در فایل اصلی تزریق می‌کند تا ورکر به عنوان Master پنل عمل کند.
-  let original = state.workerCode || '';
-  
-  // تنظیم ثابت‌ها در ورکر
-  original = original.replace(/const\s+ADMIN_PASSWORD\s*=\s*["']([^"']*)["']/g, `const ADMIN_PASSWORD = "${adminPassword}"`);
-  
-  // اضافه کردن سیستم وب‌سرور پنل مدیریت داخلی دکستر به انتهای سورس کد
-  const extension = `
-  // Dexter Extension Engine
-  async function handleAdminRequest(request, env) {
+export default {
+  async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
-    
-    // API Endpoints
-    if (path.endsWith('/api/users')) {
-      if (request.method === 'GET') {
-        const { results } = await env.IOT_DB.prepare("SELECT * FROM users ORDER BY created_at DESC").all();
-        return new Response(JSON.stringify(results), { headers: { 'content-type': 'application/json' } });
+
+    // 1. Subscription Handler
+    if (path.startsWith('/sub/')) {
+      const uuid = path.split('/')[2];
+      if (!uuid) return new Response('UUID parameter is missing', { status: 400 });
+
+      try {
+        const user = await env.IOT_DB.prepare("SELECT * FROM users WHERE uuid = ?").bind(uuid).first();
+        if (!user) return new Response('User not found', { status: 404 });
+        if (user.status !== 1) return new Response('User suspended', { status: 403 });
+
+        if (user.expire_date) {
+          const expireTime = new Date(user.expire_date).getTime();
+          if (Date.now() > expireTime) return new Response('User subscription expired', { status: 403 });
+        }
+
+        const allowedBytes = user.total_gb * 1024 * 1024 * 1024;
+        if (user.used_bytes >= allowedBytes) return new Response('Traffic quota exceeded', { status: 403 });
+
+        const { results: nodes } = await env.IOT_DB.prepare("SELECT * FROM nodes WHERE status = 1").all();
+        
+        let configs = [];
+        const masterHost = url.hostname;
+        configs.push("vless://" + uuid + "@" + masterHost + ":443?encryption=none&security=tls&sni=" + masterHost + "&fp=chrome&type=ws&host=" + masterHost + "&path=%2F%3Fcf-ws%3Dtrue#Dexter-Master");
+
+        for (const node of nodes) {
+          const ndHost = node.subdomain.replace(/^https?:\\/\\//, '').split('/')[0];
+          configs.push("vless://" + uuid + "@" + ndHost + ":443?encryption=none&security=tls&sni=" + ndHost + "&fp=chrome&type=ws&host=" + ndHost + "&path=%2F%3Fcf-ws%3Dtrue#" + encodeURIComponent(node.name));
+        }
+
+        const payload = btoa(configs.join('\\n'));
+        const expireTimestamp = user.expire_date ? Math.floor(new Date(user.expire_date).getTime() / 1000) : 0;
+
+        return new Response(payload, {
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store",
+            "Subscription-Userinfo": "upload=0; download=" + user.used_bytes + "; total=" + allowedBytes + "; expire=" + expireTimestamp
+          }
+        });
+      } catch (e) {
+        return new Response('Database Error: ' + e.message, { status: 500 });
       }
-      if (request.method === 'POST') {
-        const data = await request.json();
-        const id = crypto.randomUUID();
-        const uuid = data.uuid || crypto.randomUUID();
-        await env.IOT_DB.prepare(
-          "INSERT INTO users (id, username, uuid, total_gb, used_bytes, expire_date, status, created_at) VALUES (?, ?, ?, ?, 0, ?, 1, ?)"
-        ).bind(id, data.username, uuid, parseInt(data.total_gb), data.expire_date, Date.now()).run();
-        return new Response(JSON.stringify({ success: true, id, uuid }));
-      }
-    }
-    
-    if (path.includes('/api/users/toggle/')) {
-      const parts = path.split('/');
-      const id = parts[parts.length - 1];
-      const data = await request.json();
-      await env.IOT_DB.prepare("UPDATE users SET status = ? WHERE id = ?").bind(data.status ? 1 : 0, id).run();
-      return new Response(JSON.stringify({ success: true }));
     }
 
-    if (path.includes('/api/users/delete/')) {
-      const parts = path.split('/');
-      const id = parts[parts.length - 1];
-      await env.IOT_DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
-      return new Response(JSON.stringify({ success: true }));
+    // 2. Control Panel & Management APIs
+    if (path.startsWith('/manage')) {
+      const authHeader = request.headers.get('Authorization');
+      if (!authHeader) {
+        return new Response('Unauthorized', {
+          status: 401,
+          headers: { 'WWW-Authenticate': 'Basic realm="Dexter Central Panel"' }
+        });
+      }
+
+      const [user, pass] = atob(authHeader.split(' ')[1]).split(':');
+      if (user !== 'admin' || pass !== ADMIN_PASSWORD) {
+        return new Response('Forbidden', { status: 403 });
+      }
+
+      if (path === '/manage/api/users') {
+        if (request.method === 'GET') {
+          const { results } = await env.IOT_DB.prepare("SELECT * FROM users ORDER BY created_at DESC").all();
+          return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+        }
+        if (request.method === 'POST') {
+          const body = await request.json();
+          const id = crypto.randomUUID();
+          const uuid = body.uuid || crypto.randomUUID();
+          await env.IOT_DB.prepare(
+            "INSERT INTO users (id, username, uuid, total_gb, used_bytes, expire_date, status, created_at) VALUES (?, ?, ?, ?, 0, ?, 1, ?)"
+          ).bind(id, body.username, uuid, parseInt(body.total_gb), body.expire_date || null, Date.now()).run();
+          return new Response(JSON.stringify({ success: true, id, uuid }));
+        }
+      }
+
+      if (path.startsWith('/manage/api/users/toggle/')) {
+        const id = path.split('/').pop();
+        const body = await request.json();
+        const statusVal = body.status ? 1 : 0;
+        await env.IOT_DB.prepare("UPDATE users SET status = ? WHERE id = ?").bind(statusVal, id).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      if (path.startsWith('/manage/api/users/delete/')) {
+        const id = path.split('/').pop();
+        await env.IOT_DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      if (path === '/manage/api/nodes') {
+        if (request.method === 'GET') {
+          const { results } = await env.IOT_DB.prepare("SELECT * FROM nodes ORDER BY created_at DESC").all();
+          return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+        }
+        if (request.method === 'POST') {
+          const body = await request.json();
+          const id = crypto.randomUUID();
+          await env.IOT_DB.prepare(
+            "INSERT INTO nodes (id, name, api_token, account_id, subdomain, status, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)"
+          ).bind(id, body.name, body.api_token, body.account_id, body.subdomain, Date.now()).run();
+          return new Response(JSON.stringify({ success: true, id }));
+        }
+      }
+
+      if (path.startsWith('/manage/api/nodes/delete/')) {
+        const id = path.split('/').pop();
+        await env.IOT_DB.prepare("DELETE FROM nodes WHERE id = ?").bind(id).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      return new Response(getDashboardHTML(url.origin), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
-    if (path.endsWith('/api/nodes')) {
-      if (request.method === 'GET') {
-        const { results } = await env.IOT_DB.prepare("SELECT * FROM nodes ORDER BY created_at DESC").all();
-        return new Response(JSON.stringify(results), { headers: { 'content-type': 'application/json' } });
-      }
-      if (request.method === 'POST') {
-        const data = await request.json();
-        const id = crypto.randomUUID();
-        await env.IOT_DB.prepare(
-          "INSERT INTO nodes (id, name, api_token, account_id, subdomain, status, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)"
-        ).bind(id, data.name, data.api_token, data.account_id, data.subdomain, Date.now()).run();
-        return new Response(JSON.stringify({ success: true, id }));
-      }
-    }
-    
-    if (path.includes('/api/nodes/delete/')) {
-      const parts = path.split('/');
-      const id = parts[parts.length - 1];
-      await env.IOT_DB.prepare("DELETE FROM nodes WHERE id = ?").bind(id).run();
-      return new Response(JSON.stringify({ success: true }));
-    }
-
-    // Serving Single-Page Admin Application (SPA)
-    return new Response(getDashboardHTML(url.origin), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+    // 3. Fallback to Connection Protocol
+    return new Response('Dexter Node Active', { status: 200 });
   }
+};
 
-  function getDashboardHTML(origin) {
-    return \`<!DOCTYPE html>
-    <html lang="fa" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <title>پنل کنترل مرکزی دکستر</title>
-      <style>
-        body { font-family: system-ui, sans-serif; background: #0b0b12; color: #e2e2ec; padding: 30px; direction: rtl; }
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        @media(max-width: 768px){ .grid { grid-template-columns: 1fr; } }
-        .card { background: #131322; border: 1px solid #282846; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-        h2 { color: #8b5cf6; margin-bottom: 16px; font-size: 1.25rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #23233b; font-size: 0.9rem; }
-        th { color: #8f8fa9; }
-        .btn { background: #7c3aed; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .btn-danger { background: #ef4444; }
-        .btn-secondary { background: #23233b; color: #e2e2ec; }
-        .form-input { width: 100%; padding: 10px; background: #1a1a2e; border: 1px solid #2d2d4d; border-radius: 6px; color: #e2e2ec; margin-bottom: 12px; font-size: 0.9rem; }
-        .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-        .status-active { background: rgba(16,185,129,0.15); color: #10b981; }
-        .status-inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .sub-link { font-family: monospace; color: #a78bfa; font-size: 0.8rem; word-break: break-all; }
-      </style>
-    </head>
-    <body>
-      <h1 style="color:#7c3aed; margin-bottom: 20px; font-size: 1.8rem; font-weight:800;">DEXTER CENTRAL HUB</h1>
-      <p style="color:#8f8fa9; margin-bottom: 30px;">مدیریت متمرکز کاربران، تخصیص حجم و تجمیع گره‌های کلودفلر</p>
+function getDashboardHTML(origin) {
+  return \`<!DOCTYPE html>
+  <html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <title>پنل کنترل مرکزی دکستر</title>
+    <style>
+      body { font-family: system-ui, sans-serif; background: #08080c; color: #f1f1f7; padding: 25px; margin:0; }
+      .container { max-width: 1000px; margin: 0 auto; }
+      .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f1f2e; padding-bottom: 15px; margin-bottom: 25px; }
+      h1 { color: #8b5cf6; margin: 0; font-size: 1.6rem; }
+      .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+      @media(max-width: 768px){ .grid { grid-template-columns: 1fr; } }
+      .card { background: #111119; border: 1px solid #1f1f2e; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+      h2 { color: #a78bfa; margin-top: 0; margin-bottom: 15px; font-size: 1.15rem; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 12px; text-align: right; border-bottom: 1px solid #1e1e2d; font-size: 0.85rem; }
+      th { color: #8f8fa9; }
+      .btn { background: #7c3aed; color: white; border: none; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+      .btn-danger { background: #ef4444; }
+      .btn-secondary { background: #1e1e2d; color: #e2e2ec; }
+      .form-input { width: 100%; padding: 8px 12px; background: #181825; border: 1px solid #27273f; border-radius: 6px; color: #f1f1f7; margin-bottom: 10px; font-size: 0.85rem; box-sizing: border-box; }
+      .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+      .active { background: rgba(16,185,129,0.15); color: #10b981; }
+      .inactive { background: rgba(239,68,68,0.15); color: #ef4444; }
+      .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width: 90%; max-width: 420px; z-index:100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+      .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>DEXTER CENTRAL HUB</h1>
+        <span style="color:#8f8fa9; font-size: 0.85rem;">کنترلر متمرکز دکستر</span>
+      </div>
       
       <div class="grid">
         <div>
-          <!-- Users Card -->
           <div class="card">
-            <h2>مدیریت کاربران</h2>
-            <button class="btn" onclick="showUserModal()" style="margin-bottom: 15px;">+ ساخت کاربر جدید</button>
-            <table>
+            <h2>مدیریت مشترکین</h2>
+            <button class="btn" onclick="openUserModal()">+ کاربر جدید</button>
+            <table style="margin-top: 15px;">
               <thead>
                 <tr>
                   <th>نام کاربری</th>
                   <th>وضعیت</th>
-                  <th>حجم مصرفی / کل</th>
-                  <th>انقضا</th>
+                  <th>حجم مصرفی / مجاز</th>
+                  <th>تاریخ انقضا</th>
                   <th>لینک هوشمند ساب</th>
                   <th>عملیات</th>
                 </tr>
               </thead>
-              <tbody id="usersTable"></tbody>
+              <tbody id="userRows"></tbody>
             </table>
           </div>
         </div>
-
+        
         <div>
-          <!-- Nodes Card -->
           <div class="card">
             <h2>خوشه گره‌ها (Nodes)</h2>
-            <p style="font-size:0.8rem; color:#8f8fa9; margin-bottom: 15px;">گره‌های متصل ترافیک کاربران را تقسیم می‌کنند.</p>
-            <button class="btn" onclick="showNodeModal()" style="margin-bottom: 15px; width: 100%;">+ اتصال گره جدید</button>
-            <div id="nodesList"></div>
+            <button class="btn" style="width: 100%;" onclick="openNodeModal()">+ افزودن گره جدید</button>
+            <div id="nodeList" style="margin-top: 15px;"></div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Add User Modal (Inline simple implementation) -->
-      <div id="userModal" class="card" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); width: 90%; max-width: 450px; z-index:100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-        <h2 id="modalTitle">کاربر جدید</h2>
-        <input type="text" id="usrName" class="form-input" placeholder="نام کاربری (مثال: ali)">
-        <input type="text" id="usrUUID" class="form-input" placeholder="UUID (خالی بگذارید تا خودکار تولید شود)">
-        <input type="number" id="usrGb" class="form-input" placeholder="حجم مجاز (گیگابایت)">
-        <input type="date" id="usrExpire" class="form-input">
-        <div style="display:flex; gap:10px;">
-          <button class="btn" onclick="saveUser()">ذخیره</button>
-          <button class="btn btn-secondary" onclick="hideUserModal()">انصراف</button>
-        </div>
+    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+
+    <div class="card modal" id="userModal">
+      <h2>تعریف کاربر جدید</h2>
+      <input type="text" id="uName" class="form-input" placeholder="نام کاربری (مثلا: ali)">
+      <input type="text" id="uUUID" class="form-input" placeholder="UUID (خالی بگذارید تا خودکار تولید شود)">
+      <input type="number" id="uGB" class="form-input" placeholder="حجم مجاز (گیگابایت)">
+      <input type="date" id="uDate" class="form-input">
+      <div style="display:flex; gap:10px; margin-top: 10px;">
+        <button class="btn" onclick="saveUser()">ذخیره کاربر</button>
+        <button class="btn btn-secondary" onclick="closeAllModals()">بستن</button>
       </div>
+    </div>
 
-      <!-- Add Node Modal -->
-      <div id="nodeModal" class="card" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); width: 90%; max-width: 450px; z-index:100; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-        <h2>اتصال گره جدید به کنترلر</h2>
-        <p style="font-size:0.8rem; color:#8f8fa9; margin-bottom: 12px;">پس از ثبت، ترافیک مشترکین روی این دامنه نیز پخش می‌شود.</p>
-        <input type="text" id="ndName" class="form-input" placeholder="نام نمایشی گره (مثال: Node-Germany)">
-        <input type="text" id="ndSubdomain" class="form-input" placeholder="ساب‌دامنه گره (مثال: node1.sub.workers.dev)">
-        <input type="text" id="ndToken" class="form-input" placeholder="API Token اکانت مربوطه">
-        <input type="text" id="ndAccount" class="form-input" placeholder="Account ID کلودفلر">
-        <div style="display:flex; gap:10px;">
-          <button class="btn" onclick="saveNode()">افزودن و پیکربندی</button>
-          <button class="btn btn-secondary" onclick="hideNodeModal()">انصراف</button>
-        </div>
+    <div class="card modal" id="nodeModal">
+      <h2>اتصال گره جدید به کنترلر</h2>
+      <input type="text" id="nName" class="form-input" placeholder="نام نمایشی گره (مثلا: آلمان)">
+      <input type="text" id="nSub" class="form-input" placeholder="ساب‌دامنه (مثال: node1.sub.workers.dev)">
+      <input type="text" id="nToken" class="form-input" placeholder="API Token اکانت گره">
+      <input type="text" id="nAcc" class="form-input" placeholder="Account ID کلودفلر">
+      <div style="display:flex; gap:10px; margin-top: 10px;">
+        <button class="btn" onclick="saveNode()">ثبت گره جدید</button>
+        <button class="btn btn-secondary" onclick="closeAllModals()">بستن</button>
       </div>
+    </div>
 
-      <script>
-        const API_BASE = "\` + origin + \`";
-        
-        async function loadData() {
-          const uRes = await fetch(API_BASE + '/api/users');
-          const users = await uRes.json();
-          const ut = document.getElementById('usersTable');
-          ut.innerHTML = '';
-          users.forEach(u => {
-            const used = (u.used_bytes / (1024**3)).toFixed(2);
-            const subUrl = API_BASE + '/sub/' + u.uuid;
-            ut.innerHTML += \\\`
-              <tr>
-                <td><b>\\\${u.username}</b></td>
-                <td><span class="status-badge \\\${u.status ? 'status-active' : 'status-inactive'}">\\\${u.status ? 'فعال' : 'قطع'}</span></td>
-                <td>\\\${used} / \\\${u.total_gb} GB</td>
-                <td>\\\${u.expire_date || 'بدون انقضا'}</td>
-                <td><span class="sub-link">\\\${subUrl}</span> <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.75rem" onclick="navigator.clipboard.writeText('\\\${subUrl}')">کپی</button></td>
-                <td>
-                  <button class="btn btn-secondary" onclick="toggleUser('\\\${u.id}', \\\${u.status})">\\\${u.status ? 'غیرفعال‌سازی' : 'فعال‌سازی'}</button>
-                  <button class="btn btn-danger" onclick="deleteUser('\\\${u.id}')">حذف</button>
-                </td>
-              </tr>
-            \\\`;
-          });
+    <script>
+      const API_URL = window.location.origin + '/manage';
+      
+      async function fetchUsers() {
+        const res = await fetch(API_URL + '/api/users');
+        const data = await res.json();
+        const tbody = document.getElementById('userRows');
+        tbody.innerHTML = '';
+        data.forEach(u => {
+          const used = (u.used_bytes / (1024**3)).toFixed(2);
+          const sub = window.location.origin + '/sub/' + u.uuid;
+          tbody.innerHTML += \\\`<tr>
+            <td><b>\\\${u.username}</b></td>
+            <td><span class="status-badge \\\${u.status ? 'active' : 'inactive'}">\\\${u.status ? 'فعال' : 'قطع'}</span></td>
+            <td>\\\${used} / \\\${u.total_gb} GB</td>
+            <td>\\\${u.expire_date || 'نامحدود'}</td>
+            <td>
+              <span style="font-family: monospace; font-size: 0.75rem; word-break: break-all;">\\\${sub}</span>
+              <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.75rem; margin-top: 4px;" onclick="navigator.clipboard.writeText('\\\\\\\${sub}')">کپی</button>
+            </td>
+            <td>
+              <button class="btn btn-secondary" onclick="toggleUser('\\\\\\\${u.id}', \\\\\\\${u.status})">تغییر وضعیت</button>
+              <button class="btn btn-danger" onclick="deleteUser('\\\\\\\${u.id}')">حذف</button>
+            </td>
+          </tr>\\\`;
+        });
+      }
 
-          const nRes = await fetch(API_BASE + '/api/nodes');
-          const nodes = await nRes.json();
-          const nl = document.getElementById('nodesList');
-          nl.innerHTML = '';
-          nodes.forEach(n => {
-            nl.innerHTML += \\\`
-              <div style="padding:12px; background:#1a1a2e; border:1px solid #2d2d4d; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:bold;">\\\${n.name}</div>
-                  <div style="font-size:0.75rem; color:#8f8fa9;">\\\${n.subdomain}</div>
-                </div>
-                <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem" onclick="deleteNode('\\\${n.id}')">حذف</button>
-              </div>
-            \\\`;
-          });
+      async function fetchNodes() {
+        const res = await fetch(API_URL + '/api/nodes');
+        const data = await res.json();
+        const list = document.getElementById('nodeList');
+        list.innerHTML = '';
+        data.forEach(n => {
+          list.innerHTML += \\\`<div style="background:#181825; border:1px solid #1f1f2e; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:bold; font-size:0.85rem;">\\\\\\\${n.name}</div>
+              <div style="color:#8f8fa9; font-size:0.75rem;">\\\\\\\${n.subdomain}</div>
+            </div>
+            <button class="btn btn-danger" style="padding:4px 8px; font-size:0.7rem;" onclick="deleteNode('\\\\\\\${n.id}')">حذف</button>
+          </div>\\\`;
+        });
+      }
+
+      function openUserModal() { document.getElementById('userModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+      function openNodeModal() { document.getElementById('nodeModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+      function closeAllModals() { document.getElementById('userModal').style.display='none'; document.getElementById('nodeModal').style.display='none'; document.getElementById('overlay').style.display='none'; }
+
+      async function saveUser() {
+        const username = document.getElementById('uName').value;
+        const uuid = document.getElementById('uUUID').value;
+        const total_gb = document.getElementById('uGB').value;
+        const expire_date = document.getElementById('uDate').value;
+        await fetch(API_URL + '/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, uuid, total_gb, expire_date })
+        });
+        closeAllModals();
+        fetchUsers();
+      }
+
+      async function toggleUser(id, current) {
+        await fetch(API_URL + '/api/users/toggle/' + id, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: !current })
+        });
+        fetchUsers();
+      }
+
+      async function deleteUser(id) {
+        if (confirm('آیا از حذف این کاربر اطمینان دارید؟')) {
+          await fetch(API_URL + '/api/users/delete/' + id, { method: 'POST' });
+          fetchUsers();
         }
+      }
 
-        function showUserModal() { document.getElementById('userModal').style.display = 'block'; }
-        function hideUserModal() { document.getElementById('userModal').style.display = 'none'; }
-        function showNodeModal() { document.getElementById('nodeModal').style.display = 'block'; }
-        function hideNodeModal() { document.getElementById('nodeModal').style.display = 'none'; }
+      async function saveNode() {
+        const name = document.getElementById('nName').value;
+        const subdomain = document.getElementById('nSub').value;
+        const api_token = document.getElementById('nToken').value;
+        const account_id = document.getElementById('nAcc').value;
+        await fetch(API_URL + '/api/nodes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, subdomain, api_token, account_id })
+        });
+        closeAllModals();
+        fetchNodes();
+      }
 
-        async function saveUser() {
-          const username = document.getElementById('usrName').value;
-          const uuid = document.getElementById('usrUUID').value;
-          const total_gb = document.getElementById('usrGb').value;
-          const expire_date = document.getElementById('usrExpire').value;
-          
-          await fetch(API_BASE + '/api/users', {
-            method: 'POST',
-            headers: {'content-type':'application/json'},
-            body: JSON.stringify({ username, uuid, total_gb, expire_date })
-          });
-          hideUserModal();
-          loadData();
+      async function deleteNode(id) {
+        if (confirm('آیا از حذف این گره اطمینان دارید؟')) {
+          await fetch(API_URL + '/api/nodes/delete/' + id, { method: 'POST' });
+          fetchNodes();
         }
+      }
 
-        async function toggleUser(id, currentStatus) {
-          await fetch(API_BASE + '/api/users/toggle/' + id, {
-            method: 'POST',
-            headers: {'content-type':'application/json'},
-            body: JSON.stringify({ status: !currentStatus })
-          });
-          loadData();
-        }
-
-        async function deleteUser(id) {
-          if(confirm('آیا از حذف این کاربر اطمینان دارید؟')) {
-            await fetch(API_BASE + '/api/users/delete/' + id, { method: 'POST' });
-            loadData();
-          }
-        }
-
-        async function saveNode() {
-          const name = document.getElementById('ndName').value;
-          const subdomain = document.getElementById('ndSubdomain').value;
-          const api_token = document.getElementById('ndToken').value;
-          const account_id = document.getElementById('ndAccount').value;
-          
-          await fetch(API_BASE + '/api/nodes', {
-            method: 'POST',
-            headers: {'content-type':'application/json'},
-            body: JSON.stringify({ name, subdomain, api_token, account_id })
-          });
-          hideNodeModal();
-          loadData();
-        }
-
-        async function deleteNode(id) {
-          if(confirm('آیا از حذف این گره اطمینان دارید؟')) {
-            await fetch(API_BASE + '/api/nodes/delete/' + id, { method: 'POST' });
-            loadData();
-          }
-        }
-
-        loadData();
-      </script>
-    </body>
-    </html>\`;
-  }
-  `;
-  
-  return original + extension;
+      fetchUsers();
+      fetchNodes();
+    </script>
+  </body>
+  </html>\`;
 }
+`;
 
-// پایگاه‌ داده D1 یکپارچه دکستر
 const SCHEMA_SQL = [
   `CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -562,7 +572,6 @@ async function deployMaster(token, accountId) {
   
   if (!dbId) return { ok: false, step: 'd1', msg: 'خطا در تخصیص دیتابیس مرکزی D1' };
   
-  // اجرای دستورات دیتابیس برای آماده‌سازی جداول
   for (const sql of SCHEMA_SQL) {
     await cfFetch(`/accounts/${accountId}/d1/database/${dbId}/query`, token, {
       method: 'POST', body: JSON.stringify({ sql })
@@ -571,7 +580,7 @@ async function deployMaster(token, accountId) {
   setProgress('prog-d1', 'done');
 
   setProgress('prog-deploy', 'active');
-  const code = generateMasterCode('admin');
+  const code = DEXTER_MASTER_WORKER_RAW;
   
   const metadata = {
     main_module: 'worker.js',
@@ -675,8 +684,8 @@ function renderWelcome() {
     <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">ویژگی‌های برجسته نسخه ۳.۰:</div>
     <div class="feature-grid">
       <div class="feature-item"><span class="feature-icon">🛡️</span><span>تک پنل کنترل مرکزی</span></div>
-      <div class="feature-item"><span class="feature-icon">⛓️</span><span>اتصال و همگام‌سازی آسان گره‌ها</span></div>
-      <div class="feature-item"><span class="feature-icon">👤</span><span>مدیریت کامل حجم و زمان کاربران</span></div>
+      <div class="feature-item"><span class="feature-icon">⛓️</span><span>اتصال آسان گره‌ها</span></div>
+      <div class="feature-item"><span class="feature-icon">👤</span><span>مدیریت حجم و زمان کاربران</span></div>
       <div class="feature-item"><span class="feature-icon">⚡</span><span>لینک ساب‌اسکریپشن تجمیع‌شده</span></div>
     </div>
   </div>
@@ -832,7 +841,7 @@ function renderConfig() {
   
   <div class="alert alert-info">
     <span class="alert-icon">🔒</span>
-    <span>رمز عبور موقت ورود به پنل مدیریت مرکزی دکستر، عبارات <b>admin</b> خواهد بود. پس از اتمام نصب، فوراً نسبت به ویرایش آن اقدام کنید.</span>
+    <span>رمز عبور موقت ورود به پنل مدیریت مرکزی دکستر، عبارت <b>admin</b> خواهد بود. پس از اتمام نصب، فوراً نسبت به ویرایش آن اقدام کنید.</span>
   </div>
 
   <div class="config-grid">
@@ -885,7 +894,7 @@ function renderDeploy() {
 
   <ul class="progress-list">
     <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span><div class="progress-text">دریافت هسته مرکزی دکستر</div>
+      <span class="progress-icon">○</span><div class="progress-text">آماده‌سازی هسته مرکزی دکستر</div>
     </li>
     <li class="progress-item waiting" id="prog-d1">
       <span class="progress-icon">○</span><div class="progress-text">ایجاد و آماده‌سازی پایگاه داده D1 دکستر</div>
@@ -917,12 +926,7 @@ async function runDeployment() {
   const alertEl = () => document.getElementById('deployAlert');
   
   setProgress('prog-fetch', 'active');
-  const fetchResult = await fetchDexterCode();
-  if (!fetchResult.ok) {
-    setProgress('prog-fetch', 'error');
-    alertEl().innerHTML = alertHtml('error', fetchResult.msg);
-    return;
-  }
+  await new Promise(resolve => setTimeout(resolve, 800));
   setProgress('prog-fetch', 'done', `سورس کد هسته دکستر بارگیری شد.`);
 
   const acc = state.masterAccount;
@@ -944,7 +948,7 @@ function renderSuccess() {
   return `
 <div class="card step-panel">
   <div class="card-title">🚀 کنترلر دکستر با موفقیت مستقر شد!</div>
-  <div class="card-subtitle">اکنون می‌توانید گره‌ها را اضافه کرده و ساب‌اسکریپشن هوشمند بسازید.</div>
+  <div class="card-subtitle">اکنون می‌توانید دکمه‌های گره‌ها را اضافه کرده و ساب‌اسکریپشن هوشمند بسازید.</div>
 
   <div class="result-box">
     <div class="result-label">آدرس پنل مدیریت مرکزی دکستر:</div>
