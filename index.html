@@ -27,33 +27,20 @@ font-family:var(--font);background:var(--bg);color:var(--text);
 min-height:100vh;display:flex;flex-direction:column;align-items:center;
 line-height:1.7;-webkit-font-smoothing:antialiased;
 }
-body.ltr{direction:ltr}
-body.rtl{direction:rtl}
 
 .container{width:100%;max-width:720px;padding:24px 20px 48px}
 
 /* ── Header ── */
 .header{text-align:center;margin-bottom:32px}
 .logo{font-size:2.4rem;font-weight:800;letter-spacing:4px;
-color:var(--cyan);
-font-weight:900;
-margin-bottom:4px}
+color:var(--cyan);margin-bottom:4px}
 .logo-sub{color:var(--text2);font-size:.85rem;font-weight:400}
-.lang-btn{
-position:fixed;top:16px;left:16px;z-index:100;
-background:var(--bg3);border:1px solid var(--border);color:var(--cyan);
-padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.8rem;
-font-weight:600;transition:var(--transition)
-}
-body.ltr .lang-btn{left:auto;right:16px}
-.lang-btn:hover{background:var(--cyan-bg);border-color:var(--cyan)}
 
 /* ── Steps Indicator ── */
 .steps{display:flex;justify-content:center;gap:6px;margin-bottom:32px}
 .step-dot{
 width:10px;height:10px;border-radius:50%;background:var(--bg4);
 border:2px solid var(--border2);transition:var(--transition);
-position:relative
 }
 .step-dot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.4)}
 .step-dot.done{background:var(--green);border-color:var(--green)}
@@ -61,12 +48,12 @@ position:relative
 /* ── Card ── */
 .card{
 background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);
-padding:32px;box-shadow:var(--shadow);transition:var(--transition)
+padding:32px;box-shadow:var(--shadow);transition:var(--transition);
+animation:fadeIn .35s ease;
 }
-.card-title{
-font-size:1.35rem;font-weight:700;margin-bottom:6px;
-color:var(--cyan)
-}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.card-title{font-size:1.35rem;font-weight:700;margin-bottom:6px;color:var(--cyan)}
 .card-subtitle{color:var(--text2);font-size:.9rem;margin-bottom:24px}
 
 /* ── Form Elements ── */
@@ -89,23 +76,18 @@ padding:12px 28px;border-radius:var(--radius);font-size:.95rem;
 font-weight:600;cursor:pointer;border:none;transition:var(--transition);
 font-family:var(--font)
 }
-.btn-primary{
-background:var(--cyan);color:#fff;
-box-shadow:0 2px 12px rgba(229,57,53,.3)
-}
+.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 2px 12px rgba(229,57,53,.3)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.35)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--cyan);color:var(--cyan)}
 .btn-group{display:flex;gap:12px;margin-top:28px}
-[dir=ltr] .btn-group{flex-direction:row-reverse}
 .btn-sm{padding:8px 18px;font-size:.85rem}
 
 /* ── Alerts ── */
 .alert{
 padding:14px 18px;border-radius:var(--radius);font-size:.88rem;
-margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;
-line-height:1.6
+margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;line-height:1.6
 }
 .alert-info{background:var(--cyan-bg);border:1px solid rgba(0,212,255,.2);color:var(--cyan)}
 .alert-success{background:var(--green-bg);border:1px solid rgba(0,230,118,.2);color:var(--green)}
@@ -155,24 +137,12 @@ transition:var(--transition);flex-shrink:0
 .copy-btn:hover{color:var(--cyan);border-color:var(--cyan)}
 .copy-btn.copied{color:var(--green);border-color:var(--green)}
 
-/* ── Code Block ── */
-.code-block{
-background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
-padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
-color:var(--purple);overflow-x:auto;margin:12px 0;line-height:1.6;
-direction:ltr;text-align:left;position:relative
-}
-
-/* ── Connectivity Test ── */
-.conn-status{
-display:flex;align-items:center;gap:12px;padding:16px 20px;
-border-radius:var(--radius);margin:16px 0;font-size:.95rem
-}
+/* ── Extra Elements ── */
+.conn-status{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);margin:16px 0;font-size:.95rem}
 .conn-testing{background:var(--cyan-bg);border:1px solid rgba(0,212,255,.2)}
 .conn-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.2)}
 .conn-fail{background:var(--red-bg);border:1px solid rgba(255,68,102,.2)}
 
-/* ── Features ── */
 .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
 .feature-item{
 display:flex;align-items:center;gap:10px;padding:12px 14px;
@@ -185,16 +155,33 @@ font-size:.88rem;transition:var(--transition)
 @media(max-width:520px){.config-grid{grid-template-columns:1fr}}
 .divider{height:1px;background:var(--border);margin:20px 0}
 
+.code-block{
+background:#0d0d14;border:1px solid var(--border);border-radius:var(--radius);
+padding:14px 18px;font-family:var(--font-mono);font-size:.85rem;
+color:var(--purple);overflow-x:auto;margin:12px 0;line-height:1.6;
+direction:ltr;text-align:left;position:relative
+}
+.steps-list{list-style:none;counter-reset:step;margin:16px 0}
+.steps-list li{
+counter-increment:step;padding:10px 44px 10px 14px;position:relative;
+font-size:.9rem;color:var(--text2);margin-bottom:6px;
+background:var(--bg3);border-radius:8px;line-height:1.5
+}
+.steps-list li::before{
+content:counter(step);position:absolute;right:14px;top:10px;
+width:22px;height:22px;border-radius:50%;background:var(--cyan-bg);
+color:var(--cyan);font-size:.78rem;font-weight:700;
+display:flex;align-items:center;justify-content:center
+}
+.steps-list a{color:var(--cyan); text-decoration: none;}
 </style>
 </head>
 <body>
 
-<button class="lang-btn" onclick="toggleLang()">EN / فا</button>
-
 <div class="container">
 <div class="header">
 <div class="logo">NAHAN</div>
-<div class="logo-sub" data-t="logoSub">نصب‌کننده گروهی (Multi-Token) — نسخه ۲.۰</div>
+<div class="logo-sub">نصب‌کننده گروهی (Multi-Token) — نسخه ۲.۰</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
@@ -204,143 +191,48 @@ font-size:.88rem;transition:var(--transition)
 
 <script>
 // ══════════════════════════════════════════════════════════
-//  TRANSLATIONS
+//  STATE MANAGEMENT
 // ══════════════════════════════════════════════════════════
-const T = {
-  logoSub: { fa: 'نصب‌کننده گروهی (Multi-Token) — نسخه ۲.۰', en: 'Multi-Token Batch Installer — v2.0' },
-
-  // ── Step 1: Welcome ──
-  welcomeTitle: { fa: 'به نصب‌کننده گروهی نهان خوش آمدید', en: 'Welcome to Nahan Multi-Installer' },
-  welcomeSub: {
-    fa: 'استقرار همزمان گیت‌وی نهان روی چندین حساب Cloudflare',
-    en: 'Deploy Nahan Gateway across multiple Cloudflare accounts simultaneously'
-  },
-  welcomeDesc: {
-    fa: 'این ابزار برای راه‌اندازی پروکسی روی چند اکانت به صورت گروهی (Load Balancing) طراحی شده تا سقف درخواست‌های کلودفلر را افزایش دهید.',
-    en: 'This tool is designed for batch deployment across multiple accounts (Load Balancing) to bypass Cloudflare request limits.'
-  },
-  whatCreated: { fa: 'چه چیزی در هر اکانت ساخته می‌شود؟', en: 'What will be created on EACH account?' },
-  createD1: { fa: 'پایگاه داده D1 اختصاصی', en: 'Dedicated D1 database' },
-  createWorker: { fa: 'Cloudflare Worker', en: 'Cloudflare Worker' },
-  createBinding: { fa: 'اتصال خودکار D1', en: 'Automated D1 Binding' },
-  letsStart: { fa: 'شروع کنیم', en: "Let's Start" },
-
-  // ── Step 2: Credentials ──
-  credTitle: { fa: 'اعتبارنامه‌های Cloudflare (گروهی)', en: 'Cloudflare Credentials (Batch)' },
-  credSub: { fa: 'توکن‌های API اکانت‌های مختلف خود را وارد کنید', en: 'Enter your API Tokens from different accounts' },
-  labelToken: { fa: 'توکن‌ها (API Tokens)', en: 'API Tokens' },
-  hintToken: { fa: 'هر توکن را در یک خط مجزا قرار دهید. سیستم به طور خودکار اکانت‌ها را استخراج می‌کند.', en: 'Place each token on a new line. The system will automatically fetch Account IDs.' },
-  validatingTokens: { fa: 'در حال بررسی توکن‌ها...', en: 'Validating tokens...' },
-  validate: { fa: 'بررسی و تایید', en: 'Validate & Confirm' },
-  createTokenBtn: { fa: 'ساخت API Token در Cloudflare', en: 'Create API Token on Cloudflare' },
-  back: { fa: 'بازگشت', en: 'Back' },
-  next: { fa: 'مرحله بعد', en: 'Next' },
-
-  // ── Step 3: Configuration ──
-  configTitle: { fa: 'پیکربندی استقرار', en: 'Deployment Configuration' },
-  configSub: { fa: 'تنظیمات زیر روی تمامی اکانت‌ها اعمال خواهد شد', en: 'These settings will be applied to ALL accounts' },
-  labelWorker: { fa: 'نام Worker', en: 'Worker Name' },
-  labelDB: { fa: 'نام پایگاه داده D1', en: 'D1 Database Name' },
-  labelPassword: { fa: 'رمز عبور مشترک پنل‌ها', en: 'Shared Panel Password' },
-  advSettings: { fa: 'تنظیمات پیشرفته', en: 'Advanced Settings' },
-  labelApiRoute: { fa: 'مسیر پنل (API Route)', en: 'Panel Path (API Route)' },
-
-  // ── Step 4: Deployment ──
-  deployTitle: { fa: 'در حال استقرار گروهی...', en: 'Batch Deploying...' },
-  deploySub: { fa: 'لطفاً صبر کنید تا فرآیند روی تمامی اکانت‌ها تکمیل شود', en: 'Please wait while the process completes for all accounts' },
-  stepFetch: { fa: 'دریافت سورس کد Worker', en: 'Fetching Worker source code' },
-  stepD1: { fa: 'ایجاد پایگاه داده D1', en: 'Creating D1 database' },
-  stepDeploy: { fa: 'استقرار Worker و کدها', en: 'Deploying Worker & code' },
-  stepVerify: { fa: 'فعال‌سازی URL و تایید', en: 'Enabling URL & Verification' },
-
-  // ── Step 5: Success ──
-  successTitle: { fa: '🚀 استقرار گروهی موفق!', en: '🚀 Batch Deployment Successful!' },
-  successSub: { fa: 'ورکرها روی اکانت‌های تایید شده مستقر شدند.', en: 'Workers deployed on all verified accounts.' },
-  linksLabel: { fa: 'آدرس پنل‌های مدیریت ساخته شده:', en: 'Created Dashboard URLs:' },
-  passLabel: { fa: 'رمز عبور مشترک:', en: 'Shared Password:' },
-  copy: { fa: 'کپی', en: 'Copy' },
-  copied: { fa: 'کپی شد!', en: 'Copied!' },
-  newInstall: { fa: 'نصب مجدد', en: 'New Install' },
-  
-  // ── Errors & Proxy ──
-  connTitle: { fa: 'بررسی اتصال', en: 'Connectivity Check' },
-  connTesting: { fa: 'در حال آزمایش اتصال...', en: 'Testing connection...' },
-  proxyConnected: { fa: 'اتصال مستقیم/پروکسی برقرار است.', en: 'Direct/Proxy connection is active.' },
-  errFetchAll: { fa: 'خطا در دریافت سورس کد', en: 'Failed to fetch source code' }
-};
-
-// ══════════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════════
-let lang = 'fa';
-let currentStep = 0;
 const totalSteps = 6;
-
+let currentStep = 0;
 const DEFAULT_PROXY_URL = 'https://nahan-installer.edge1-erpy.workers.dev';
 
 const state = {
-  // این مقادیر موقت هستند و در طول حلقه برای هر اکانت تغییر میکنند
-  apiToken: '',
-  accountId: '',
-  
-  // دیتای ورودی کاربر
+  // Cloudflare API connection
+  proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
+  directApiOk: null,
+
+  // Batch Deployment Data
   rawTokensInput: '',
   accountsList: [], // { token, accountId, accountName }
-  deployedPanels: [], // { url }
+  deployedPanels: [], // { url, accountName }
 
-  // تنظیمات مشترک
+  // Global Configuration
   workerName: 'nahan-core',
   dbName: 'iot_db',
-  dbId: '',
   password: '',
+  apiRoute: 'sync',
   tgToken: '',
   tgAdminId: '',
-  apiRoute: 'sync',
   
+  // Worker Source
   workerCode: '',
   workerVersion: '',
-  deployUrl: '',
-  proxyUrl: localStorage.getItem('nahan_proxy_url') || '',
 };
 
 // ══════════════════════════════════════════════════════════
-//  TRANSLATION ENGINE
-// ══════════════════════════════════════════════════════════
-function t(key) {
-  const entry = T[key];
-  if (!entry) return key;
-  if (typeof entry === 'string') return entry;
-  return entry[lang] || entry.en || key;
-}
-
-function applyTranslations() {
-  document.querySelectorAll('[data-t]').forEach(el => {
-    const key = el.getAttribute('data-t');
-    const val = t(key);
-    if (typeof val === 'string') el.textContent = val;
-  });
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
-  document.body.className = lang === 'fa' ? 'rtl' : 'ltr';
-}
-
-function toggleLang() {
-  lang = lang === 'fa' ? 'en' : 'fa';
-  renderStep();
-}
-
-// ══════════════════════════════════════════════════════════
-//  CLOUDFLARE API
+//  CLOUDFLARE API ENGINE
 // ══════════════════════════════════════════════════════════
 const CF_API = 'https://api.cloudflare.com/client/v4';
 
-async function cfFetch(path, options = {}) {
+async function cfFetch(path, token, options = {}) {
   const method = options.method || 'GET';
   const proxy = state.proxyUrl;
-  const url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
+  
+  let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
   
   const headers = {
-    'Authorization': `Bearer ${state.apiToken}`,
+    'Authorization': `Bearer ${token}`,
     ...options.headers,
   };
   
@@ -351,85 +243,93 @@ async function cfFetch(path, options = {}) {
 
   try {
     const res = await fetch(url, { ...options, headers });
-    let data;
+    const text = await res.text();
+    let json;
     try {
-      data = await res.json();
+      json = JSON.parse(text);
     } catch(e) {
-      return { success: false, errors: [{ message: 'Non-JSON response' }] };
+      return { success: false, errors: [{ message: 'پاسخ دریافتی معتبر نیست (احتمالاً فیلترشکن نیاز است).' }] };
     }
-    return data;
+    return json;
   } catch (e) {
-    return { success: false, errors: [{ message: e.message }] };
+    if (e.name === 'TypeError' && e.message.includes('fetch')) {
+       return { success: false, errors: [{ message: 'دسترسی مستقیم مرورگر به API کلودفلر مسدود شده است (خطای CORS).' }] };
+    }
+    return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
   }
 }
 
 async function testDirectApi() {
   try {
-    const res = await fetch(`${CF_API}/accounts`, { headers: { 'Authorization': 'Bearer test' }});
+    const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
     return (res.status === 401 || res.status === 200 || res.status === 403);
-  } catch (e) { return false; }
+  } catch (e) {
+    return false;
+  }
 }
 
-async function fetchAccounts(token) {
-  const prevToken = state.apiToken;
-  state.apiToken = token;
-  const r = await cfFetch('/accounts');
-  state.apiToken = prevToken;
+async function fetchAccountsForToken(token) {
+  const r = await cfFetch('/accounts', token);
   if (r.success && Array.isArray(r.result)) {
     return { ok: true, accounts: r.result };
   }
-  return { ok: false, msg: r.errors?.[0]?.message || 'Invalid Token' };
+  const errMsg = r.errors?.[0]?.message || '';
+  if (errMsg.includes('Authentication error') || errMsg.includes('Invalid access token')) {
+    return { ok: false, msg: 'توکن نامعتبر است یا دسترسی Account Read ندارد' };
+  }
+  return { ok: false, msg: errMsg || 'خطا در اعتبارسنجی توکن' };
 }
 
 // ══════════════════════════════════════════════════════════
 //  CORE WORKER FUNCTIONS
 // ══════════════════════════════════════════════════════════
 async function fetchWorkerCode() {
-  if (state.workerCode) return { ok: true }; // Already fetched
+  if (state.workerCode) return { ok: true };
 
-  const url = state.proxyUrl 
-     ? `${state.proxyUrl}/github` 
-     : 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js';
-     
-  try {
-    const fetchOpts = state.proxyUrl ? { headers: { 'X-GitHub-Url': 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } } : {};
-    const res = await fetch(url, fetchOpts);
-    if (!res.ok) return { ok: false };
-    
-    state.workerCode = await res.text();
-    const verMatch = state.workerCode.match(/const\s+CURRENT_VERSION\s*=\s*["']([^"']+)["']/);
-    state.workerVersion = verMatch ? verMatch[1] : '';
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, msg: e.message };
+  const sources = state.proxyUrl 
+    ? [ { name: 'Proxy → GitHub', url: `${state.proxyUrl}/github`, viaProxy: true, githubUrl: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ]
+    : [ { name: 'jsDelivr CDN', url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
+        { name: 'GitHub Raw',    url: 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js' } ];
+
+  for (const src of sources) {
+    try {
+      const fetchOpts = src.viaProxy ? { headers: { 'X-GitHub-Url': src.githubUrl } } : {};
+      const res = await fetch(src.url, fetchOpts);
+      if (!res.ok) continue;
+
+      state.workerCode = await res.text();
+      const verMatch = state.workerCode.match(/const\s+CURRENT_VERSION\s*=\s*["']([^"']+)["']/);
+      state.workerVersion = verMatch ? verMatch[1] : '';
+      return { ok: true };
+    } catch (e) { console.error(e); }
   }
+  return { ok: false, msg: 'خطا در دریافت سورس کد از گیت‌هاب' };
 }
 
-async function createD1Database() {
-  const r = await cfFetch(`/accounts/${state.accountId}/d1/database`, {
-    method: 'POST',
-    body: JSON.stringify({ name: state.dbName }),
+async function deployToAccount(accountIndex, token, accountId) {
+  // Step 1: Create D1 Database
+  setProgress('prog-d1', 'active');
+  let dbId = '';
+  const d1Res = await cfFetch(`/accounts/${accountId}/d1/database`, token, {
+    method: 'POST', body: JSON.stringify({ name: state.dbName })
   });
-  if (r.success) {
-    state.dbId = r.result?.uuid || r.result?.database_id || '';
-    return { ok: true };
-  }
-  
-  // Check if exists
-  const check = await cfFetch(`/accounts/${state.accountId}/d1/database`);
-  if (check.success && Array.isArray(check.result)) {
-    const db = check.result.find(d => d.name === state.dbName);
-    if (db) {
-      state.dbId = db.uuid || db.database_id || '';
-      return { ok: true, existed: true };
+  if (d1Res.success) {
+    dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
+  } else {
+    // Check if exists
+    const check = await cfFetch(`/accounts/${accountId}/d1/database`, token);
+    if (check.success && Array.isArray(check.result)) {
+      const db = check.result.find(d => d.name === state.dbName);
+      if (db) dbId = db.uuid || db.database_id || '';
     }
+    if (!dbId) return { ok: false, step: 'd1', msg: d1Res.errors?.[0]?.message || 'خطا در ساخت دیتابیس D1' };
   }
-  return { ok: false, msg: r.errors?.[0]?.message || 'D1 Error' };
-}
+  setProgress('prog-d1', 'done');
 
-async function deployWorker() {
+  // Step 2: Prepare Code & Deploy
+  setProgress('prog-deploy', 'active');
   let code = state.workerCode;
-
+  
   if (state.password && state.password !== 'admin') {
     code = code.replace(/masterKey\s*[=:]\s*['"]admin['"]/g, `masterKey: '${state.password}'`);
     code = code.replace(/MASTER_KEY\s*=\s*['"]admin['"]/g, `MASTER_KEY = '${state.password}'`);
@@ -437,46 +337,46 @@ async function deployWorker() {
     code = code.replace(/password\s*[=:]\s*['"]admin['"]/g, `password: '${state.password}'`);
   }
   code = code.replace(/cfWorkerName\s*:\s*['"][^'"]*['"]/g, `cfWorkerName: "${state.workerName}"`);
-  code = code.replace(/cfAccountId\s*:\s*['"][^'"]*['"]/g, `cfAccountId: "${state.accountId}"`);
-  code = code.replace(/cfApiToken\s*:\s*['"][^'"]*['"]/g, `cfApiToken: "${state.apiToken}"`);
+  code = code.replace(/cfAccountId\s*:\s*['"][^'"]*['"]/g, `cfAccountId: "${accountId}"`);
+  code = code.replace(/cfApiToken\s*:\s*['"][^'"]*['"]/g, `cfApiToken: "${token}"`);
   code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
+  if (state.tgToken) code = code.replace(/tgToken\s*:\s*['"][^'"]*['"]/g, `tgToken: "${state.tgToken}"`);
+  if (state.tgAdminId) code = code.replace(/tgAdminId\s*:\s*['"][^'"]*['"]/g, `tgAdminId: "${state.tgAdminId}"`);
   
   const metadata = {
     main_module: 'worker.js',
     compatibility_date: '2024-09-22',
     compatibility_flags: ['nodejs_compat'],
-    bindings: [{ name: 'IOT_DB', type: 'd1', id: state.dbId }]
+    bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }]
   };
 
   const form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
   form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
 
-  // Upload Code
-  const path = `/accounts/${state.accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
-  const uploadRes = await cfFetch(path, { method: 'PUT', body: form });
-  if (!uploadRes.success) return { ok: false, msg: uploadRes.errors?.[0]?.message };
+  const deployPath = `/accounts/${accountId}/workers/scripts/${encodeURIComponent(state.workerName)}`;
+  const uploadRes = await cfFetch(deployPath, token, { method: 'PUT', body: form });
+  if (!uploadRes.success) return { ok: false, step: 'deploy', msg: uploadRes.errors?.[0]?.message };
 
-  // Deploy version
-  await cfFetch(`${path}/deployments`, {
+  await cfFetch(`${deployPath}/deployments`, token, {
     method: 'POST', body: JSON.stringify({ strategy: 'simple', manifest: { 'worker.js': { file: 'worker.js' } } })
   });
+  setProgress('prog-deploy', 'done');
 
-  // Enable URL
-  await cfFetch(`/accounts/${state.accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, {
+  // Step 3: Enable workers.dev and verify
+  setProgress('prog-verify', 'active');
+  await cfFetch(`/accounts/${accountId}/workers/services/${encodeURIComponent(state.workerName)}/environments/production/subdomain`, token, {
     method: 'POST', body: JSON.stringify({ enabled: true })
   });
 
-  return { ok: true };
-}
-
-async function enableWorkersDevUrl() {
-  const res = await cfFetch(`/accounts/${state.accountId}/workers/subdomain`);
-  if (res.success && res.result?.subdomain) {
-    state.deployUrl = `https://${state.workerName}.${res.result.subdomain}.workers.dev`;
-    return { ok: true };
+  const subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
+  if (subRes.success && subRes.result?.subdomain) {
+    const url = `https://${state.workerName}.${subRes.result.subdomain}.workers.dev`;
+    setProgress('prog-verify', 'done');
+    return { ok: true, url };
   }
-  return { ok: false };
+  
+  return { ok: false, step: 'verify', msg: 'خطا در فعال‌سازی زیردامنه workers.dev' };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -504,7 +404,6 @@ function renderStep() {
     case 4: el.innerHTML = renderDeploy(); runDeployment(); break;
     case 5: el.innerHTML = renderSuccess(); break;
   }
-  applyTranslations();
 }
 
 function esc(s) {
@@ -524,7 +423,7 @@ function goStep(n) { currentStep = n; renderStep(); }
 function copyText(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
     const orig = btn.textContent;
-    btn.textContent = t('copied');
+    btn.textContent = 'کپی شد!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
   });
@@ -542,19 +441,21 @@ function resetAll() {
 function renderWelcome() {
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="welcomeTitle"></div>
-  <div class="card-subtitle" data-t="welcomeSub"></div>
-  <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px" data-t="welcomeDesc"></p>
+  <div class="card-title">به نصب‌کننده گروهی نهان خوش آمدید</div>
+  <div class="card-subtitle">استقرار همزمان گیت‌وی نهان روی چندین حساب Cloudflare</div>
+  <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
+    این ابزار برای راه‌اندازی پروکسی روی چند اکانت به صورت گروهی (Load Balancing) طراحی شده تا به راحتی سقف محدودیت درخواست‌های رایگان کلودفلر را افزایش دهید.
+  </p>
   <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem" data-t="whatCreated"></div>
+    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">چه چیزی در هر اکانت ساخته می‌شود؟</div>
     <div class="feature-grid">
-      <div class="feature-item"><span class="feature-icon">🗄️</span><span data-t="createD1"></span></div>
-      <div class="feature-item"><span class="feature-icon">⚡</span><span data-t="createWorker"></span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span data-t="createBinding"></span></div>
+      <div class="feature-item"><span class="feature-icon">🗄️</span><span>پایگاه داده D1 اختصاصی</span></div>
+      <div class="feature-item"><span class="feature-icon">⚡</span><span>Cloudflare Worker</span></div>
+      <div class="feature-item"><span class="feature-icon">🔗</span><span>اتصال خودکار D1</span></div>
     </div>
   </div>
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="goStep(1)" data-t="letsStart"></button>
+    <button class="btn btn-primary" onclick="goStep(1)">شروع کنیم</button>
   </div>
 </div>`;
 }
@@ -562,76 +463,235 @@ function renderWelcome() {
 function renderConnTest() {
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="connTitle"></div>
+  <div class="card-title">بررسی ارتباط سرور</div>
   <div class="conn-status conn-testing" id="connStatus">
-    <div class="spinner"></div><span data-t="connTesting"></span>
+    <div class="spinner"></div><span>در حال آزمایش اتصال به Cloudflare...</span>
   </div>
+  
+  <div id="proxyButtons" style="display:none;margin:20px 0">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:.9rem;color:var(--text2);margin-bottom:12px">
+        اتصال مستقیم از مرورگر مسدود است (CORS). یکی از روش‌های زیر را انتخاب کنید:
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="connectDefaultProxy()" style="min-width:180px">
+          ⚡ <span>استفاده از پروکسی پیش‌فرض</span>
+        </button>
+        <button class="btn btn-secondary" onclick="showCustomProxyForm()" style="min-width:180px">
+          🔧 <span>استفاده از پروکسی شخصی</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="customProxyForm" style="display:none;margin-top:16px">
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+      <div style="font-weight:600;margin-bottom:8px;color:var(--cyan)">پروکسی شخصی</div>
+      <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">آدرس Worker پروکسی خود را وارد کنید</div>
+      <input type="text" class="form-input" id="inpCustomProxy" placeholder="https://my-proxy.workers.dev" style="direction:ltr;text-align:left;margin-bottom:10px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary btn-sm" onclick="connectCustomProxy()" id="btnCustomConnect">اتصال و نصب</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelCustomProxy()">بازگشت</button>
+      </div>
+      <div id="customProxyResult" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div id="connResult"></div>
+  
   <div class="btn-group">
-    <button class="btn btn-secondary" onclick="goStep(0)" data-t="back"></button>
+    <button class="btn btn-secondary" onclick="goStep(0)">بازگشت</button>
   </div>
 </div>`;
 }
 
+// -- Proxy Setup Guide HTML --
+const PROXY_CODE = `// Nahan Installer Proxy Worker
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Proxy-Target, X-GitHub-Url',
+  'Access-Control-Max-Age': '86400',
+};
+const jsonResp = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...CORS } });
+
+export default {
+  async fetch(request) {
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
+    const url = new URL(request.url);
+    if (url.pathname === '/health') return jsonResp({ ok: true });
+    if (url.pathname === '/github') {
+      try {
+        const r = await fetch(request.headers.get('X-GitHub-Url'));
+        return new Response(await r.text(), { status: r.status, headers: { 'Content-Type': 'application/javascript', ...CORS } });
+      } catch (e) { return jsonResp({ error: e.message }, 502); }
+    }
+    try {
+      const cfUrl = 'https://api.cloudflare.com/client/v4' + request.headers.get('X-Proxy-Target');
+      const opts = { method: request.method, headers: { Authorization: request.headers.get('Authorization') } };
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        const ct = request.headers.get('Content-Type') || '';
+        if (ct.includes('multipart/form-data')) { opts.body = await request.formData(); }
+        else { opts.body = await request.text(); opts.headers['Content-Type'] = 'application/json'; }
+      }
+      const resp = await fetch(cfUrl, opts);
+      return new Response(await resp.text(), { status: resp.status, headers: { 'Content-Type': 'application/json', ...CORS } });
+    } catch (e) { return jsonResp({ error: e.message }, 502); }
+  },
+};`;
+
+function renderProxySetup() {
+  return `
+  <div style="margin-top:16px">
+    <div class="alert alert-warn" style="margin-bottom:16px">
+      <span class="alert-icon">💡</span>
+      <span>دلیل قطعی: مرورگر شما اجازه دسترسی مستقیم به API را نمی‌دهد (CORS). برای حل این مشکل، یک Worker پروکسی روی حساب Cloudflare خود مستقر کنید:</span>
+    </div>
+    <ol class="steps-list">
+      <li>روی لینک زیر کلیک کنید تا داشبورد باز شود:<br>
+        <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener">باز کردن Cloudflare Dashboard</a>
+      </li>
+      <li>یک Worker جدید بسازید (مثلاً nahan-installer-proxy)</li>
+      <li>کد زیر را کپی و جایگزین کد پیش‌فرض Worker کنید:
+        <div class="code-block" style="max-height:160px;overflow:auto;white-space:pre;font-size:.78rem">${esc(PROXY_CODE)}</div>
+        <button class="btn btn-sm btn-secondary" onclick="copyText(this, \`${PROXY_CODE.replace(/`/g, "\\`")}\`)" style="margin-top:6px">کپی کد پروکسی</button>
+      </li>
+      <li>روی "Save and Deploy" کلیک کنید</li>
+      <li>آدرس Worker مستقر شده را در زیر وارد کنید:
+        <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
+          <input type="text" class="form-input" id="inpProxyUrl" placeholder="https://nahan-proxy...workers.dev" style="direction:ltr;text-align:left;flex:1">
+          <button class="btn btn-primary btn-sm" onclick="testManualProxy()" id="btnTestProxy">اتصال به پروکسی</button>
+        </div>
+        <div id="proxyTestResult" style="margin-top:8px"></div>
+      </li>
+    </ol>
+  </div>`;
+}
+// -- End Proxy Setup Guide --
+
 async function runConnectivityTest() {
   const statusEl = document.getElementById('connStatus');
+  const resultEl = document.getElementById('connResult');
+  const proxyBtns = document.getElementById('proxyButtons');
   
+  // 1. Check saved custom proxy
   if (state.proxyUrl) {
     try {
       const r = await fetch(`${state.proxyUrl}/health`);
       if ((await r.json()).ok) {
         statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span data-t="proxyConnected"></span>`;
+        statusEl.innerHTML = `<span>✓</span><span>اتصال پروکسی برقرار است.</span>`;
         setTimeout(() => goStep(2), 1000);
         return;
       }
-    } catch (e) { state.proxyUrl = ''; }
+    } catch (e) { state.proxyUrl = ''; localStorage.removeItem('nahan_proxy_url'); }
   }
 
+  // 2. Check direct connection
   const directOk = await testDirectApi();
   if (directOk) {
     statusEl.className = 'conn-status conn-ok';
-    statusEl.innerHTML = `<span>✓</span><span data-t="proxyConnected"></span>`;
+    statusEl.innerHTML = `<span>✓</span><span>اتصال مستقیم برقرار است.</span>`;
     setTimeout(() => goStep(2), 1000);
     return;
   }
 
-  // Fallback to proxy
+  // 3. Fallback to proxy buttons
+  statusEl.className = 'conn-status conn-fail';
+  statusEl.innerHTML = `<span>✗</span><span>اتصال مستقیم ممکن نیست.</span>`;
+  proxyBtns.style.display = 'block';
+}
+
+async function connectDefaultProxy() {
+  const statusEl = document.getElementById('connStatus');
+  const proxyBtns = document.getElementById('proxyButtons');
+  const resultEl = document.getElementById('connResult');
+
+  statusEl.className = 'conn-status conn-testing';
+  statusEl.innerHTML = `<div class="spinner"></div><span>در حال اتصال به پروکسی پیش‌فرض...</span>`;
+  proxyBtns.style.display = 'none';
+
   try {
       const r = await fetch(`${DEFAULT_PROXY_URL}/health`);
       if ((await r.json()).ok) {
         state.proxyUrl = DEFAULT_PROXY_URL;
         statusEl.className = 'conn-status conn-ok';
-        statusEl.innerHTML = `<span>✓</span><span data-t="proxyConnected"></span>`;
+        statusEl.innerHTML = `<span>✓</span><span>اتصال به پروکسی پیش‌فرض موفق بود.</span>`;
         setTimeout(() => goStep(2), 1000);
         return;
       }
   } catch (e) {}
+  
+  // Default failed -> show manual proxy guide
+  statusEl.className = 'conn-status conn-fail';
+  statusEl.innerHTML = `<span>✗</span><span>پروکسی پیش‌فرض پاسخگو نیست.</span>`;
+  resultEl.innerHTML = renderProxySetup();
+}
+
+function showCustomProxyForm() {
+  document.getElementById('proxyButtons').style.display = 'none';
+  document.getElementById('customProxyForm').style.display = 'block';
+}
+
+function cancelCustomProxy() {
+  document.getElementById('customProxyForm').style.display = 'none';
+  document.getElementById('proxyButtons').style.display = 'block';
+}
+
+async function connectCustomProxy() {
+  const url = document.getElementById('inpCustomProxy').value.trim().replace(/\/+$/, '');
+  await _verifyAndSaveProxy(url, document.getElementById('btnCustomConnect'), document.getElementById('customProxyResult'));
+}
+
+async function testManualProxy() {
+  const url = document.getElementById('inpProxyUrl').value.trim().replace(/\/+$/, '');
+  await _verifyAndSaveProxy(url, document.getElementById('btnTestProxy'), document.getElementById('proxyTestResult'));
+}
+
+async function _verifyAndSaveProxy(url, btnEl, resEl) {
+  if (!url) { resEl.innerHTML = alert('error', 'آدرس وارد نشده است'); return; }
+  btnEl.disabled = true;
+  resEl.innerHTML = '';
+  try {
+    const res = await fetch(`${url}/health`);
+    if ((await res.json()).ok) {
+      state.proxyUrl = url;
+      localStorage.setItem('nahan_proxy_url', url);
+      resEl.innerHTML = alert('success', 'اتصال موفق!');
+      setTimeout(() => goStep(2), 1000);
+      return;
+    }
+  } catch (e) { resEl.innerHTML = alert('error', `خطا: ${e.message}`); }
+  btnEl.disabled = false;
 }
 
 function renderCredentials() {
-  const tokenName = 'Nahan Batch Installer';
-  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22d1%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22account_settings%22%2C%22type%22%3A%22read%22%7D%5D&accountId=*&zoneId=all&name=${encodeURIComponent(tokenName)}`;
+  const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
+  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Nahan Batch Installer')}`;
 
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="credTitle"></div>
-  <div class="card-subtitle" data-t="credSub"></div>
+  <div class="card-title">اعتبارنامه‌های Cloudflare (گروهی)</div>
+  <div class="card-subtitle">توکن‌های API اکانت‌های مختلف خود را وارد کنید</div>
   <div id="credAlert"></div>
   
   <div class="form-group">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-       <label class="form-label" style="margin:0" data-t="labelToken"></label>
-       <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" data-t="createTokenBtn" style="font-size:0.75rem;padding:4px 10px;"></a>
+       <label class="form-label" style="margin:0">توکن‌ها (API Tokens)</label>
+       <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
+       <b>دسترسی‌های لازم:</b> D1 Edit ، Workers Edit ، Account Read
     </div>
     <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="${lang === 'fa' ? 'مثال:\nToken1xxxxxx\nToken2xxxxxx\nToken3xxxxxx' : 'Example:\nToken1xxxxxx\nToken2xxxxxx'}"
+              placeholder="مثال:\nToken_Accont1_xxxxxx\nToken_Account2_xxxxxx"
               spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint" data-t="hintToken"></div>
+    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید. سیستم به طور خودکار Account ID اکانت‌ها را استخراج می‌کند.</div>
   </div>
   
   <div class="btn-group">
-    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()" data-t="validate"></button>
-    <button class="btn btn-secondary" onclick="goStep(1)" data-t="back"></button>
+    <button class="btn btn-primary" id="btnValidate" onclick="handleValidate()">بررسی و تایید توکن‌ها</button>
+    <button class="btn btn-secondary" onclick="goStep(1)">بازگشت</button>
   </div>
 </div>`;
 }
@@ -645,12 +705,12 @@ async function handleValidate() {
   const rawTokens = tokenEl.value.split('\n').map(t => t.trim()).filter(t => t);
   
   if (rawTokens.length === 0) {
-    alertEl.innerHTML = alert('error', lang === 'fa' ? 'لطفاً حداقل یک API Token وارد کنید' : 'Please enter at least one token');
+    alertEl.innerHTML = alert('error', 'لطفاً حداقل یک API Token وارد کنید.');
     return;
   }
 
   btnEl.disabled = true;
-  btnEl.innerHTML = `<div class="spinner"></div> <span data-t="validatingTokens"></span>`;
+  btnEl.innerHTML = `<div class="spinner"></div> در حال بررسی توکن‌ها...`;
   alertEl.innerHTML = '';
   state.accountsList = []; 
 
@@ -658,17 +718,13 @@ async function handleValidate() {
   
   for (let i = 0; i < rawTokens.length; i++) {
     const token = rawTokens[i];
-    const acctsResult = await fetchAccounts(token);
+    const acctsResult = await fetchAccountsForToken(token);
     
     if (acctsResult.ok && acctsResult.accounts.length > 0) {
        const acct = acctsResult.accounts[0];
-       state.accountsList.push({
-           token: token,
-           accountId: acct.id,
-           accountName: acct.name || acct.id
-       });
+       state.accountsList.push({ token: token, accountId: acct.id, accountName: acct.name || acct.id });
     } else {
-       errorsHtml += `Token ${i + 1}: Invalid or no account access<br>`;
+       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی'}<br>`;
     }
   }
 
@@ -676,89 +732,110 @@ async function handleValidate() {
      alertEl.innerHTML = alert('error', errorsHtml);
      if (state.accountsList.length === 0) {
          btnEl.disabled = false;
-         btnEl.textContent = t('validate');
+         btnEl.textContent = 'بررسی مجدد';
          return;
      }
   }
 
-  alertEl.innerHTML += alert('success', lang === 'fa' ? `${state.accountsList.length} اکانت تایید شد!` : `${state.accountsList.length} accounts verified!`);
-  setTimeout(() => goStep(3), 1200);
+  alertEl.innerHTML += alert('success', `${state.accountsList.length} اکانت با موفقیت تایید و شناسایی شد!`);
+  setTimeout(() => goStep(3), 1500);
 }
 
 function renderConfig() {
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="configTitle"></div>
-  <div class="card-subtitle" data-t="configSub"></div>
+  <div class="card-title">پیکربندی استقرار</div>
+  <div class="card-subtitle">تنظیمات زیر روی تمامی اکانت‌ها به صورت یکسان اعمال خواهد شد</div>
 
   <div class="config-grid">
     <div class="form-group">
-      <label class="form-label" data-t="labelWorker"></label>
+      <label class="form-label">نام Worker</label>
       <input type="text" class="form-input" id="inpWorker" value="${esc(state.workerName)}" style="direction:ltr;text-align:left">
+      <div class="form-hint">فقط حروف کوچک، اعداد و خط تیره</div>
     </div>
     <div class="form-group">
-      <label class="form-label" data-t="labelDB"></label>
+      <label class="form-label">نام پایگاه داده D1</label>
       <input type="text" class="form-input" id="inpDB" value="${esc(state.dbName)}" style="direction:ltr;text-align:left">
+      <div class="form-hint">پایگاه داده برای ذخیره کانفیگ‌ها</div>
     </div>
   </div>
 
   <div class="form-group">
-    <label class="form-label" data-t="labelPassword"></label>
+    <label class="form-label">رمز عبور مشترک پنل‌ها (Master Key)</label>
     <input type="text" class="form-input" id="inpPassword" value="${esc(state.password)}" placeholder="admin">
+    <div class="form-hint">خالی بگذارید تا admin تنظیم شود.</div>
   </div>
 
-  <details style="margin-bottom:20px">
-    <summary style="cursor:pointer;color:var(--cyan);font-weight:600;padding:8px 0" data-t="advSettings"></summary>
-    <div style="margin-top:12px" class="form-group">
-      <label class="form-label" data-t="labelApiRoute"></label>
-      <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
+  <details style="margin-bottom:20px; background:var(--bg3); border-radius:8px; padding:10px 14px; border:1px solid var(--border)">
+    <summary style="cursor:pointer;color:var(--cyan);font-weight:600;outline:none;">تنظیمات پیشرفته (تلگرام و مسیر)</summary>
+    <div style="margin-top:16px">
+      <div class="form-group">
+        <label class="form-label">مسیر پنل (API Route)</label>
+        <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
+        <div class="form-hint">به صورت پیش‌فرض: sync</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">توکن ربات تلگرام (اختیاری)</label>
+        <input type="text" class="form-input" id="inpTgToken" value="${esc(state.tgToken)}" placeholder="123456:ABC-DEF..." style="direction:ltr;text-align:left">
+      </div>
+      <div class="form-group">
+        <label class="form-label">شناسه ادمین تلگرام (اختیاری)</label>
+        <input type="text" class="form-input" id="inpTgAdmin" value="${esc(state.tgAdminId)}" placeholder="123456789" style="direction:ltr;text-align:left">
+      </div>
     </div>
   </details>
 
+  <div id="configAlert"></div>
+
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="handleConfigNext()" data-t="next"></button>
-    <button class="btn btn-secondary" onclick="goStep(2)" data-t="back"></button>
+    <button class="btn btn-primary" onclick="handleConfigNext()">تایید و استقرار</button>
+    <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
   </div>
 </div>`;
 }
 
 function handleConfigNext() {
-  state.workerName = document.getElementById('inpWorker').value.trim() || 'nahan-core';
+  const workerName = document.getElementById('inpWorker').value.trim() || 'nahan-core';
+  if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
+    document.getElementById('configAlert').innerHTML = alert('error', 'نام Worker نامعتبر است.');
+    return;
+  }
+  
+  state.workerName = workerName;
   state.dbName = document.getElementById('inpDB').value.trim() || 'iot_db';
   state.password = document.getElementById('inpPassword').value || 'admin';
   state.apiRoute = document.getElementById('inpRoute').value.trim() || 'sync';
+  state.tgToken = document.getElementById('inpTgToken').value.trim();
+  state.tgAdminId = document.getElementById('inpTgAdmin').value.trim();
+  
   goStep(4);
 }
 
 function renderDeploy() {
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="deployTitle"></div>
-  <div class="card-subtitle" data-t="deploySub"></div>
+  <div class="card-title">در حال استقرار گروهی...</div>
+  <div class="card-subtitle">لطفاً تا پایان عملیات روی تمام اکانت‌ها از این صفحه خارج نشوید.</div>
 
   <div id="deployAlert" style="margin-bottom:16px;"></div>
 
   <ul class="progress-list">
     <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span>
-      <div class="progress-text" data-t="stepFetch"></div>
+      <span class="progress-icon">○</span><div class="progress-text">دریافت سورس کد Worker</div>
     </li>
     <li class="progress-item waiting" id="prog-d1">
-      <span class="progress-icon">○</span>
-      <div class="progress-text" data-t="stepD1"></div>
+      <span class="progress-icon">○</span><div class="progress-text">ایجاد پایگاه داده D1 اختصاصی</div>
     </li>
     <li class="progress-item waiting" id="prog-deploy">
-      <span class="progress-icon">○</span>
-      <div class="progress-text" data-t="stepDeploy"></div>
+      <span class="progress-icon">○</span><div class="progress-text">شخصی‌سازی کد و استقرار Worker</div>
     </li>
     <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span>
-      <div class="progress-text" data-t="stepVerify"></div>
+      <span class="progress-icon">○</span><div class="progress-text">فعال‌سازی آدرس و تایید</div>
     </li>
   </ul>
 
   <div class="btn-group" id="deployButtons" style="display:none">
-    <button class="btn btn-secondary" onclick="goStep(3)" data-t="back"></button>
+    <button class="btn btn-secondary" onclick="goStep(3)">بازگشت به تنظیمات</button>
   </div>
 </div>`;
 }
@@ -779,115 +856,109 @@ function setProgress(id, status, textOverride) {
 async function runDeployment() {
   const alertEl = () => document.getElementById('deployAlert');
   const showBtns = () => { document.getElementById('deployButtons').style.display = 'flex'; };
-
   state.deployedPanels = []; 
 
   setProgress('prog-fetch', 'active');
   const fetchResult = await fetchWorkerCode();
   if (!fetchResult.ok) {
     setProgress('prog-fetch', 'error');
-    alertEl().innerHTML = alert('error', t('errFetchAll'));
+    alertEl().innerHTML = alert('error', fetchResult.msg);
     showBtns();
     return;
   }
-  setProgress('prog-fetch', 'done', `Source Fetched (v${state.workerVersion})`);
+  setProgress('prog-fetch', 'done', `سورس کد با موفقیت دریافت شد (نسخه ${state.workerVersion})`);
 
   let loopErrors = '';
 
   for (let i = 0; i < state.accountsList.length; i++) {
      const acc = state.accountsList[i];
-     state.apiToken = acc.token;
-     state.accountId = acc.accountId;
-
-     alertEl().innerHTML = alert('info', lang === 'fa' ? `⏳ در حال نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...` : `⏳ Deploying on Account ${i + 1}/${state.accountsList.length} (${esc(acc.accountName)})...`);
+     alertEl().innerHTML = alert('info', `⏳ در حال نصب روی اکانت ${i + 1} از ${state.accountsList.length} (${esc(acc.accountName)})...`);
      
-     // Reset step UI
-     setProgress('prog-d1', 'active', t('stepD1'));
-     setProgress('prog-deploy', 'waiting', t('stepDeploy'));
-     setProgress('prog-verify', 'waiting', t('stepVerify'));
+     // Reset step UI for each loop iteration
+     setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1');
+     setProgress('prog-deploy', 'waiting', 'شخصی‌سازی کد و استقرار Worker');
+     setProgress('prog-verify', 'waiting', 'فعال‌سازی آدرس و تایید');
 
-     const d1Result = await createD1Database();
-     if (!d1Result.ok) {
-        loopErrors += `Account ${i+1}: D1 Failed<br>`;
-        setProgress('prog-d1', 'error');
-        continue; 
-     }
-     setProgress('prog-d1', 'done');
-
-     setProgress('prog-deploy', 'active');
-     const deployResult = await deployWorker();
-     if (!deployResult.ok) {
-        loopErrors += `Account ${i+1}: Deploy Failed<br>`;
-        setProgress('prog-deploy', 'error');
-        continue;
-     }
-     setProgress('prog-deploy', 'done');
-
-     setProgress('prog-verify', 'active');
-     const urlResult = await enableWorkersDevUrl();
-     if (urlResult.ok) {
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Sleep for propagation
-        state.deployedPanels.push(`${state.deployUrl}/${state.apiRoute}/dash`);
-        setProgress('prog-verify', 'done');
+     const res = await deployToAccount(i, acc.token, acc.accountId);
+     
+     if (res.ok) {
+        // Wait a bit for Cloudflare CDN propagation
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        state.deployedPanels.push({ url: `${res.url}/${state.apiRoute}/dash`, accountName: acc.accountName });
      } else {
-        loopErrors += `Account ${i+1}: URL Failed<br>`;
-        setProgress('prog-verify', 'error');
+        loopErrors += `اکانت ${i+1} (${acc.accountName}): ${res.msg}<br>`;
+        if(res.step === 'd1') setProgress('prog-d1', 'error');
+        if(res.step === 'deploy') setProgress('prog-deploy', 'error');
+        if(res.step === 'verify') setProgress('prog-verify', 'error');
+        // We continue to the next account even if this one fails!
+        continue;
      }
   }
 
   if (loopErrors && state.deployedPanels.length === 0) {
-      alertEl().innerHTML = alert('error', loopErrors);
+      alertEl().innerHTML = alert('error', `تمام استقرارها با شکست مواجه شد:<br>${loopErrors}`);
       showBtns();
       return;
   }
 
-  alertEl().innerHTML = alert('success', lang === 'fa' ? `✅ عملیات به پایان رسید.` : `✅ Batch deployment finished.`);
-  setTimeout(() => goStep(5), 1500);
+  if (loopErrors) {
+      alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما برخی اکانت‌ها مشکل داشتند:<br>${loopErrors}`);
+  } else {
+      alertEl().innerHTML = alert('success', `✅ عملیات به پایان رسید. تمام پنل‌ها مستقر شدند.`);
+  }
+  
+  setTimeout(() => goStep(5), 2000);
 }
 
 function renderSuccess() {
   const pass = state.password || 'admin';
   
-  let linksHtml = state.deployedPanels.map((url, index) => `
-     <div style="margin-bottom:10px;padding:8px;background:var(--bg4);border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
-       <a href="${esc(url)}" target="_blank" style="color:var(--cyan);text-decoration:none;word-break:break-all;font-size:0.9rem;">
-          Proxy ${index + 1}: ${esc(url)}
-       </a>
-       <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(url)}')">${t('copy')}</button>
+  let linksHtml = state.deployedPanels.map((item, index) => `
+     <div style="margin-bottom:10px;padding:12px;background:var(--bg4);border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border2)">
+       <div style="display:flex;flex-direction:column;">
+          <span style="font-size:0.75rem;color:var(--text2);margin-bottom:2px">اکانت: ${esc(item.accountName)}</span>
+          <a href="${esc(item.url)}" target="_blank" style="color:var(--cyan);text-decoration:none;word-break:break-all;font-size:0.95rem;font-weight:600;">
+             پروکسی ${index + 1}
+          </a>
+       </div>
+       <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(item.url)}')">کپی لینک</button>
      </div>
   `).join('');
 
   return `
 <div class="card step-panel">
-  <div class="card-title" data-t="successTitle"></div>
-  <div class="card-subtitle" data-t="successSub"></div>
+  <div class="card-title">🚀 استقرار گروهی با موفقیت انجام شد!</div>
+  <div class="card-subtitle">هم‌اکنون می‌توانید لینک‌های زیر را در کلاینت خود تجمیع (Load Balance) کنید.</div>
 
   <div class="alert alert-warn">
     <span class="alert-icon">⚠️</span>
-    <span>${lang === 'fa' ? 'لطفاً لینک‌های زیر را در کلاینت خود Load Balance کنید.' : 'Load balance the following links in your client.'}</span>
+    <span>توجه: حتماً پس از ورود به پنل‌ها، رمز عبور پیش‌فرض را تغییر دهید تا امنیت شما حفظ شود.</span>
   </div>
 
   <div class="result-box">
-    <div class="result-label" data-t="linksLabel"></div>
-    <div style="margin-top:12px; max-height: 250px; overflow-y: auto;">
-       ${linksHtml || '<span style="color:var(--red)">No successful deployments.</span>'}
+    <div class="result-label">آدرس پنل‌های مدیریت ساخته شده:</div>
+    <div style="margin-top:12px; max-height: 280px; overflow-y: auto; padding-left: 4px;">
+       ${linksHtml || '<span style="color:var(--red)">هیچ لینکی با موفقیت ساخته نشد.</span>'}
     </div>
   </div>
 
   <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
     <div>
-       <div class="result-label" data-t="passLabel"></div>
+       <div class="result-label">رمز عبور مشترک:</div>
        <div class="result-value" style="color:var(--red)">${esc(pass)}</div>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">${t('copy')}</button>
+    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز عبور</button>
   </div>
 
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="resetAll()" data-t="newInstall"></button>
+    <button class="btn btn-primary" onclick="resetAll()">شروع نصب مجدد</button>
   </div>
 </div>`;
 }
 
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
 renderStep();
 </script>
 </body>
