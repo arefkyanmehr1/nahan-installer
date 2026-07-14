@@ -3,1390 +3,1770 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dexter Management Panel | پنل مدیریت دکستر</title>
+<title>Dexter Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg-main: #08080d;
-  --bg-card: #0f0f18;
-  --bg-hover: #171726;
-  --bg-input: #141420;
-  --accent: #ff3366;
-  --accent-rgb: 255, 51, 102;
-  --accent-hover: #e02253;
-  --text-primary: #f3f3f6;
-  --text-secondary: #9292a8;
-  --text-muted: #585870;
-  --green: #00e676;
-  --green-bg: rgba(0,230,118,0.1);
-  --red: #ff4466;
-  --red-bg: rgba(255,68,102,0.1);
-  --yellow: #ffb300;
-  --yellow-bg: rgba(255,179,0,0.1);
-  --border: #1f1f33;
-  --border-focus: #ff3366;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.5);
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'SF Mono', 'Cascadia Code', monospace;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:      #080810;
+  --sf:      #0f0f1e;
+  --card:    #141428;
+  --card2:   #1a1a32;
+  --border:  #22223a;
+  --border2: #2e2e50;
+  --acc:     #7c6fff;
+  --acc2:    #a594ff;
+  --acc-bg:  rgba(124,111,255,.1);
+  --acc-glow:rgba(124,111,255,.25);
+  --danger:  #ff5f6b;
+  --dan-bg:  rgba(255,95,107,.1);
+  --success: #3ddc84;
+  --suc-bg:  rgba(61,220,132,.08);
+  --warn:    #ffaa44;
+  --warn-bg: rgba(255,170,68,.08);
+  --text:    #e2e2f0;
+  --text2:   #6a6a90;
+  --text3:   #3a3a5a;
+  --mono:    'JetBrains Mono', monospace;
+  --sans:    'Vazirmatn', system-ui, sans-serif;
+  --r:       10px;
+  --r2:      16px;
+  --trans:   all .22s cubic-bezier(.4,0,.2,1);
 }
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; }
 
 body {
-  font-family: var(--font);
-  background: var(--bg-main);
-  color: var(--text-primary);
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
-  display: flex;
-  overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Layout */
-.app-container {
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
-}
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--sf); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-/* Sidebar Styling */
-.sidebar {
-  width: 260px;
-  background: var(--bg-card);
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  padding: 24px 16px;
-  flex-shrink: 0;
-  z-index: 10;
+/* ═══════════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════════ */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
 }
-
-.brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-  text-align: center;
+.login-wrap {
+  width: 100%; max-width: 380px; padding: 20px;
+  animation: fadeUp .5s ease;
 }
-
-.brand-logo {
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: var(--accent);
-  letter-spacing: 2px;
-  text-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+.login-logo {
+  text-align: center; margin-bottom: 40px;
 }
-
-.brand-sub {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  margin-top: 4px;
+.login-logo .brand {
+  font-size: 2.5rem; font-weight: 800; letter-spacing: 6px;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-
-.nav-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
+.login-logo .sub {
+  font-size: .8rem; color: var(--text2); margin-top: 4px; letter-spacing: 1px;
 }
-
-.nav-item button {
-  width: 100%;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--font);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: var(--transition);
-  text-align: right;
-}
-
-.nav-item button:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.nav-item.active button {
-  background: rgba(255, 51, 102, 0.1);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.sidebar-footer {
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* Main Content Area */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.topbar {
-  height: 70px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-}
-
-.page-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.conn-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--bg-hover);
+.login-card {
+  background: var(--card);
   border: 1px solid var(--border);
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.badge-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.badge-dot.inactive { background: var(--red); box-shadow: 0 0 8px var(--red); }
-.badge-dot.warning { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-
-.content-body {
+  border-radius: var(--r2);
   padding: 32px;
-  overflow-y: auto;
-  flex: 1;
+  box-shadow: 0 0 60px rgba(124,111,255,.08);
 }
-
-/* Dashboard Tabs Components */
-.tab-pane {
+.login-card h2 {
+  font-size: 1.1rem; font-weight: 600; margin-bottom: 6px;
+}
+.login-card p {
+  font-size: .85rem; color: var(--text2); margin-bottom: 24px;
+}
+.login-err {
+  background: var(--dan-bg);
+  border: 1px solid rgba(255,95,107,.2);
+  color: var(--danger);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: .85rem;
+  margin-bottom: 14px;
   display: none;
-  animation: fadeIn 0.25s ease;
 }
+.login-err.show { display: block; }
 
-.tab-pane.active {
-  display: block;
+/* ═══════════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════════ */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: .82rem; font-weight: 600;
+  color: var(--text2); margin-bottom: 6px;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+.form-input {
+  width: 100%; padding: 11px 14px;
+  background: var(--sf); border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--text); font-size: .9rem;
+  font-family: var(--sans); outline: none; transition: var(--trans);
 }
-
-/* Cards & Grid styling */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+.form-input:focus {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px var(--acc-glow);
 }
+.form-input::placeholder { color: var(--text3); }
+.form-input[dir=ltr] { text-align: left; direction: ltr; }
+.form-hint {
+  font-size: .77rem; color: var(--text3); margin-top: 4px;
+}
+select.form-input { cursor: pointer; }
+textarea.form-input { resize: vertical; min-height: 80px; }
 
-.stat-card {
-  background: var(--bg-card);
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 22px; border-radius: var(--r); font-size: .88rem;
+  font-weight: 600; cursor: pointer; border: none; transition: var(--trans);
+  font-family: var(--sans); text-decoration: none; white-space: nowrap;
+  user-select: none;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
+.btn-primary {
+  background: var(--acc); color: #fff;
+  box-shadow: 0 2px 16px rgba(124,111,255,.3);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(124,111,255,.45);
+}
+.btn-secondary {
+  background: var(--card2); color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
-
-.stat-info h3 {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  margin-bottom: 6px;
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--acc); color: var(--acc);
 }
-
-.stat-info .stat-value {
-  font-size: 1.7rem;
-  font-weight: 800;
-  font-family: var(--font-mono);
+.btn-danger {
+  background: var(--dan-bg); color: var(--danger);
+  border: 1px solid rgba(255,95,107,.2);
 }
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 51, 102, 0.08);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
+.btn-danger:hover:not(:disabled) { background: rgba(255,95,107,.2); }
+.btn-success {
+  background: var(--suc-bg); color: var(--success);
+  border: 1px solid rgba(61,220,132,.2);
 }
+.btn-success:hover:not(:disabled) { background: rgba(61,220,132,.18); }
+.btn-sm { padding: 6px 14px; font-size: .8rem; }
+.btn-icon {
+  width: 36px; height: 36px; padding: 0; border-radius: 8px;
+  background: var(--card2); border: 1px solid var(--border);
+  color: var(--text2); flex-shrink: 0;
+}
+.btn-icon:hover { color: var(--acc); border-color: var(--acc); }
+.btn-full { width: 100%; }
 
-/* Tables and Data Displays */
-.card-wrapper {
-  background: var(--bg-card);
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+#appShell { display: flex; height: 100vh; overflow: hidden; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--sf);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  transition: var(--trans);
+}
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo .brand {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sidebar-logo .ver {
+  font-size: .72rem; color: var(--text3); margin-top: 2px;
+}
+.sidebar-nav { padding: 12px 10px; flex: 1; }
+.nav-section {
+  font-size: .68rem; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--text3); padding: 10px 10px 5px;
+  text-transform: uppercase;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--r);
+  color: var(--text2); font-size: .88rem; font-weight: 500;
+  cursor: pointer; transition: var(--trans); margin-bottom: 2px;
+  position: relative; user-select: none;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active {
+  background: var(--acc-bg); color: var(--acc); font-weight: 600;
+}
+.nav-item.active::before {
+  content: ''; position: absolute;
+  right: 0; top: 25%; height: 50%; width: 3px;
+  background: var(--acc); border-radius: 2px 0 0 2px;
+}
+.nav-item svg { flex-shrink: 0; }
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  font-size: .76rem; color: var(--text3);
+  flex-shrink: 0;
+}
+.sidebar-footer a { color: var(--text2); text-decoration: none; }
+.sidebar-footer a:hover { color: var(--acc); }
+
+/* Main Content */
+.main-content {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(8,8,16,.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 1.1rem; font-weight: 700; }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.page-body { padding: 28px; flex: 1; }
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r2);
   padding: 24px;
-  margin-bottom: 24px;
 }
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.card-sm { padding: 18px; }
+.card-title {
+  font-size: 1rem; font-weight: 700;
+  margin-bottom: 4px;
+}
+.card-sub {
+  font-size: .83rem; color: var(--text2);
   margin-bottom: 20px;
 }
 
-.card-title {
-  font-size: 1rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* Stat cards */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 24px;
+}
+@media(max-width:900px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:520px) { .stats-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 20px;
+  position: relative; overflow: hidden;
+  transition: var(--trans);
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--acc-c, var(--acc));
+}
+.stat-icon {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-bottom: 14px;
+  background: var(--acc-bg-c, var(--acc-bg));
+}
+.stat-val {
+  font-size: 1.9rem; font-weight: 800;
+  line-height: 1; margin-bottom: 4px;
+}
+.stat-label {
+  font-size: .8rem; color: var(--text2);
 }
 
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
+/* ═══════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════ */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: .88rem;
 }
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: right;
-  font-size: 0.88rem;
+th {
+  text-align: right; padding: 11px 14px;
+  font-size: .75rem; font-weight: 700; letter-spacing: .5px;
+  color: var(--text2); border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
-
-.data-table th {
-  padding: 14px 16px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  border-bottom: 2px solid var(--border);
-}
-
-.data-table td {
-  padding: 14px 16px;
+td {
+  padding: 13px 14px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
-
-.data-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.01);
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.015); }
+.td-mono {
+  font-family: var(--mono);
+  font-size: .78rem; color: var(--text2);
+}
+.td-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.empty-row td {
+  text-align: center; color: var(--text2);
+  padding: 36px 14px; font-size: .9rem;
 }
 
-/* Forms and Inputs */
-.form-group {
-  margin-bottom: 18px;
+/* ═══════════════════════════════════════════
+   BADGES / STATUS
+═══════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: .75rem; font-weight: 600;
 }
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.badge-green { background: var(--suc-bg); color: var(--success); }
+.badge-green::before { background: var(--success); }
+.badge-red { background: var(--dan-bg); color: var(--danger); }
+.badge-red::before { background: var(--danger); }
+.badge-yellow { background: var(--warn-bg); color: var(--warn); }
+.badge-yellow::before { background: var(--warn); }
+.badge-gray { background: var(--card2); color: var(--text2); }
+.badge-gray::before { background: var(--text3); }
+.badge-acc { background: var(--acc-bg); color: var(--acc); }
+.badge-acc::before { background: var(--acc); }
 
-.form-label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-
-.form-control {
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-family: var(--font);
-  transition: var(--transition);
-  outline: none;
-}
-
-.form-control:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.15);
-}
-
-.form-control.mono {
-  font-family: var(--font-mono);
-  direction: ltr;
-  text-align: left;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: var(--transition);
-  font-family: var(--font);
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
-.btn-secondary {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent);
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 0.78rem;
-}
-
-.btn-danger {
-  background: var(--red);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #e03355;
-}
-
-/* Alerts */
-.alert {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.alert-info { background: rgba(255, 51, 102, 0.08); border: 1px solid rgba(255, 51, 102, 0.2); color: var(--accent); }
-.alert-success { background: var(--green-bg); border: 1px solid rgba(0, 230, 118, 0.2); color: var(--green); }
-.alert-error { background: var(--red-bg); border: 1px solid rgba(255, 68, 102, 0.2); color: var(--red); }
-
-/* Dialog/Modal */
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
 .modal-overlay {
-  position: fixed;
-  top: 0;left: 0;right: 0;bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadeIn .2s ease;
+}
+.modal-overlay.hide { display: none; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 28px;
+  width: 100%; max-width: 500px;
+  max-height: 90vh; overflow-y: auto;
+  animation: scaleIn .22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+.modal-lg { max-width: 700px; }
+.modal-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.modal-title { font-size: 1.05rem; font-weight: 700; }
+.modal-sub { font-size: .82rem; color: var(--text2); margin-top: 2px; }
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
+/* ═══════════════════════════════════════════
+   ALERTS / TOAST
+═══════════════════════════════════════════ */
+.alert {
+  padding: 12px 16px; border-radius: var(--r);
+  font-size: .85rem; display: flex; gap: 10px; margin-bottom: 14px;
+  align-items: flex-start; line-height: 1.5;
 }
+.alert-icon { flex-shrink: 0; font-size: 1rem; line-height: 1.55; }
+.alert-info { background: var(--acc-bg); border: 1px solid rgba(124,111,255,.2); color: var(--acc2); }
+.alert-err { background: var(--dan-bg); border: 1px solid rgba(255,95,107,.2); color: var(--danger); }
+.alert-ok { background: var(--suc-bg); border: 1px solid rgba(61,220,132,.2); color: var(--success); }
+.alert-warn { background: var(--warn-bg); border: 1px solid rgba(255,170,68,.2); color: var(--warn); }
 
-.modal-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  width: 90%;
-  max-width: 500px;
-  padding: 24px;
-  box-shadow: var(--shadow);
-  transform: scale(0.95);
-  transition: transform 0.2s ease;
+#toastContainer {
+  position: fixed; bottom: 24px; left: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 10px;
 }
-
-.modal-overlay.open .modal-box {
-  transform: scale(1);
+.toast {
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 12px 18px;
+  font-size: .88rem; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  animation: slideIn .3s ease;
+  min-width: 240px; max-width: 360px;
 }
+.toast.ok { border-right: 3px solid var(--success); }
+.toast.err { border-right: 3px solid var(--danger); }
+.toast.info { border-right: 3px solid var(--acc); }
+@keyframes slideIn { from { transform: translateX(-20px); opacity:0; } to { transform:none; opacity:1; } }
 
-/* Custom UI elements */
+/* ═══════════════════════════════════════════
+   PAGE PANELS
+═══════════════════════════════════════════ */
+.page { display: none; animation: fadeUp .3s ease; }
+.page.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes scaleIn { from { transform:scale(.95); opacity:0; } to { transform:none; opacity:1; } }
+
+/* ═══════════════════════════════════════════
+   SPINNER
+═══════════════════════════════════════════ */
 .spinner {
-  width: 16px;height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  width: 16px; height: 16px; border: 2px solid var(--border2);
+  border-top-color: var(--acc); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.badge {
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+/* ═══════════════════════════════════════════
+   DEPLOY PROGRESS
+═══════════════════════════════════════════ */
+.prog-list { list-style: none; margin: 8px 0; }
+.prog-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: var(--r);
+  margin-bottom: 6px; background: var(--sf);
+  border: 1px solid var(--border); transition: var(--trans);
+  font-size: .88rem;
+}
+.prog-item.active { border-color: var(--acc); background: var(--acc-bg); }
+.prog-item.done  { border-color: var(--success); background: var(--suc-bg); }
+.prog-item.err   { border-color: var(--danger); background: var(--dan-bg); }
+.prog-item.wait  { opacity: .4; }
+.prog-icon { font-size: 1rem; flex-shrink: 0; width: 22px; text-align: center; }
+.prog-detail { font-size: .75rem; color: var(--text2); margin-top: 2px; }
+
+/* ═══════════════════════════════════════════
+   COPY ROW
+═══════════════════════════════════════════ */
+.copy-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--sf); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 12px;
+}
+.copy-val {
+  flex: 1; font-family: var(--mono); font-size: .82rem;
+  color: var(--acc2); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; direction: ltr; text-align: left;
 }
 
-.badge-success { background: var(--green-bg); color: var(--green); }
-.badge-danger { background: var(--red-bg); color: var(--red); }
+/* ═══════════════════════════════════════════
+   GRID HELPERS
+═══════════════════════════════════════════ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:520px) { .grid-2 { grid-template-columns: 1fr; } }
+.gap-3 { gap: 12px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mt-2 { margin-top: 8px; }
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
 
-.code-block {
-  background: #06060a;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  overflow-x: auto;
-  direction: ltr;
-  text-align: left;
-}
-
-/* Logging Terminal styling */
-.log-terminal {
-  background: #040407;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  height: 300px;
-  overflow-y: auto;
-  color: #33ff33;
-  direction: ltr;
-  text-align: left;
-}
-
-.log-line { margin-bottom: 4px; }
-.log-line.error { color: var(--red); }
-.log-line.warn { color: var(--yellow); }
-.log-line.info { color: #5bc0de; }
-
-@media (max-width: 768px) {
-  .app-container { flex-direction: column; }
-  .sidebar { width: 100%; border-left: none; border-bottom: 1px solid var(--border); }
-  .topbar { padding: 0 16px; }
-  .content-body { padding: 16px; }
+/* ═══════════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════════ */
+@media(max-width:768px) {
+  .sidebar { width: 64px; }
+  .sidebar .brand, .nav-item span, .sidebar-footer, .nav-section, .sidebar-logo .ver { display: none; }
+  .nav-item { justify-content: center; padding: 12px; }
+  .nav-item.active::before { right: auto; left: 0; border-radius: 0 2px 2px 0; }
+  .page-body { padding: 16px; }
+  .topbar { padding: 12px 16px; }
+  .modal { padding: 20px; }
 }
 </style>
 </head>
 <body>
 
-<div class="app-container">
-  
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo">DEXTER</div>
-      <div class="brand-sub">مدیریت و استقرار گروهی گیت‌وی</div>
+<!-- ═══════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="brand">DEXTER</div>
+      <div class="sub">PROXY MANAGEMENT PANEL</div>
     </div>
-    
-    <ul class="nav-menu">
-      <li class="nav-item active" data-tab="dashboard">
-        <button onclick="switchTab('dashboard')">📊 داشبورد</button>
-      </li>
-      <li class="nav-item" data-tab="tokens">
-        <button onclick="switchTab('tokens')">🔑 حساب‌های Cloudflare</button>
-      </li>
-      <li class="nav-item" data-tab="nodes">
-        <button onclick="switchTab('nodes')">🖥️ مدیریت گره‌ها (Nodes)</button>
-      </li>
-      <li class="nav-item" data-tab="users">
-        <button onclick="switchTab('users')">👥 مدیریت کاربران</button>
-      </li>
-      <li class="nav-item" data-tab="subscriptions">
-        <button onclick="switchTab('subscriptions')">🔗 لینک‌های اشتراک</button>
-      </li>
-      <li class="nav-item" data-tab="settings">
-        <button onclick="switchTab('settings')">⚙️ تنظیمات اتصال</button>
-      </li>
-      <li class="nav-item" data-tab="logs">
-        <button onclick="switchTab('logs')">📋 لاگ‌های سیستم</button>
-      </li>
-      <li class="nav-item" data-tab="about">
-        <button onclick="switchTab('about')">ℹ️ درباره پروژه</button>
-      </li>
-    </ul>
-    
+    <div class="login-card">
+      <h2>ورود به پنل</h2>
+      <p>رمز عبور مدیریتی را وارد کنید</p>
+      <div class="login-err" id="loginErr">رمز عبور اشتباه است</div>
+      <div class="form-group">
+        <label class="form-label">رمز عبور</label>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">ورود</button>
+      <div style="margin-top:16px;font-size:.75rem;color:var(--text3);text-align:center">
+        رمز پیش‌فرض: <code style="color:var(--text2)">dexter</code>
+        — پس از ورود از تنظیمات تغییر دهید
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════════ -->
+<div id="appShell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">DEXTER</div>
+      <div class="ver">v2.0.0</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">منو</div>
+      <div class="nav-item active" onclick="goPage('dashboard')" data-page="dashboard">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <span>داشبورد</span>
+      </div>
+      <div class="nav-item" onclick="goPage('tokens')" data-page="tokens">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span>توکن‌ها</span>
+      </div>
+      <div class="nav-item" onclick="goPage('nodes')" data-page="nodes">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span>نودها</span>
+      </div>
+      <div class="nav-item" onclick="goPage('users')" data-page="users">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>کاربران</span>
+      </div>
+      <div class="nav-item" onclick="goPage('settings')" data-page="settings">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>تنظیمات</span>
+      </div>
+      <div class="nav-item" onclick="goPage('about')" data-page="about">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>درباره</span>
+      </div>
+    </nav>
     <div class="sidebar-footer">
-      <div>توسعه یافته تحت عنوان Dexter</div>
-      <div style="margin-top:4px; opacity:0.6">Nahan Engine by itsyebekhe</div>
+      بر پایه <a href="https://github.com/itsyebekhe" target="_blank">Nahan</a>
+      توسط itsyebekhe
     </div>
   </aside>
 
-  <!-- Main Content Area -->
+  <!-- MAIN -->
   <main class="main-content">
-    <header class="topbar">
-      <div class="page-title" id="tabTitle">داشبورد</div>
-      <div class="conn-badge">
-        <span class="badge-dot" id="globalConnDot"></span>
-        <span id="globalConnText">در حال بررسی اتصال...</span>
-      </div>
-    </header>
 
-    <div class="content-body">
-      
-      <!-- TAB: DASHBOARD -->
-      <section id="tab-dashboard" class="tab-pane active">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-info">
-              <h3>کل حساب‌های متصل</h3>
-              <div class="stat-value" id="stat-tokens">0</div>
-            </div>
+    <!-- ── TOPBAR ── -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">داشبورد</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          خروج
+        </button>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- ══════════════════════════════════════
+           PAGE: DASHBOARD
+      ══════════════════════════════════════ -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card" style="--acc-c:#7c6fff;--acc-bg-c:rgba(124,111,255,.1)">
             <div class="stat-icon">🔑</div>
+            <div class="stat-val" id="st-tokens">0</div>
+            <div class="stat-label">توکن فعال</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-info">
-              <h3>گره‌های مستقر شده</h3>
-              <div class="stat-value" id="stat-nodes">0</div>
-            </div>
+          <div class="stat-card" style="--acc-c:#3ddc84;--acc-bg-c:rgba(61,220,132,.08)">
             <div class="stat-icon">🖥️</div>
+            <div class="stat-val" id="st-nodes">0</div>
+            <div class="stat-label">نود آنلاین</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-info">
-              <h3>کاربران ثبت‌شده</h3>
-              <div class="stat-value" id="stat-users">0</div>
-            </div>
+          <div class="stat-card" style="--acc-c:#ffaa44;--acc-bg-c:rgba(255,170,68,.08)">
             <div class="stat-icon">👥</div>
+            <div class="stat-val" id="st-users">0</div>
+            <div class="stat-label">کاربر</div>
+          </div>
+          <div class="stat-card" style="--acc-c:#ff5f6b;--acc-bg-c:rgba(255,95,107,.1)">
+            <div class="stat-icon">📡</div>
+            <div class="stat-val" id="st-subs">0</div>
+            <div class="stat-label">سابسکریپشن</div>
           </div>
         </div>
 
-        <div class="card-wrapper">
-          <div class="card-title">🚀 راهنمای سریع شروع کار با دکستر</div>
-          <p style="margin-top:12px; font-size:0.9rem; color:var(--text-secondary)">
-            ۱. از بخش <b>حساب‌های Cloudflare</b>، کلیدهای دسترسی (API Tokens) حساب‌های خود را تعریف کنید.<br>
-            ۲. پس از تایید حساب‌ها، گره‌های خود را مستقر کنید.<br>
-            ۳. کاربران خود را ایجاد کرده و لینک اشتراک تجمعی آن‌ها را در کلاینت وارد کنید.
-          </p>
-        </div>
-      </section>
-
-      <!-- TAB: TOKENS -->
-      <section id="tab-tokens" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-header">
-            <div class="card-title">ثبت حساب و توکن جدید</div>
-            <button class="btn btn-primary btn-sm" onclick="openModal('modalToken')">➕ افزودن توکن</button>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">آخرین نودها</div>
+            <div class="card-sub">Workers دیپلوی‌شده</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>نام</th><th>آدرس</th><th>وضعیت</th></tr></thead>
+                <tbody id="dash-nodes-table">
+                  <tr class="empty-row"><td colspan="3">نودی ثبت نشده</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          
-          <div class="table-responsive">
-            <table class="data-table">
+          <div class="card">
+            <div class="card-title">آخرین کاربران</div>
+            <div class="card-sub">آخرین ۵ کاربر اضافه‌شده</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>نام</th><th>حجم</th><th>سابسکریپشن</th></tr></thead>
+                <tbody id="dash-users-table">
+                  <tr class="empty-row"><td colspan="3">کاربری ثبت نشده</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PAGE: TOKENS
+      ══════════════════════════════════════ -->
+      <div class="page" id="page-tokens">
+        <div class="card">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <div class="card-title">توکن‌های Cloudflare</div>
+              <div class="card-sub">هر توکن = یک Worker دیپلوی می‌شود = یک نود جدید</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addTokenModal')">
+              + افزودن توکن
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
               <thead>
                 <tr>
-                  <th>نام نمایشی</th>
-                  <th>توکن Cloudflare</th>
-                  <th>شناسه اکانت</th>
+                  <th>نام / اکانت</th>
+                  <th>Account ID</th>
+                  <th>نود</th>
                   <th>وضعیت</th>
-                  <th>عملیات</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody id="tokensTableBody"></tbody>
+              <tbody id="tokens-table">
+                <tr class="empty-row"><td colspan="5">هیچ توکنی اضافه نشده — از دکمه «افزودن توکن» استفاده کنید</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- TAB: NODES -->
-      <section id="tab-nodes" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-header">
-            <div class="card-title">گره‌های مستقر شده (Nodes)</div>
-            <button class="btn btn-primary btn-sm" onclick="openModal('modalDeploy')">⚡ استقرار گره جدید</button>
+      <!-- ══════════════════════════════════════
+           PAGE: NODES
+      ══════════════════════════════════════ -->
+      <div class="page" id="page-nodes">
+        <div class="card">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <div class="card-title">نودها (Cloudflare Workers)</div>
+              <div class="card-sub">Workers دیپلوی‌شده روی Cloudflare — هر توکن یک نود</div>
+            </div>
           </div>
-          
-          <div class="table-responsive">
-            <table class="data-table">
+          <div class="table-wrap">
+            <table>
               <thead>
                 <tr>
-                  <th>نام گره</th>
-                  <th>آدرس دامنه ورکر</th>
-                  <th>حساب والد</th>
-                  <th>وضعیت اتصال</th>
-                  <th>عملیات</th>
+                  <th>نام نود</th>
+                  <th>آدرس Worker</th>
+                  <th>اکانت</th>
+                  <th>زمان ایجاد</th>
+                  <th>وضعیت</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody id="nodesTableBody"></tbody>
+              <tbody id="nodes-table">
+                <tr class="empty-row"><td colspan="6">نودی وجود ندارد — ابتدا یک توکن اضافه کنید</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- TAB: USERS -->
-      <section id="tab-users" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-header">
-            <div class="card-title">مدیریت کاربران پنل</div>
-            <button class="btn btn-primary btn-sm" onclick="openModal('modalUser')">👤 افزودن کاربر</button>
+      <!-- ══════════════════════════════════════
+           PAGE: USERS
+      ══════════════════════════════════════ -->
+      <div class="page" id="page-users">
+        <div class="card">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <div class="card-title">مدیریت کاربران</div>
+              <div class="card-sub">لینک سابسکریپشن هر کاربر شامل تمام نودهای فعال است</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addUserModal')">
+              + افزودن کاربر
+            </button>
           </div>
-          
-          <div class="table-responsive">
-            <table class="data-table">
+          <div class="table-wrap">
+            <table>
               <thead>
                 <tr>
-                  <th>نام کاربر</th>
+                  <th>نام کاربری</th>
                   <th>UUID</th>
-                  <th>محدودیت حجم</th>
-                  <th>تاریخ انقضا</th>
+                  <th>حجم</th>
+                  <th>انقضا</th>
                   <th>وضعیت</th>
-                  <th>عملیات</th>
+                  <th>لینک سابسکریپشن</th>
+                  <th></th>
                 </tr>
               </thead>
-              <tbody id="usersTableBody"></tbody>
+              <tbody id="users-table">
+                <tr class="empty-row"><td colspan="7">کاربری ثبت نشده</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- TAB: SUBSCRIPTIONS -->
-      <section id="tab-subscriptions" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-title">لینک اشتراک توزیع‌شده (Load Balancing)</div>
-          <p style="color:var(--text-secondary);font-size:0.85rem;margin:8px 0 20px 0">
-            سیستم اشتراک دکستر به طور پویا کانفیگ‌ها را روی تمام گره‌های فعال شما توزیع می‌کند تا حجم درخواست‌ها بین اکانت‌ها تقسیم شود.
-          </p>
-          
-          <div class="form-group">
-            <label class="form-label">انتخاب کاربر</label>
-            <select class="form-control" id="subUserSelect" onchange="generateSubOutput()"></select>
-          </div>
-
-          <div class="form-group" style="margin-top:20px">
-            <label class="form-label">خروجی کانفیگ‌ها</label>
-            <div class="code-block" style="white-space:pre-wrap; max-height:240px" id="subOutputText">جهت مشاهده، یک کاربر انتخاب کنید...</div>
-          </div>
-          
-          <button class="btn btn-primary" onclick="copySubToClipboard()">کپی کل لینک اشتراک</button>
-        </div>
-      </section>
-
-      <!-- TAB: SETTINGS -->
-      <section id="tab-settings" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-title">پیکربندی اتصال و پروکسی</div>
-          <div style="margin-top:20px">
+      <!-- ══════════════════════════════════════
+           PAGE: SETTINGS
+      ══════════════════════════════════════ -->
+      <div class="page" id="page-settings">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">تنظیمات پنل</div>
+            <div class="card-sub">رمز عبور و پروکسی را تنظیم کنید</div>
+            <div class="divider"></div>
             <div class="form-group">
-              <label class="form-label">آدرس پروکسی رفع تحریم (CORS Proxy)</label>
-              <input type="text" class="form-control mono" id="setProxyUrl" placeholder="https://my-proxy.workers.dev">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px">
-                در صورت مسدود بودن ارتباط مستقیم مرورگر به کلودفلر، می‌توانید از ورکر پروکسی پیش‌فرض یا شخصی خود استفاده کنید.
-              </div>
+              <label class="form-label">رمز عبور فعلی</label>
+              <input type="password" class="form-input" id="cfg-old-pass" placeholder="رمز فعلی">
             </div>
-
-            <div class="config-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px">
-              <div class="form-group">
-                <label class="form-label">نام پیش‌فرض Worker</label>
-                <input type="text" class="form-control" id="setDefaultWorker" value="dexter-node">
-              </div>
-              <div class="form-group">
-                <label class="form-label">نام پایگاه داده D1</label>
-                <input type="text" class="form-control" id="setDefaultDB" value="dexter_db">
-              </div>
-            </div>
-
             <div class="form-group">
-              <label class="form-label">مسیر پیش‌فرض پنل (API Route)</label>
-              <input type="text" class="form-control mono" id="setDefaultRoute" value="sync">
+              <label class="form-label">رمز عبور جدید</label>
+              <input type="password" class="form-input" id="cfg-new-pass" placeholder="رمز جدید">
             </div>
+            <div class="form-group">
+              <label class="form-label">تکرار رمز جدید</label>
+              <input type="password" class="form-input" id="cfg-new-pass2" placeholder="تکرار">
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()">ذخیره رمز</button>
+          </div>
+          <div class="card">
+            <div class="card-title">تنظیمات Proxy</div>
+            <div class="card-sub">برای رفع محدودیت CORS مرورگر</div>
+            <div class="divider"></div>
+            <div class="form-group">
+              <label class="form-label">آدرس Proxy Worker</label>
+              <input type="text" class="form-input" id="cfg-proxy" placeholder="https://my-proxy.workers.dev" dir="ltr">
+              <div class="form-hint">خالی بگذارید برای اتصال مستقیم</div>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">ذخیره</button>
 
-            <button class="btn btn-primary" onclick="saveSettings()">💾 ذخیره تنظیمات</button>
+            <div class="divider"></div>
+            <div class="card-title" style="margin-bottom:8px;font-size:.92rem">تنظیمات پیشرفته</div>
+            <div class="form-group">
+              <label class="form-label">نام Worker پیش‌فرض</label>
+              <input type="text" class="form-input" id="cfg-worker-prefix" dir="ltr"
+                     placeholder="dexter-node">
+              <div class="form-hint">Worker نودها با این پیشوند ساخته می‌شوند</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">API Route پیش‌فرض</label>
+              <input type="text" class="form-input" id="cfg-api-route" dir="ltr"
+                     placeholder="sync">
+            </div>
+            <button class="btn btn-secondary" onclick="saveAdvSettings()">ذخیره تنظیمات پیشرفته</button>
           </div>
         </div>
-      </section>
 
-      <!-- TAB: LOGS -->
-      <section id="tab-logs" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-header">
-            <div class="card-title">گزارش‌های سیستم (Logs)</div>
-            <button class="btn btn-secondary btn-sm" onclick="clearLogs()">پاکسازی لاگ‌ها</button>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title" style="color:var(--danger)">منطقه خطر</div>
+          <div class="card-sub">عملیات‌های برگشت‌ناپذیر</div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-danger" onclick="clearAllData()">حذف همه داده‌ها</button>
           </div>
-          <div class="log-terminal" id="logTerminal"></div>
         </div>
-      </section>
+      </div>
 
-      <!-- TAB: ABOUT -->
-      <section id="tab-about" class="tab-pane">
-        <div class="card-wrapper">
-          <div class="card-title">درباره پروژه دکستر (Dexter)</div>
-          <p style="margin-top:12px; font-size:0.9rem; line-height:1.8">
-            پروژه <b>Dexter</b> یک راهکار منبع‌باز برای تجمیع ظرفیت ترافیکی چندین اکانت Cloudflare به منظور دور زدن سقف درخواست‌های رایگان است.
-            این واسط کاربری بازنویسی‌شده بر پایه هسته اصلی پروژه <b>Nahan</b> کار می‌کند.
-          </p>
-          <div style="margin-top:24px; padding:16px; background:var(--bg-hover); border-radius:var(--radius-sm)">
-            <div style="font-weight:700; margin-bottom:8px">اعتبار و تقدیر</div>
-            <p style="font-size:0.82rem; color:var(--text-secondary)">
-              هسته اصلی پروژه توسط <b>itsyebekhe (ی ب خ)</b> طراحی و ارائه شده است.<br>
-              سیستم دکستر صرفاً به عنوان یک پوسته مدیریتی پیشرفته‌تر جهت مدیریت این گره‌ها عمل می‌کند.
+      <!-- ══════════════════════════════════════
+           PAGE: ABOUT
+      ══════════════════════════════════════ -->
+      <div class="page" id="page-about">
+        <div class="card">
+          <div style="text-align:center;padding:20px 0 32px">
+            <div style="font-size:3rem;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">DEXTER</div>
+            <div style="color:var(--text2);font-size:.9rem">Proxy Management Panel — v2.0.0</div>
+          </div>
+          <div class="divider"></div>
+          <div style="max-width:600px;margin:0 auto;color:var(--text2);font-size:.9rem;line-height:1.8">
+            <p style="margin-bottom:16px">
+              Dexter یک پنل مدیریت Proxy مبتنی بر Cloudflare Workers است. با افزودن هر توکن Cloudflare، یک Worker جدید دیپلوی می‌شود و به‌عنوان یک Node در سیستم ثبت می‌شود. لینک سابسکریپشن هر کاربر به‌صورت پویا از روی تمام Nodeهای فعال ساخته می‌شود.
             </p>
+            <div class="alert alert-info">
+              <span class="alert-icon">ℹ️</span>
+              <span>این پنل بر پایه موتور اصلی <strong>Nahan</strong> نوشته‌شده توسط <a href="https://github.com/itsyebekhe" target="_blank" style="color:var(--acc2)">itsyebekhe (ی ب خ)</a> ساخته شده است.</span>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-    </div>
+    </div><!-- /page-body -->
   </main>
+</div><!-- /appShell -->
+
+<!-- ═══════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════ -->
+
+<!-- ADD TOKEN MODAL -->
+<div class="modal-overlay hide" id="addTokenModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">افزودن توکن Cloudflare</div>
+        <div class="modal-sub">پس از اعتبارسنجی، Worker به‌صورت خودکار دیپلوی می‌شود</div>
+      </div>
+      <button class="btn-icon" onclick="closeModal('addTokenModal')">✕</button>
+    </div>
+
+    <!-- Step A: Input -->
+    <div id="tokenStep-input">
+      <div class="alert alert-info" style="margin-bottom:16px">
+        <span class="alert-icon">💡</span>
+        <span>توکن باید دسترسی‌های <strong>Workers Scripts Edit</strong>، <strong>D1 Edit</strong> و <strong>Account Read</strong> داشته باشد.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">نام (اختیاری)</label>
+        <input type="text" class="form-input" id="tk-name" placeholder="مثلاً: اکانت اصلی">
+      </div>
+      <div class="form-group">
+        <label class="form-label">API Token</label>
+        <input type="password" class="form-input" id="tk-token" placeholder="xxxxxxxxxxxxxxxx" dir="ltr">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Account ID</label>
+        <input type="text" class="form-input" id="tk-account" placeholder="abcdef1234..." dir="ltr">
+        <div class="form-hint">در صفحه Overview داشبورد Cloudflare پیدا می‌شود</div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">نام Worker</label>
+          <input type="text" class="form-input" id="tk-worker-name" dir="ltr">
+          <div class="form-hint">به‌صورت خودکار پیشنهاد می‌شود</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نام دیتابیس D1</label>
+          <input type="text" class="form-input" id="tk-db-name" value="iot_db" dir="ltr">
+        </div>
+      </div>
+      <div id="tokenAlert"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('addTokenModal')">انصراف</button>
+        <button class="btn btn-primary" id="btnDeploy" onclick="startDeploy()">
+          دیپلوی Worker
+        </button>
+      </div>
+    </div>
+
+    <!-- Step B: Deploy progress -->
+    <div id="tokenStep-deploy" style="display:none">
+      <ul class="prog-list">
+        <li class="prog-item wait" id="dp-fetch">
+          <span class="prog-icon">○</span>
+          <div>
+            <div>دریافت کد Worker از GitHub</div>
+            <div class="prog-detail">آخرین نسخه Nahan</div>
+          </div>
+        </li>
+        <li class="prog-item wait" id="dp-d1">
+          <span class="prog-icon">○</span>
+          <div>
+            <div>ساخت پایگاه داده D1</div>
+            <div class="prog-detail" id="dp-d1-detail">ایجاد SQLite در لبه Cloudflare</div>
+          </div>
+        </li>
+        <li class="prog-item wait" id="dp-worker">
+          <span class="prog-icon">○</span>
+          <div>
+            <div>دیپلوی Worker</div>
+            <div class="prog-detail">آپلود کد و فعال‌سازی</div>
+          </div>
+        </li>
+        <li class="prog-item wait" id="dp-url">
+          <span class="prog-icon">○</span>
+          <div>
+            <div>فعال‌سازی workers.dev</div>
+            <div class="prog-detail" id="dp-url-detail">ساخت آدرس عمومی</div>
+          </div>
+        </li>
+      </ul>
+      <div id="deployResult" style="margin-top:16px"></div>
+    </div>
+
+  </div>
 </div>
 
-<!-- MODAL: ADD/EDIT TOKEN -->
-<div class="modal-overlay" id="modalToken">
-  <div class="modal-box">
-    <h3 style="margin-bottom:16px" id="tokenModalTitle">افزودن حساب کلودفلر</h3>
-    <div class="form-group">
-      <label class="form-label">نام نمایشی حساب</label>
-      <input type="text" class="form-control" id="tokenName" placeholder="مثلاً: اکانت اصلی من">
+<!-- VIEW SUBSCRIPTION MODAL -->
+<div class="modal-overlay hide" id="subModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">سابسکریپشن کاربر</div>
+        <div class="modal-sub" id="subModalName"></div>
+      </div>
+      <button class="btn-icon" onclick="closeModal('subModal')">✕</button>
     </div>
     <div class="form-group">
-      <label class="form-label">API Token</label>
-      <input type="text" class="form-control mono" id="tokenValue" placeholder="Cloudflare Edit Token">
+      <label class="form-label">لینک سابسکریپشن (همیشه به‌روز)</label>
+      <div class="copy-row">
+        <span class="copy-val" id="subModalUrl"></span>
+        <button class="btn btn-secondary btn-sm" onclick="copyVal('subModalUrl')">کپی</button>
+      </div>
+      <div class="form-hint">این لینک با افزودن هر نود جدید، سرورهای بیشتری به آن اضافه می‌شود</div>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:24px">
-      <button class="btn btn-secondary" onclick="closeModal('modalToken')">انصراف</button>
-      <button class="btn btn-primary" id="btnSaveToken" onclick="saveToken()">ذخیره</button>
+    <div class="form-group">
+      <label class="form-label">UUID کاربر</label>
+      <div class="copy-row">
+        <span class="copy-val" id="subModalUuid"></span>
+        <button class="btn btn-secondary btn-sm" onclick="copyVal('subModalUuid')">کپی</button>
+      </div>
+    </div>
+    <div class="alert alert-warn" id="subModalAlert" style="display:none">
+      <span class="alert-icon">⚠️</span>
+      <span id="subModalAlertText"></span>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">نودهای فعال در این سابسکریپشن</label>
+      <div id="subModalNodes" style="max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('subModal')">بستن</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: DEPLOY NODE -->
-<div class="modal-overlay" id="modalDeploy">
-  <div class="modal-box">
-    <h3 style="margin-bottom:16px">استقرار گره جدید روی Cloudflare</h3>
-    <div class="form-group">
-      <label class="form-label">انتخاب حساب کاربری</label>
-      <select class="form-control" id="deployTokenSelect"></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">نام دلخواه گره (Worker Name)</label>
-      <input type="text" class="form-control mono" id="deployWorkerName" value="dexter-node">
-    </div>
-    <div id="deployStatusBox" style="margin-top:12px; display:none">
-      <div class="alert alert-info">
-        <span class="spinner" style="display:inline-block; vertical-align:middle; margin-left:8px"></span>
-        <span id="deployStatusText">در حال استقرار...</span>
+<!-- ADD USER MODAL -->
+<div class="modal-overlay hide" id="addUserModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">افزودن کاربر جدید</div>
+        <div class="modal-sub">UUID به‌صورت خودکار تولید می‌شود</div>
       </div>
+      <button class="btn-icon" onclick="closeModal('addUserModal')">✕</button>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:24px">
-      <button class="btn btn-secondary" id="btnCancelDeploy" onclick="closeModal('modalDeploy')">بستن</button>
-      <button class="btn btn-primary" id="btnRunDeploy" onclick="startDeployment()">شروع عملیات</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: ADD/EDIT USER -->
-<div class="modal-overlay" id="modalUser">
-  <div class="modal-box">
-    <h3 style="margin-bottom:16px" id="userModalTitle">افزودن کاربر جدید</h3>
-    <input type="hidden" id="userId">
-    <div class="form-group">
-      <label class="form-label">نام کاربر</label>
-      <input type="text" class="form-control" id="userName" placeholder="مثلاً: علی">
-    </div>
-    <div class="form-group">
-      <label class="form-label">UUID</label>
-      <div style="display:flex; gap:8px">
-        <input type="text" class="form-control mono" id="userUUID" placeholder="UUID v4">
-        <button class="btn btn-secondary" onclick="generateUUID()">تولید</button>
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">نام کاربری *</label>
+        <input type="text" class="form-input" id="u-name" placeholder="ali">
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">محدودیت حجم (گیگابایت)</label>
-      <input type="number" class="form-control" id="userLimit" value="50">
+      <div class="form-group">
+        <label class="form-label">حجم (GB)</label>
+        <input type="number" class="form-input" id="u-limit" placeholder="50" value="50" min="0">
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">تاریخ انقضا</label>
-      <input type="date" class="form-control" id="userExpiry">
+      <input type="date" class="form-input" id="u-expire">
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:24px">
-      <button class="btn btn-secondary" onclick="closeModal('modalUser')">انصراف</button>
-      <button class="btn btn-primary" onclick="saveUser()">ذخیره کاربر</button>
+    <div class="form-group">
+      <label class="form-label">یادداشت (اختیاری)</label>
+      <textarea class="form-input" id="u-note" rows="2" placeholder="توضیحات اختیاری"></textarea>
+    </div>
+    <div id="userAlert"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addUserModal')">انصراف</button>
+      <button class="btn btn-primary" onclick="addUser()">ذخیره کاربر</button>
     </div>
   </div>
 </div>
 
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
 <script>
+'use strict';
+
 // ══════════════════════════════════════════════════════════
-//  STATE MANAGEMENT
+//  CONSTANTS
 // ══════════════════════════════════════════════════════════
 const CF_API = 'https://api.cloudflare.com/client/v4';
-const DEFAULT_PROXY = 'https://nahan-installer.edge1-erpy.workers.dev';
+const STORAGE_PREFIX = 'dex_';
+const DEFAULT_PASS_HASH = btoa('dexter');
 
-const state = {
-  proxyUrl: localStorage.getItem('dexter_proxy_url') || DEFAULT_PROXY,
-  tokens: JSON.parse(localStorage.getItem('dexter_tokens')) || [],
-  nodes: JSON.parse(localStorage.getItem('dexter_nodes')) || [],
-  users: JSON.parse(localStorage.getItem('dexter_users')) || [],
-  settings: JSON.parse(localStorage.getItem('dexter_settings')) || {
-    workerName: 'dexter-node',
-    dbName: 'dexter_db',
-    apiRoute: 'sync',
-    defaultPass: 'admin'
-  },
-  logs: JSON.parse(localStorage.getItem('dexter_logs')) || [],
-  workerCode: '',
-  workerVersion: '',
-  activeTab: 'dashboard'
+const PROXY_CODE = `// Dexter / Nahan Installer Proxy Worker
+const CORS={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,POST,PUT,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Authorization,X-Proxy-Target,X-GitHub-Url','Access-Control-Max-Age':'86400'};
+const j=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:{'Content-Type':'application/json',...CORS}});
+export default{async fetch(req){
+  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:CORS});
+  const u=new URL(req.url);
+  if(u.pathname==='/health')return j({ok:true,ts:Date.now()});
+  if(u.pathname==='/github'){
+    const t=req.headers.get('X-GitHub-Url');
+    if(!t)return j({error:'Missing X-GitHub-Url'},400);
+    try{const r=await fetch(t);return new Response(await r.text(),{status:r.status,headers:{'Content-Type':'application/javascript',...CORS}});}catch(e){return j({error:e.message},502);}
+  }
+  const auth=req.headers.get('Authorization');
+  if(!auth)return j({error:'Missing Authorization'},401);
+  const target=req.headers.get('X-Proxy-Target');
+  if(!target)return j({error:'Missing X-Proxy-Target'},400);
+  try{
+    const cf='https://api.cloudflare.com/client/v4'+target;
+    const opts={method:req.method,headers:{Authorization:auth}};
+    if(req.method!=='GET'&&req.method!=='HEAD'){
+      const ct=req.headers.get('Content-Type')||'';
+      if(ct.includes('multipart/form-data')){opts.body=await req.formData();}
+      else{opts.body=await req.text();opts.headers['Content-Type']='application/json';}
+    }
+    const resp=await fetch(cf,opts);
+    return new Response(await resp.text(),{status:resp.status,headers:{'Content-Type':'application/json',...CORS}});
+  }catch(e){return j({error:e.message},502);}
+}};`;
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+const S = {
+  tokens:      JSON.parse(ls('tokens')     || '[]'),
+  nodes:       JSON.parse(ls('nodes')      || '[]'),
+  users:       JSON.parse(ls('users')      || '[]'),
+  proxyUrl:    ls('proxy')                 || '',
+  workerPrefix:ls('workerPrefix')          || 'dexter-node',
+  apiRoute:    ls('apiRoute')              || 'sync',
+  passHash:    ls('passHash')              || DEFAULT_PASS_HASH,
+  deployToken: null,   // توکنی که در حال دیپلوی است
 };
 
-// Seed sample user if none exists
-if(state.users.length === 0) {
-  state.users.push({
-    id: 'user_1',
-    name: 'کاربر تستی',
-    uuid: '1e4e6c98-1e4e-4f2b-8a8b-1b2c3d4e5f6g',
-    limit: 100,
-    expiry: '2026-12-30',
-    status: 'فعال'
-  });
-  localStorage.setItem('dexter_users', JSON.stringify(state.users));
+let currentDeployData = null; // داده‌های deploy در حال اجرا
+
+// ══════════════════════════════════════════════════════════
+//  STORAGE HELPERS
+// ══════════════════════════════════════════════════════════
+function ls(k)         { return localStorage.getItem(STORAGE_PREFIX + k); }
+function lsSet(k, v)   { localStorage.setItem(STORAGE_PREFIX + k, v); }
+function lsDel(k)      { localStorage.removeItem(STORAGE_PREFIX + k); }
+
+function save() {
+  lsSet('tokens', JSON.stringify(S.tokens));
+  lsSet('nodes',  JSON.stringify(S.nodes));
+  lsSet('users',  JSON.stringify(S.users));
 }
 
 // ══════════════════════════════════════════════════════════
-//  LOGGER SYSTEM
+//  AUTH
 // ══════════════════════════════════════════════════════════
-function writeLog(type, message) {
-  const timestamp = new Date().toLocaleTimeString('fa-IR');
-  const line = { timestamp, type, message };
-  state.logs.unshift(line);
-  if(state.logs.length > 200) state.logs.pop();
-  localStorage.setItem('dexter_logs', JSON.stringify(state.logs));
-  renderLogs();
-}
-
-function renderLogs() {
-  const term = document.getElementById('logTerminal');
-  if(!term) return;
-  term.innerHTML = state.logs.map(log => 
-    `<div class="log-line ${log.type}">[${log.timestamp}] [${log.type.toUpperCase()}] ${log.message}</div>`
-  ).join('');
-}
-
-function clearLogs() {
-  state.logs = [];
-  localStorage.setItem('dexter_logs', JSON.stringify(state.logs));
-  renderLogs();
-}
-
-// ══════════════════════════════════════════════════════════
-//  NAVIGATION & UI CORE
-// ══════════════════════════════════════════════════════════
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  
-  const targetPane = document.getElementById(`tab-${tabId}`);
-  if(targetPane) targetPane.classList.add('active');
-  
-  const targetNavItem = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
-  if(targetNavItem) targetNavItem.classList.add('active');
-  
-  const titles = {
-    dashboard: '📊 داشبورد آماری',
-    tokens: '🔑 حساب‌ها و توکن‌ها',
-    nodes: '🖥️ مدیریت گره‌ها (Nodes)',
-    users: '👥 مدیریت کاربران',
-    subscriptions: '🔗 لینک‌های اشتراک توزیع‌شده',
-    settings: '⚙️ تنظیمات اتصال',
-    logs: '📋 لاگ‌های سیستم',
-    about: 'ℹ️ درباره پروژه'
-  };
-  
-  document.getElementById('tabTitle').textContent = titles[tabId] || 'پنل مدیریت';
-  state.activeTab = tabId;
-  
-  // Tab-specific trigger updates
-  if(tabId === 'dashboard') updateDashboardStats();
-  if(tabId === 'tokens') renderTokensTable();
-  if(tabId === 'nodes') renderNodesTable();
-  if(tabId === 'users') renderUsersTable();
-  if(tabId === 'subscriptions') {
-    populateSubUsers();
-    generateSubOutput();
+function doLogin() {
+  const pass = document.getElementById('loginPass').value;
+  const hash = btoa(pass);
+  if (hash === S.passHash) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+    refreshAll();
+  } else {
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('loginPass').value = '';
+    setTimeout(() => document.getElementById('loginErr').classList.remove('show'), 3000);
   }
 }
 
+function doLogout() {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPass').value = '';
+}
+
+function changePassword() {
+  const old  = document.getElementById('cfg-old-pass').value;
+  const nw   = document.getElementById('cfg-new-pass').value;
+  const nw2  = document.getElementById('cfg-new-pass2').value;
+  if (btoa(old) !== S.passHash) return toast('رمز فعلی اشتباه است', 'err');
+  if (!nw) return toast('رمز جدید نمی‌تواند خالی باشد', 'err');
+  if (nw !== nw2) return toast('رمزهای جدید مطابقت ندارند', 'err');
+  S.passHash = btoa(nw);
+  lsSet('passHash', S.passHash);
+  document.getElementById('cfg-old-pass').value = '';
+  document.getElementById('cfg-new-pass').value = '';
+  document.getElementById('cfg-new-pass2').value = '';
+  toast('رمز عبور تغییر کرد', 'ok');
+}
+
 // ══════════════════════════════════════════════════════════
-//  CLOUDFLARE COMMUNICATIONS
+//  CLOUDFLARE API
 // ══════════════════════════════════════════════════════════
-async function cfFetch(path, token, options = {}) {
-  const proxy = state.proxyUrl;
-  let url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
-  
-  const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
+async function cfFetch(path, opts = {}, tokenOverride = null, accountOverride = null) {
+  const method  = opts.method || 'GET';
+  const token   = tokenOverride || S.deployToken || '';
+  const proxy   = S.proxyUrl;
+
+  const url = proxy ? `${proxy}${path}` : `${CF_API}${path}`;
+
+  const headers = { 'Authorization': `Bearer ${token}` };
   if (proxy) headers['X-Proxy-Target'] = path;
-  if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+
+  if (opts.body && !(opts.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   try {
-    const res = await fetch(url, { ...options, headers });
-    const json = await res.json();
+    const res = await fetch(url, { ...opts, headers });
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch {
+      return { success: false, errors: [{ message: `Non-JSON response (${res.status}): ${text.slice(0,200)}` }] };
+    }
+    if (!json.success) {
+      const msg = json.errors?.map(e => e.message || JSON.stringify(e)).join('; ') || `HTTP ${res.status}`;
+      return { success: false, errors: [{ message: msg }], _raw: json };
+    }
     return json;
   } catch (e) {
-    writeLog('error', `ارتباط با کلودفلر خطا داد: ${e.message}`);
-    return { success: false, errors: [{ message: e.message }] };
-  }
-}
-
-async function checkGlobalConnectivity() {
-  const dot = document.getElementById('globalConnDot');
-  const txt = document.getElementById('globalConnText');
-  
-  try {
-    let res = await fetch(`${state.proxyUrl}/health`);
-    let data = await res.json();
-    if(data.ok) {
-      dot.className = 'badge-dot active';
-      txt.textContent = 'اتصال ایمن (پروکسی متصل)';
-      return;
-    }
-  } catch(e) {}
-  
-  // Try direct
-  try {
-    const res = await fetch(`${CF_API}/accounts`, { method: 'GET', headers: { 'Authorization': 'Bearer test' } });
-    if (res.status === 401 || res.status === 200) {
-      dot.className = 'badge-dot active';
-      txt.textContent = 'اتصال مستقیم فعال';
-      return;
-    }
-  } catch(e) {}
-
-  dot.className = 'badge-dot inactive';
-  txt.textContent = 'خطا در ارتباط با سرور';
-}
-
-// ══════════════════════════════════════════════════════════
-//  TOKEN ACTIONS
-// ══════════════════════════════════════════════════════════
-function renderTokensTable() {
-  const tbody = document.getElementById('tokensTableBody');
-  tbody.innerHTML = state.tokens.map((tk, idx) => `
-    <tr>
-      <td style="font-weight:600">${tk.name}</td>
-      <td style="font-family:var(--font-mono)">${tk.value.substring(0,8)}...${tk.value.substring(tk.value.length-6)}</td>
-      <td style="font-family:var(--font-mono)">${tk.accountId || 'تایید نشده'}</td>
-      <td>
-        <span class="badge ${tk.status === 'فعال' ? 'badge-success' : 'badge-danger'}">${tk.status}</span>
-      </td>
-      <td>
-        <div style="display:flex; gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="validateToken(${idx})">🔄 اعتبار سنجی</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteToken(${idx})">حذف</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-async function validateToken(idx) {
-  const tk = state.tokens[idx];
-  writeLog('info', `در حال اعتبارسنجی توکن: ${tk.name}`);
-  const r = await cfFetch('/accounts', tk.value);
-  
-  if (r.success && Array.isArray(r.result) && r.result.length > 0) {
-    const act = r.result[0];
-    tk.accountId = act.id;
-    tk.status = 'فعال';
-    writeLog('info', `توکن ${tk.name} تایید شد. نام حساب: ${act.name}`);
-  } else {
-    tk.status = 'نامعتبر';
-    writeLog('error', `توکن ${tk.name} نامعتبر تشخیص داده شد.`);
-  }
-  
-  localStorage.setItem('dexter_tokens', JSON.stringify(state.tokens));
-  renderTokensTable();
-  updateDashboardStats();
-}
-
-function saveToken() {
-  const name = document.getElementById('tokenName').value.trim();
-  const val = document.getElementById('tokenValue').value.trim();
-  
-  if(!name || !val) return;
-  
-  state.tokens.push({
-    name: name,
-    value: val,
-    accountId: '',
-    status: 'بررسی نشده'
-  });
-  
-  localStorage.setItem('dexter_tokens', JSON.stringify(state.tokens));
-  closeModal('modalToken');
-  renderTokensTable();
-  updateDashboardStats();
-  writeLog('info', `توکن جدید ${name} در حافظه موقت ثبت شد.`);
-}
-
-function deleteToken(idx) {
-  writeLog('warn', `توکن ${state.tokens[idx].name} حذف شد.`);
-  state.tokens.splice(idx, 1);
-  localStorage.setItem('dexter_tokens', JSON.stringify(state.tokens));
-  renderTokensTable();
-  updateDashboardStats();
-}
-
-// ══════════════════════════════════════════════════════════
-//  NODE DEPLOYMENT ENGINE
-// ══════════════════════════════════════════════════════════
-async function startDeployment() {
-  const tokenIdx = document.getElementById('deployTokenSelect').value;
-  const workerName = document.getElementById('deployWorkerName').value.trim();
-  
-  if(tokenIdx === "" || !workerName) return;
-  const tk = state.tokens[tokenIdx];
-  
-  const statusBox = document.getElementById('deployStatusBox');
-  const statusText = document.getElementById('deployStatusText');
-  const btnRun = document.getElementById('btnRunDeploy');
-  const btnCancel = document.getElementById('btnCancelDeploy');
-
-  statusBox.style.display = 'block';
-  btnRun.disabled = true;
-  btnCancel.disabled = true;
-
-  try {
-    statusText.textContent = "دریافت آخرین نسخه ورکر...";
-    await fetchWorkerCode();
-
-    statusText.textContent = "ساخت دیتابیس D1 در حساب کلودفلر...";
-    let dbId = '';
-    const d1Res = await cfFetch(`/accounts/${tk.accountId}/d1/database`, tk.value, {
-      method: 'POST', body: JSON.stringify({ name: state.settings.dbName })
-    });
-
-    if (d1Res.success) {
-      dbId = d1Res.result?.uuid || d1Res.result?.database_id || '';
-    } else {
-      const check = await cfFetch(`/accounts/${tk.accountId}/d1/database`, tk.value);
-      if (check.success && Array.isArray(check.result)) {
-        const db = check.result.find(d => d.name === state.settings.dbName);
-        if (db) dbId = db.uuid || db.database_id || '';
-      }
-    }
-
-    if(!dbId) throw new Error("موفق به ایجاد یا یافتن پایگاه داده D1 نشدیم.");
-    writeLog('info', `پایگاه داده با موفقیت ساخته شد. شناسه: ${dbId}`);
-
-    statusText.textContent = "در حال ویرایش و بارگذاری اسکریپت ورکر...";
-    let code = state.workerCode;
-    code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.settings.apiRoute}"`);
-
-    const metadata = {
-      main_module: 'worker.js',
-      compatibility_date: '2024-09-22',
-      compatibility_flags: ['nodejs_compat'],
-      bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }]
-    };
-
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
-
-    const deployPath = `/accounts/${tk.accountId}/workers/scripts/${encodeURIComponent(workerName)}`;
-    const uploadRes = await cfFetch(deployPath, tk.value, { method: 'PUT', body: form });
-    if (!uploadRes.success) throw new Error(uploadRes.errors?.[0]?.message || "خطا در آپلود ورکر");
-
-    statusText.textContent = "در حال ایجاد ساب‌دامنه...";
-    let subRes = await cfFetch(`/accounts/${tk.accountId}/workers/subdomain`, tk.value);
-    if (!subRes.result?.subdomain) {
-      const randomSub = 'dexter-' + Math.random().toString(36).substring(2, 8);
-      await cfFetch(`/accounts/${tk.accountId}/workers/subdomain`, tk.value, {
-        method: 'PUT', body: JSON.stringify({ subdomain: randomSub })
-      });
-      subRes = await cfFetch(`/accounts/${tk.accountId}/workers/subdomain`, tk.value);
-    }
-
-    await cfFetch(`/accounts/${tk.accountId}/workers/services/${encodeURIComponent(workerName)}/environments/production/subdomain`, tk.value, {
-      method: 'POST', body: JSON.stringify({ enabled: true })
-    });
-
-    if (subRes.success && subRes.result?.subdomain) {
-      const nodeUrl = `https://${workerName}.${subRes.result.subdomain}.workers.dev`;
-      writeLog('info', `گره جدید با موفقیت مستقر شد: ${nodeUrl}`);
-      
-      // Save Node
-      state.nodes.push({
-        name: workerName,
-        url: nodeUrl,
-        accountId: tk.accountId,
-        accountName: tk.name,
-        status: 'فعال'
-      });
-      localStorage.setItem('dexter_nodes', JSON.stringify(state.nodes));
-      
-      statusText.textContent = "استقرار با موفقیت پایان یافت!";
-      setTimeout(() => {
-        closeModal('modalDeploy');
-        renderNodesTable();
-        updateDashboardStats();
-      }, 1500);
-    } else {
-      throw new Error("ساب‌دامنه تخصیص داده نشد.");
-    }
-
-  } catch(err) {
-    statusText.textContent = `خطا: ${err.message}`;
-    writeLog('error', `استقرار گره ناموفق بود: ${err.message}`);
-  } finally {
-    btnRun.disabled = false;
-    btnCancel.disabled = false;
+    return { success: false, errors: [{ message: `خطای شبکه: ${e.message}` }] };
   }
 }
 
 async function fetchWorkerCode() {
-  if (state.workerCode) return;
-  const url = 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js';
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error();
-    state.workerCode = await res.text();
-  } catch (e) {
-    const proxyRes = await fetch(`${state.proxyUrl}/github`, {
-      headers: { 'X-GitHub-Url': url }
-    });
-    state.workerCode = await proxyRes.text();
+  const proxy = S.proxyUrl;
+  const GH_URL = 'https://raw.githubusercontent.com/itsyebekhe/nahan/refs/heads/main/_worker.js';
+  const sources = proxy
+    ? [{ url: `${proxy}/github`, headers: { 'X-GitHub-Url': GH_URL } }]
+    : [
+        { url: 'https://cdn.jsdelivr.net/gh/itsyebekhe/nahan@main/_worker.js' },
+        { url: GH_URL },
+      ];
+
+  for (const src of sources) {
+    try {
+      const res = await fetch(src.url, src.headers ? { headers: src.headers } : undefined);
+      if (!res.ok) continue;
+      const code = await res.text();
+      if (code && code.length > 1000) return { ok: true, code };
+    } catch { continue; }
   }
+  return { ok: false, msg: 'دریافت کد از تمام منابع ناموفق بود' };
 }
 
-function renderNodesTable() {
-  const tbody = document.getElementById('nodesTableBody');
-  tbody.innerHTML = state.nodes.map((node, idx) => `
-    <tr>
-      <td style="font-weight:600">${node.name}</td>
-      <td style="font-family:var(--font-mono)"><a href="${node.url}" target="_blank" style="color:var(--accent); text-decoration:none">${node.url}</a></td>
-      <td>${node.accountName}</td>
-      <td>
-        <span class="badge ${node.status === 'فعال' ? 'badge-success' : 'badge-danger'}">${node.status}</span>
-      </td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteNode(${idx})">حذف</button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function deleteNode(idx) {
-  writeLog('warn', `گره ${state.nodes[idx].name} حذف شد.`);
-  state.nodes.splice(idx, 1);
-  localStorage.setItem('dexter_nodes', JSON.stringify(state.nodes));
-  renderNodesTable();
-  updateDashboardStats();
-}
-
-// ══════════════════════════════════════════════════════════
-//  USER MANAGEMENT (CRUD)
-// ══════════════════════════════════════════════════════════
-function renderUsersTable() {
-  const tbody = document.getElementById('usersTableBody');
-  tbody.innerHTML = state.users.map((user, idx) => `
-    <tr>
-      <td style="font-weight:600">${user.name}</td>
-      <td style="font-family:var(--font-mono); font-size:0.75rem">${user.uuid}</td>
-      <td>${user.limit} گیگابایت</td>
-      <td>${user.expiry || 'نامحدود'}</td>
-      <td>
-        <span class="badge ${user.status === 'فعال' ? 'badge-success' : 'badge-danger'}">${user.status}</span>
-      </td>
-      <td>
-        <div style="display:flex; gap:6px">
-          <button class="btn btn-secondary btn-sm" onclick="editUser(${idx})">📝 ویرایش</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteUser(${idx})">حذف</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function generateUUID() {
-  let d = new Date().getTime();
-  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = (d + Math.random()*16)%16 | 0;
-    d = Math.floor(d/16);
-    return (c==='x' ? r : (r&0x3|0x8)).toString(16);
+async function createD1(accountId) {
+  const dbName = document.getElementById('tk-db-name').value.trim() || 'iot_db';
+  const r = await cfFetch(`/accounts/${accountId}/d1/database`, {
+    method: 'POST', body: JSON.stringify({ name: dbName })
   });
-  document.getElementById('userUUID').value = uuid;
+  if (r.success) return { ok: true, id: r.result?.uuid || r.result?.database_id };
+  const msg = r.errors?.[0]?.message || '';
+  if (msg.toLowerCase().includes('already')) {
+    // پیدا کردن D1 موجود
+    const list = await cfFetch(`/accounts/${accountId}/d1/database`);
+    if (list.success) {
+      const db = list.result.find(d => d.name === dbName);
+      if (db) return { ok: true, id: db.uuid || db.database_id, existed: true };
+    }
+  }
+  return { ok: false, msg };
 }
 
-function saveUser() {
-  const name = document.getElementById('userName').value.trim();
-  const uuid = document.getElementById('userUUID').value.trim();
-  const limit = document.getElementById('userLimit').value;
-  const expiry = document.getElementById('userExpiry').value;
-  const id = document.getElementById('userId').value;
+async function deployWorkerToCloudflare(accountId, workerName, dbId, workerCode) {
+  let code = workerCode;
+  // Inject config
+  code = code
+    .replace(/cfWorkerName\s*:\s*['"][^'"]*['"]/g, `cfWorkerName: "${workerName}"`)
+    .replace(/cfAccountId\s*:\s*['"][^'"]*['"]/g,  `cfAccountId: "${accountId}"`)
+    .replace(/cfApiToken\s*:\s*['"][^'"]*['"]/g,   `cfApiToken: "${S.deployToken}"`)
+    .replace(/apiRoute\s*:\s*['"][^'"]*['"]/g,     `apiRoute: "${S.apiRoute}"`);
 
-  if(!name || !uuid) return;
+  const metadata = {
+    main_module: 'worker.js',
+    compatibility_date: '2024-09-22',
+    compatibility_flags: ['nodejs_compat'],
+    bindings: [{ name: 'IOT_DB', type: 'd1', id: dbId }],
+  };
 
-  if(id) {
-    const user = state.users.find(u => u.id === id);
-    if(user) {
-      user.name = name;
-      user.uuid = uuid;
-      user.limit = limit;
-      user.expiry = expiry;
-    }
-  } else {
-    state.users.push({
-      id: 'usr_' + Date.now(),
-      name, uuid, limit, expiry,
-      status: 'فعال'
-    });
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('worker.js', new Blob([code], { type: 'application/javascript+module' }), 'worker.js');
+
+  const r = await cfFetch(
+    `/accounts/${accountId}/workers/scripts/${encodeURIComponent(workerName)}`,
+    { method: 'PUT', body: form }
+  );
+  return r.success ? { ok: true } : { ok: false, msg: r.errors?.[0]?.message || 'دیپلوی ناموفق' };
+}
+
+async function enableSubdomain(accountId, workerName) {
+  // Enable workers.dev
+  await cfFetch(
+    `/accounts/${accountId}/workers/services/${encodeURIComponent(workerName)}/environments/production/subdomain`,
+    { method: 'POST', body: JSON.stringify({ enabled: true }) }
+  );
+  // Get subdomain
+  const sub = await cfFetch(`/accounts/${accountId}/workers/subdomain`);
+  if (sub.success && sub.result?.subdomain) {
+    return { ok: true, url: `https://${workerName}.${sub.result.subdomain}.workers.dev` };
+  }
+  return { ok: false, msg: 'ساب‌دامنه workers.dev تنظیم نشده' };
+}
+
+// ══════════════════════════════════════════════════════════
+//  DEPLOY FLOW
+// ══════════════════════════════════════════════════════════
+function setP(id, status, detail) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'prog-item ' + status;
+  const icon = el.querySelector('.prog-icon');
+  if (status === 'active') icon.innerHTML = '<div class="spinner"></div>';
+  else if (status === 'done') icon.textContent = '✓';
+  else if (status === 'err')  icon.textContent = '✗';
+  else icon.textContent = '○';
+  if (detail) {
+    let d = el.querySelector('.prog-detail');
+    if (d) d.textContent = detail;
+  }
+}
+
+async function startDeploy() {
+  const token     = document.getElementById('tk-token').value.trim();
+  const accountId = document.getElementById('tk-account').value.trim();
+  const name      = document.getElementById('tk-name').value.trim();
+  let   workerName= document.getElementById('tk-worker-name').value.trim();
+
+  const alertEl = document.getElementById('tokenAlert');
+  alertEl.innerHTML = '';
+
+  if (!token)     return alertEl.innerHTML = mkAlert('err', 'API Token الزامی است');
+  if (!accountId) return alertEl.innerHTML = mkAlert('err', 'Account ID الزامی است');
+
+  if (!workerName) {
+    const idx = S.nodes.length + 1;
+    workerName = `${S.workerPrefix}-${idx}`;
+    document.getElementById('tk-worker-name').value = workerName;
   }
 
-  localStorage.setItem('dexter_users', JSON.stringify(state.users));
-  closeModal('modalUser');
-  renderUsersTable();
-  updateDashboardStats();
-  writeLog('info', `اطلاعات کاربر ${name} بروزرسانی شد.`);
-}
+  if (!/^[a-z][a-z0-9-]{2,}$/.test(workerName)) {
+    return alertEl.innerHTML = mkAlert('err', 'نام Worker نامعتبر — فقط حروف کوچک، اعداد و خط تیره');
+  }
 
-function editUser(idx) {
-  const user = state.users[idx];
-  document.getElementById('userId').value = user.id;
-  document.getElementById('userName').value = user.name;
-  document.getElementById('userUUID').value = user.uuid;
-  document.getElementById('userLimit').value = user.limit;
-  document.getElementById('userExpiry').value = user.expiry;
-  
-  document.getElementById('userModalTitle').textContent = "ویرایش اطلاعات کاربر";
-  openModal('modalUser');
-}
+  // switch to deploy view
+  document.getElementById('tokenStep-input').style.display = 'none';
+  document.getElementById('tokenStep-deploy').style.display = 'block';
+  document.getElementById('deployResult').innerHTML = '';
 
-function deleteUser(idx) {
-  writeLog('warn', `کاربر ${state.users[idx].name} حذف گردید.`);
-  state.users.splice(idx, 1);
-  localStorage.setItem('dexter_users', JSON.stringify(state.users));
-  renderUsersTable();
-  updateDashboardStats();
-}
+  S.deployToken = token;
+  currentDeployData = { token, accountId, name, workerName };
 
-// ══════════════════════════════════════════════════════════
-//  SUBSCRIPTION GENERATION
-// ══════════════════════════════════════════════════════════
-function populateSubUsers() {
-  const select = document.getElementById('subUserSelect');
-  select.innerHTML = state.users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
-}
-
-function generateSubOutput() {
-  const userId = document.getElementById('subUserSelect').value;
-  const output = document.getElementById('subOutputText');
-  if(!userId) return;
-
-  const user = state.users.find(u => u.id === userId);
-  if(!user) return;
-
-  if(state.nodes.length === 0) {
-    output.textContent = "هیچ گره فعالی جهت ساخت لینک متصل وجود ندارد. ابتدا گره اضافه کنید.";
+  // Step 1: Fetch code
+  setP('dp-fetch', 'active');
+  const fetchRes = await fetchWorkerCode();
+  if (!fetchRes.ok) {
+    setP('dp-fetch', 'err', fetchRes.msg);
+    document.getElementById('deployResult').innerHTML = mkAlert('err', fetchRes.msg);
+    showDeployRetry();
     return;
   }
+  setP('dp-fetch', 'done', `${(fetchRes.code.length/1024).toFixed(0)} KB`);
 
-  // Create Sub Links mapping over active nodes
-  let configs = [];
-  state.nodes.forEach((node, idx) => {
-    const baseDomain = node.url.replace('https://', '');
-    configs.push(`vless://${user.uuid}@${baseDomain}:443?encryption=none&security=tls&sni=${baseDomain}&fp=chrome&type=ws&host=${baseDomain}&path=%2F%3Fed%3D2048#DexterNode_${idx+1}`);
-  });
+  // Step 2: D1
+  setP('dp-d1', 'active');
+  const d1Res = await createD1(accountId);
+  if (!d1Res.ok) {
+    setP('dp-d1', 'err', d1Res.msg);
+    document.getElementById('deployResult').innerHTML = mkAlert('err', `خطا در D1: ${d1Res.msg}`);
+    showDeployRetry();
+    return;
+  }
+  setP('dp-d1', 'done', d1Res.existed ? 'موجود — شناسه دریافت شد' : d1Res.id);
 
-  output.textContent = configs.join('\n');
+  // Step 3: Deploy Worker
+  setP('dp-worker', 'active');
+  const depRes = await deployWorkerToCloudflare(accountId, workerName, d1Res.id, fetchRes.code);
+  if (!depRes.ok) {
+    setP('dp-worker', 'err', depRes.msg);
+    document.getElementById('deployResult').innerHTML = mkAlert('err', `خطا در دیپلوی: ${depRes.msg}`);
+    showDeployRetry();
+    return;
+  }
+  setP('dp-worker', 'done');
+
+  // Step 4: Enable URL
+  setP('dp-url', 'active');
+  // small wait for propagation
+  await new Promise(r => setTimeout(r, 3000));
+  const urlRes = await enableSubdomain(accountId, workerName);
+
+  const workerUrl = urlRes.ok ? urlRes.url : `https://${workerName}.workers.dev`;
+  setP('dp-url', urlRes.ok ? 'done' : 'err', workerUrl);
+
+  // ── SAVE TOKEN & NODE ──
+  const tokenObj = {
+    id: uid(),
+    name: name || workerName,
+    accountId,
+    token,
+    workerName,
+    d1Id: d1Res.id,
+    createdAt: new Date().toISOString(),
+    status: 'active',
+  };
+  const nodeObj = {
+    id: uid(),
+    tokenId: tokenObj.id,
+    name: name || workerName,
+    workerName,
+    url: workerUrl,
+    accountId,
+    createdAt: new Date().toISOString(),
+    status: 'online',
+  };
+
+  S.tokens.push(tokenObj);
+  S.nodes.push(nodeObj);
+  save();
+
+  // Result
+  document.getElementById('deployResult').innerHTML = `
+    <div class="alert alert-ok">
+      <span class="alert-icon">✅</span>
+      <div>
+        <strong>دیپلوی موفق!</strong><br>
+        <div style="margin-top:8px">
+          <div class="copy-row" style="margin-top:6px">
+            <span class="copy-val" id="finalUrl">${esc(workerUrl)}</span>
+            <button class="btn btn-secondary btn-sm" onclick="copyVal('finalUrl')">کپی</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="closeModal('addTokenModal');refreshAll()">بازگشت به پنل</button>
+      <button class="btn btn-secondary" onclick="resetDeployModal()">دیپلوی جدید</button>
+    </div>`;
+
+  refreshAll();
+  toast(`نود ${workerName} با موفقیت دیپلوی شد`, 'ok');
 }
 
-function copySubToClipboard() {
-  const text = document.getElementById('subOutputText').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    writeLog('info', 'اشتراک کپی شد.');
-  });
+function showDeployRetry() {
+  const el = document.getElementById('deployResult');
+  el.innerHTML += `
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn btn-secondary" onclick="resetDeployModal()">تلاش مجدد</button>
+      <button class="btn btn-secondary" onclick="closeModal('addTokenModal')">بستن</button>
+    </div>`;
+}
+
+function resetDeployModal() {
+  document.getElementById('tokenStep-input').style.display = 'block';
+  document.getElementById('tokenStep-deploy').style.display = 'none';
+  document.getElementById('deployResult').innerHTML = '';
+  document.getElementById('tokenAlert').innerHTML = '';
+  ['dp-fetch','dp-d1','dp-worker','dp-url'].forEach(id => setP(id, 'wait'));
+  S.deployToken = null;
+  currentDeployData = null;
 }
 
 // ══════════════════════════════════════════════════════════
-//  SETTINGS & SYSTEM CONFIGS
+//  USER MANAGEMENT
+// ══════════════════════════════════════════════════════════
+function addUser() {
+  const name   = document.getElementById('u-name').value.trim();
+  const limit  = document.getElementById('u-limit').value || '0';
+  const expire = document.getElementById('u-expire').value;
+  const note   = document.getElementById('u-note').value.trim();
+  const alertEl = document.getElementById('userAlert');
+
+  if (!name) return alertEl.innerHTML = mkAlert('err', 'نام کاربری الزامی است');
+  if (S.users.find(u => u.username === name))
+    return alertEl.innerHTML = mkAlert('err', 'این نام کاربری قبلاً ثبت شده');
+
+  S.users.push({
+    id: uid(),
+    username: name,
+    uuid: generateUUID(),
+    limit: parseInt(limit),
+    expire: expire || '',
+    note,
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  });
+  save();
+  closeModal('addUserModal');
+  refreshAll();
+  toast(`کاربر ${name} اضافه شد`, 'ok');
+}
+
+function deleteUser(id) {
+  if (!confirm('آیا از حذف این کاربر اطمینان دارید؟')) return;
+  S.users = S.users.filter(u => u.id !== id);
+  save();
+  refreshAll();
+  toast('کاربر حذف شد', 'ok');
+}
+
+function toggleUser(id) {
+  const u = S.users.find(u => u.id === id);
+  if (!u) return;
+  u.enabled = !u.enabled;
+  save();
+  refreshAll();
+  toast(u.enabled ? 'کاربر فعال شد' : 'کاربر غیرفعال شد', 'info');
+}
+
+function showSub(userId) {
+  const u = S.users.find(u => u.id === userId);
+  if (!u) return;
+
+  const nodes = S.nodes.filter(n => n.status === 'online');
+  const subUrl = buildSubUrl(u);
+
+  document.getElementById('subModalName').textContent = `کاربر: ${u.username}`;
+  document.getElementById('subModalUrl').textContent   = subUrl;
+  document.getElementById('subModalUuid').textContent  = u.uuid;
+
+  const alertEl = document.getElementById('subModalAlert');
+  const alertTxt = document.getElementById('subModalAlertText');
+  if (nodes.length === 0) {
+    alertEl.style.display = 'flex';
+    alertTxt.textContent = 'هیچ نود فعالی وجود ندارد. ابتدا یک توکن اضافه کنید تا Worker دیپلوی شود.';
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  const nodesDiv = document.getElementById('subModalNodes');
+  nodesDiv.innerHTML = nodes.length
+    ? nodes.map(n => `
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;
+             background:var(--sf);border-radius:var(--r);margin-bottom:6px;font-size:.82rem">
+          <span class="badge badge-green" style="flex-shrink:0">آنلاین</span>
+          <span style="font-family:var(--mono);color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n.url)}</span>
+        </div>`).join('')
+    : '<div style="color:var(--text2);font-size:.85rem;padding:10px 0">نودی وجود ندارد</div>';
+
+  openModal('subModal');
+}
+
+function buildSubUrl(user) {
+  // لینک سابسکریپشن: به Worker اول (یا master) پوینت می‌کند
+  // اگر نودی وجود داشت، از اولین نود استفاده می‌کنیم
+  const firstNode = S.nodes.find(n => n.status === 'online');
+  if (firstNode) {
+    return `${firstNode.url}/${S.apiRoute}/${user.username}`;
+  }
+  return `#no-node-deployed-yet`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOKEN / NODE MANAGEMENT
+// ══════════════════════════════════════════════════════════
+function deleteToken(id) {
+  if (!confirm('این توکن و نود مرتبط حذف می‌شوند. ادامه دهید؟')) return;
+  const tk = S.tokens.find(t => t.id === id);
+  S.tokens = S.tokens.filter(t => t.id !== id);
+  if (tk) S.nodes = S.nodes.filter(n => n.tokenId !== tk.id);
+  save();
+  refreshAll();
+  toast('توکن و نود حذف شدند', 'ok');
+}
+
+function deleteNode(id) {
+  if (!confirm('این نود حذف می‌شود (Worker روی Cloudflare پاک نمی‌شود). ادامه؟')) return;
+  S.nodes = S.nodes.filter(n => n.id !== id);
+  save();
+  refreshAll();
+  toast('نود از لیست حذف شد', 'ok');
+}
+
+function toggleNodeStatus(id) {
+  const n = S.nodes.find(n => n.id === id);
+  if (!n) return;
+  n.status = n.status === 'online' ? 'offline' : 'online';
+  save();
+  refreshAll();
+  toast(n.status === 'online' ? 'نود فعال شد' : 'نود غیرفعال شد', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+//  SETTINGS
 // ══════════════════════════════════════════════════════════
 function saveSettings() {
-  state.proxyUrl = document.getElementById('setProxyUrl').value.trim();
-  state.settings.workerName = document.getElementById('setDefaultWorker').value.trim();
-  state.settings.dbName = document.getElementById('setDefaultDB').value.trim();
-  state.settings.apiRoute = document.getElementById('setDefaultRoute').value.trim();
+  S.proxyUrl = document.getElementById('cfg-proxy').value.trim().replace(/\/+$/, '');
+  lsSet('proxy', S.proxyUrl);
+  toast('تنظیمات ذخیره شد', 'ok');
+}
 
-  localStorage.setItem('dexter_proxy_url', state.proxyUrl);
-  localStorage.setItem('dexter_settings', JSON.stringify(state.settings));
+function saveAdvSettings() {
+  const prefix = document.getElementById('cfg-worker-prefix').value.trim();
+  const route  = document.getElementById('cfg-api-route').value.trim();
+  if (prefix) { S.workerPrefix = prefix; lsSet('workerPrefix', prefix); }
+  if (route)  { S.apiRoute = route;      lsSet('apiRoute', route); }
+  toast('تنظیمات پیشرفته ذخیره شد', 'ok');
+}
 
-  writeLog('info', 'تنظیمات با موفقیت ذخیره شدند.');
-  checkGlobalConnectivity();
+function clearAllData() {
+  if (!confirm('همه داده‌ها (توکن‌ها، نودها، کاربران) حذف می‌شوند. ادامه؟')) return;
+  ['tokens','nodes','users'].forEach(k => { S[k] = []; lsDel(k); });
+  save();
+  refreshAll();
+  toast('همه داده‌ها پاک شدند', 'ok');
 }
 
 // ══════════════════════════════════════════════════════════
-//  DASHBOARD STATISTICS
+//  RENDER
 // ══════════════════════════════════════════════════════════
-function updateDashboardStats() {
-  document.getElementById('stat-tokens').textContent = state.tokens.length;
-  document.getElementById('stat-nodes').textContent = state.nodes.length;
-  document.getElementById('stat-users').textContent = state.users.length;
+function refreshAll() {
+  renderStats();
+  renderDashboard();
+  renderTokens();
+  renderNodes();
+  renderUsers();
+  renderSettings();
+}
+
+function renderStats() {
+  byId('st-tokens').textContent = S.tokens.length;
+  byId('st-nodes').textContent  = S.nodes.filter(n => n.status === 'online').length;
+  byId('st-users').textContent  = S.users.length;
+  byId('st-subs').textContent   = S.users.filter(u => u.enabled).length;
+}
+
+function renderDashboard() {
+  // Nodes summary
+  const nRows = S.nodes.slice(-5).map(n => `
+    <tr>
+      <td>${esc(n.name)}</td>
+      <td class="td-mono" style="direction:ltr;text-align:left">${esc(n.url)}</td>
+      <td><span class="badge ${n.status==='online'?'badge-green':'badge-gray'}">${n.status==='online'?'آنلاین':'آفلاین'}</span></td>
+    </tr>`).join('');
+  byId('dash-nodes-table').innerHTML = nRows || '<tr class="empty-row"><td colspan="3">نودی ثبت نشده</td></tr>';
+
+  // Users summary
+  const uRows = S.users.slice(-5).map(u => `
+    <tr>
+      <td>${esc(u.username)}</td>
+      <td>${u.limit} GB</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="showSub('${u.id}')">مشاهده</button>
+      </td>
+    </tr>`).join('');
+  byId('dash-users-table').innerHTML = uRows || '<tr class="empty-row"><td colspan="3">کاربری ثبت نشده</td></tr>';
+}
+
+function renderTokens() {
+  const tbody = byId('tokens-table');
+  if (!S.tokens.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">هیچ توکنی اضافه نشده</td></tr>';
+    return;
+  }
+  tbody.innerHTML = S.tokens.map(tk => {
+    const node = S.nodes.find(n => n.tokenId === tk.id);
+    return `<tr>
+      <td>
+        <div style="font-weight:600">${esc(tk.name)}</div>
+        <div class="td-mono" style="font-size:.72rem">${tk.accountId.slice(0,16)}…</div>
+      </td>
+      <td class="td-mono">${tk.accountId.slice(0,12)}…</td>
+      <td>${node ? `<span class="td-mono" style="font-size:.78rem">${esc(node.workerName)}</span>` : '<span class="badge badge-gray">—</span>'}</td>
+      <td><span class="badge ${tk.status==='active'?'badge-green':'badge-gray'}">${tk.status==='active'?'فعال':'غیرفعال'}</span></td>
+      <td class="td-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteToken('${tk.id}')">حذف</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderNodes() {
+  const tbody = byId('nodes-table');
+  if (!S.nodes.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">نودی وجود ندارد</td></tr>';
+    return;
+  }
+  tbody.innerHTML = S.nodes.map(n => `
+    <tr>
+      <td style="font-weight:600">${esc(n.name)}</td>
+      <td class="td-mono" style="direction:ltr;text-align:left">
+        <a href="${esc(n.url)}" target="_blank" style="color:var(--acc2);text-decoration:none">${esc(n.url)}</a>
+      </td>
+      <td class="td-mono">${n.accountId.slice(0,12)}…</td>
+      <td class="td-mono" style="font-size:.78rem">${fmtDate(n.createdAt)}</td>
+      <td><span class="badge ${n.status==='online'?'badge-green':'badge-gray'}">${n.status==='online'?'آنلاین':'آفلاین'}</span></td>
+      <td class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="toggleNodeStatus('${n.id}')">
+          ${n.status==='online'?'غیرفعال':'فعال'}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteNode('${n.id}')">حذف</button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderUsers() {
+  const tbody = byId('users-table');
+  if (!S.users.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">کاربری ثبت نشده</td></tr>';
+    return;
+  }
+  tbody.innerHTML = S.users.map(u => {
+    const expired = u.expire && new Date(u.expire) < new Date();
+    return `<tr>
+      <td style="font-weight:600">${esc(u.username)}</td>
+      <td class="td-mono">${u.uuid.slice(0,18)}…</td>
+      <td>${u.limit} GB</td>
+      <td class="${expired?'':''}">${u.expire ? fmtDate(u.expire) : '—'}${expired?'<span class="badge badge-red" style="margin-right:6px">منقضی</span>':''}</td>
+      <td><span class="badge ${u.enabled?'badge-green':'badge-red'}">${u.enabled?'فعال':'غیرفعال'}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="showSub('${u.id}')">مشاهده لینک</button>
+      </td>
+      <td class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="toggleUser('${u.id}')">${u.enabled?'غیرفعال':'فعال'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">حذف</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSettings() {
+  const pi = document.getElementById('cfg-proxy');
+  const pp = document.getElementById('cfg-worker-prefix');
+  const pa = document.getElementById('cfg-api-route');
+  if (pi) pi.value = S.proxyUrl;
+  if (pp) pp.value = S.workerPrefix;
+  if (pa) pa.value = S.apiRoute;
 }
 
 // ══════════════════════════════════════════════════════════
-//  MODAL CONTROLS
+//  UI HELPERS
 // ══════════════════════════════════════════════════════════
+function goPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+
+  const ni = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (ni) ni.classList.add('active');
+
+  const titles = {
+    dashboard:'داشبورد', tokens:'توکن‌ها', nodes:'نودها',
+    users:'کاربران', settings:'تنظیمات', about:'درباره'
+  };
+  byId('topbarTitle').textContent = titles[page] || '';
+
+  if (page === 'settings') renderSettings();
+}
+
 function openModal(id) {
-  if (id === 'modalToken') {
-    document.getElementById('tokenName').value = '';
-    document.getElementById('tokenValue').value = '';
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('hide');
+  // پیشنهاد نام worker
+  if (id === 'addTokenModal') {
+    const idx = S.nodes.length + 1;
+    const el2 = document.getElementById('tk-worker-name');
+    if (el2 && !el2.value) el2.value = `${S.workerPrefix}-${idx}`;
   }
-  if (id === 'modalUser') {
-    document.getElementById('userId').value = '';
-    document.getElementById('userName').value = '';
-    document.getElementById('userUUID').value = '';
-    document.getElementById('userLimit').value = '50';
-    document.getElementById('userExpiry').value = '';
-    document.getElementById('userModalTitle').textContent = "افزودن کاربر جدید";
-  }
-  if (id === 'modalDeploy') {
-    const select = document.getElementById('deployTokenSelect');
-    select.innerHTML = state.tokens.map((t, idx) => `<option value="${idx}">${t.name} (${t.accountId ? t.accountId.substring(0,8) : 'بدون آی‌دی'}...)</option>`).join('');
-    document.getElementById('deployWorkerName').value = state.settings.workerName;
-    document.getElementById('deployStatusBox').style.display = 'none';
-  }
-  
-  document.getElementById(id).classList.add('open');
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('hide');
+  if (id === 'addTokenModal') resetDeployModal();
 }
 
-// ══════════════════════════════════════════════════════════
-//  INITIALIZATION
-// ══════════════════════════════════════════════════════════
-window.onload = function() {
-  // Setup configuration inputs
-  document.getElementById('setProxyUrl').value = state.proxyUrl;
-  document.getElementById('setDefaultWorker').value = state.settings.workerName;
-  document.getElementById('setDefaultDB').value = state.settings.dbName;
-  document.getElementById('setDefaultRoute').value = state.settings.apiRoute;
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const icons = { ok:'✅', err:'❌', info:'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||''}</span><span>${esc(msg)}</span>`;
+  c.appendChild(el);
+  setTimeout(() => el.style.opacity = '0', 3000);
+  setTimeout(() => el.remove(), 3400);
+}
 
-  writeLog('info', 'پنل دکستر با موفقیت راه‌اندازی شد.');
-  
-  checkGlobalConnectivity();
-  updateDashboardStats();
-  renderLogs();
-};
+function copyVal(elemId) {
+  const el = document.getElementById(elemId);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim())
+    .then(() => toast('کپی شد', 'ok'))
+    .catch(() => toast('کپی ناموفق', 'err'));
+}
+
+function mkAlert(type, msg) {
+  const icons = { ok:'✅', err:'❌', info:'ℹ️', warn:'⚠️' };
+  const cls = { ok:'alert-ok', err:'alert-err', info:'alert-info', warn:'alert-warn' };
+  return `<div class="alert ${cls[type]||'alert-info'}"><span class="alert-icon">${icons[type]||''}</span><span>${esc(msg)}</span></div>`;
+}
+
+function byId(id) { return document.getElementById(id); }
+
+function esc(s) {
+  if (s == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleDateString('fa-IR');
+  } catch {
+    return dateStr;
+  }
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => {
+    if (e.target === ov) {
+      const id = ov.id;
+      closeModal(id);
+    }
+  });
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay:not(.hide)').forEach(m => closeModal(m.id));
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+refreshAll();
 </script>
 </body>
 </html>
