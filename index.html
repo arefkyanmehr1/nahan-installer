@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nahan Multi-Installer | نصب‌کننده گروهی یکپارچه نهان</title>
+<title>Nahan Master-Slave Installer | نصب‌کننده هاب نهان</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -179,7 +179,7 @@ display:flex;align-items:center;justify-content:center
 <div class="container">
 <div class="header">
 <div class="logo">NAHAN</div>
-<div class="logo-sub">نصب‌کننده گروهی یکپارچه (ادغام بار و تجمیع ساب‌سکرایب) — نسخه ۳.۰</div>
+<div class="logo-sub">نصب‌کننده هاب مرکزی (Master-Slave) — نسخه ۳.۰</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
@@ -276,184 +276,7 @@ async function fetchWorkerCode() {
   return { ok: false, msg: 'خطا در دریافت سورس کد' };
 }
 
-// ── WORKER CODE MODIFICATION & INJECTION (D1 REPLICATION) ──
-function modifyWorkerCode(code, slaveUrls, syncSecret, isMaster, apiRoute) {
-  let modified = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${apiRoute}"`);
-  modified = modified.replace("export default {", "const _original_default = {");
-  
-  const wrapper = `
-// === NAHAN MULTI-ACCOUNT SYNC REPLICATION WRAPPER ===
-const SLAVE_URLS = ${JSON.stringify(slaveUrls)};
-const SYNC_SECRET = "${syncSecret}";
-const API_ROUTE = "${apiRoute}";
-const IS_MASTER = ${isMaster};
-
-function wrapD1(originalD1, env, ctx) {
-  if (!originalD1) return originalD1;
-  
-  const replicate = async (sql, params, method) => {
-    if (!IS_MASTER) return;
-    for (const url of SLAVE_URLS) {
-      try {
-        const syncPromise = fetch(\`\${url}/\${API_ROUTE}/db-sync\`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": \`Bearer \${SYNC_SECRET}\`
-          },
-          body: JSON.stringify({ sql, params, method })
-        }).catch(e => console.error("Sync error to " + url, e));
-        
-        if (ctx && typeof ctx.waitUntil === 'function') {
-          ctx.waitUntil(syncPromise);
-        }
-      } catch(e) {
-        console.error("Sync trigger error", e);
-      }
-    }
-  };
-
-  return new Proxy(originalD1, {
-    get(target, prop) {
-      if (prop === 'prepare') {
-        return function(sql) {
-          const stmt = target.prepare(sql);
-          return wrapStatement(stmt, sql, replicate);
-        };
-      }
-      if (prop === 'exec') {
-        return function(sql) {
-          if (IS_MASTER && /^(insert|update|delete|create|replace)/i.test(sql.trim())) {
-            replicate(sql, [], 'exec');
-          }
-          return target.exec(sql);
-        };
-      }
-      const val = target[prop];
-      return typeof val === 'function' ? val.bind(target) : val;
-    }
-  });
-}
-
-function wrapStatement(stmt, sql, replicate, boundParams = []) {
-  return new Proxy(stmt, {
-    get(target, prop) {
-      if (prop === 'bind') {
-        return function(...args) {
-          const newStmt = target.bind(...args);
-          return wrapStatement(newStmt, sql, replicate, args);
-        };
-      }
-      if (prop === 'run') {
-        return function(...args) {
-          const params = args.length > 0 ? args : boundParams;
-          if (IS_MASTER && /^(insert|update|delete|create|replace)/i.test(sql.trim())) {
-            replicate(sql, params, 'run');
-          }
-          return target.run(...args);
-        };
-      }
-      const val = target[prop];
-      return typeof val === 'function' ? val.bind(target) : val;
-    }
-  });
-}
-
-async function handleSubscriptionIntercept(response, request, env) {
-  if (!IS_MASTER || SLAVE_URLS.length === 0) return response;
-  try {
-    const url = new URL(request.url);
-    if (!url.pathname.includes(\`/\${API_ROUTE}/sub/\`)) return response;
-    
-    let text = await response.text();
-    let decoded = text;
-    let isBase64 = false;
-    try {
-      decoded = atob(text.trim());
-      isBase64 = true;
-    } catch(e) {}
-    
-    const lines = decoded.split(/\\r?\\n/).filter(l => l.trim().length > 0);
-    const newLines = [...lines];
-    
-    const masterHost = url.hostname;
-    for (const line of lines) {
-      if (line.startsWith('vless://') || line.startsWith('trojan://') || line.startsWith('vmess://') || line.startsWith('ss://')) {
-        for (const slaveUrl of SLAVE_URLS) {
-          try {
-            const slaveHost = new URL(slaveUrl).hostname;
-            let slaveConfig = line
-              .split(masterHost).join(slaveHost)
-              .split(encodeURIComponent(masterHost)).join(encodeURIComponent(slaveHost));
-            
-            if (slaveConfig.includes('#')) {
-               const parts = slaveConfig.split('#');
-               parts[1] = parts[1] + \`-\${slaveHost.split('.')[0]}\`;
-               slaveConfig = parts.join('#');
-            }
-            newLines.push(slaveConfig);
-          } catch(e) {}
-        }
-      }
-    }
-    
-    const resultText = isBase64 ? btoa(newLines.join('\\n')) : newLines.join('\\n');
-    return new Response(resultText, {
-      status: response.status,
-      headers: response.headers
-    });
-  } catch(e) {
-    return response;
-  }
-}
-
-export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    
-    if (!IS_MASTER && url.pathname === \`/\${API_ROUTE}/db-sync\`) {
-      if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 });
-      const auth = request.headers.get('Authorization');
-      if (auth !== \`Bearer \${SYNC_SECRET}\`) return new Response('Unauthorized', { status: 401 });
-      
-      try {
-        const { sql, params, method } = await request.json();
-        let dbResult;
-        if (method === 'exec') {
-          dbResult = await env.IOT_DB.exec(sql);
-        } else {
-          dbResult = await env.IOT_DB.prepare(sql).bind(...params).run();
-        }
-        return new Response(JSON.stringify({ success: true, result: dbResult }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      } catch(e) {
-        return new Response(JSON.stringify({ success: false, error: e.message }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-    
-    const hijackedEnv = { ...env };
-    if (env.IOT_DB) {
-      hijackedEnv.IOT_DB = wrapD1(env.IOT_DB, hijackedEnv, ctx);
-    }
-    
-    const response = await _original_default.fetch(request, hijackedEnv, ctx);
-    
-    if (IS_MASTER && url.pathname.includes(\`/\${API_ROUTE}/sub/\`)) {
-      return handleSubscriptionIntercept(response, request, hijackedEnv);
-    }
-    
-    return response;
-  }
-};
-`;
-  return modified + wrapper;
-}
-
-async function deployToAccount(accountIndex, token, accountId, isMaster, slaveUrls, syncSecret) {
+async function deployToAccount(accountIndex, token, accountId) {
   // Step 1: Create D1 Database
   setProgress('prog-d1', 'active');
   let dbId = '';
@@ -472,9 +295,12 @@ async function deployToAccount(accountIndex, token, accountId, isMaster, slaveUr
   }
   setProgress('prog-d1', 'done');
 
-  // Step 2: Prepare Code & Deploy (بهره‌گیری از کامپایلر اختصاصی همگام‌ساز)
+  // Step 2: Prepare Code & Deploy
   setProgress('prog-deploy', 'active');
-  let code = modifyWorkerCode(state.workerCode, slaveUrls, syncSecret, isMaster, state.apiRoute);
+  let code = state.workerCode;
+  
+  // فقط apiRoute رو تغییر میدیم و پسورد پیش‌فرض (admin) می‌مونه تا سینتکس کدهای اصلی خراب نشه.
+  code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
   
   const metadata = {
     main_module: 'worker.js',
@@ -499,6 +325,7 @@ async function deployToAccount(accountIndex, token, accountId, isMaster, slaveUr
   // Step 3: Enable workers.dev and verify
   setProgress('prog-verify', 'active');
   
+  // رفع باگ اکانت‌های خام: ساخت ساب‌دامنه خودکار در صورت عدم وجود
   let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   if (!subRes.result?.subdomain) {
       const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
@@ -583,18 +410,17 @@ function resetAll() {
 function renderWelcome() {
   return `
 <div class="card step-panel">
-  <div class="card-title">نصب‌کننده گروهی و هوشمند نهان</div>
-  <div class="card-subtitle">استقرار گیت‌وی نهان روی چند اکانت با یک دیتابیس و مدیریت کاملاً یکپارچه</div>
+  <div class="card-title">هاب مرکزی نهان (Master/Slave)</div>
+  <div class="card-subtitle">افزایش چشمگیر ظرفیت با تجمیع چندین اکانت کلودفلر در یک پنل</div>
   <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
-    دیگر نیازی به کنترل چند دیتابیس و پنل مدیریت مجزا برای دور زدن محدودیت‌های ترافیک ندارید. این سیستم یک حساب را به عنوان پنل اصلی و بقیه را به عنوان گیت‌وی فرعی قرار می‌دهد. کاربران جدید خود را فقط در یک پنل می‌سازید و لینک اشتراک آنها به طور خودکار شامل سرورهای تمام حساب‌ها خواهد بود.
+    این سیستم هوشمند، یک اکانت شما را به عنوان <b>فرمانده (Master)</b> در نظر می‌گیرد و سایر اکانت‌ها را به صورت خودکار به عنوان <b>نود (Slave)</b> به آن متصل می‌کند. شما فقط یک پنل را مدیریت می‌کنید اما ترافیکتان روی ده‌ها اکانت پخش می‌شود!
   </p>
   <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">مزیت‌های معماری یکپارچه (Master-Slave):</div>
+    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">فرآیند اتوماتیک سیستم:</div>
     <div class="feature-grid">
-      <div class="feature-item"><span class="feature-icon">🛡️</span><span>فقط یک پنل مدیریت مرکزی</span></div>
-      <div class="feature-item"><span class="feature-icon">🔄</span><span>همگام‌سازی دیتابیس در ثانیه</span></div>
-      <div class="feature-item"><span class="feature-icon">⚡</span><span>افزایش ضربدری ظرفیت روزانه</span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span>تجمیع خودکار تمام لینک‌ها</span></div>
+      <div class="feature-item"><span class="feature-icon">👑</span><span>ساخت پنل اصلی (Master)</span></div>
+      <div class="feature-item"><span class="feature-icon">☁️</span><span>ساخت نودهای کمکی (Slaves)</span></div>
+      <div class="feature-item"><span class="feature-icon">🔗</span><span>پیوندسازی خودکار اکانت‌ها</span></div>
     </div>
   </div>
   <div class="btn-group">
@@ -803,26 +629,23 @@ async function _verifyAndSaveProxy(url, btnEl, resEl) {
 
 function renderCredentials() {
   const tokenPermissions = [{ key: 'workers_scripts', type: 'edit' }, { key: 'd1', type: 'edit' }, { key: 'account_settings', type: 'read' }, { key: 'account_analytics', type: 'read' }];
-  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Nahan Batch Installer')}`;
+  const createTokenUrl = `https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=${encodeURIComponent(JSON.stringify(tokenPermissions))}&accountId=*&zoneId=all&name=${encodeURIComponent('Nahan Hub Installer')}`;
 
   return `
 <div class="card step-panel">
-  <div class="card-title">اعتبارنامه‌های Cloudflare (گروهی)</div>
-  <div class="card-subtitle">توکن‌های API اکانت‌های مختلف خود را وارد کنید</div>
+  <div class="card-title">معرفی اکانت‌ها (Tokens)</div>
+  <div class="card-subtitle">اولین توکنی که وارد می‌کنید تبدیل به پنل اصلی (Master) خواهد شد.</div>
   <div id="credAlert"></div>
   
   <div class="form-group">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-       <label class="form-label" style="margin:0">توکن‌ها (API Tokens)</label>
+       <label class="form-label" style="margin:0">توکن‌های Cloudflare</label>
        <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
     </div>
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
-       <b>مهم:</b> اولین توکن ورودی به عنوان <b>پنل اصلی (Master)</b> نصب خواهد شد و باقی توکن‌ها به عنوان <b>گیت‌وی‌های کمکی (Slaves)</b> به آن پیوند می‌خورند.
-    </div>
     <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="مثال:\nToken_Master_Account_xxxxxx\nToken_Slave_Account1_xxxxxx\nToken_Slave_Account2_xxxxxx"
+              placeholder="خط اول: توکن اکانت اصلی (Master)\nخط دوم: توکن اکانت کمکی (Slave)\nخط سوم: توکن اکانت کمکی (Slave)"
               spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید (با دکمه Enter). سیستم تمام فرآیند هماهنگ‌سازی دیتابیس‌ها را خودکار انجام می‌دهد.</div>
+    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید. سیستم به طور خودکار همه را به هم پیوند (Link) می‌دهد.</div>
   </div>
   
   <div class="btn-group">
@@ -873,44 +696,39 @@ async function handleValidate() {
      }
   }
 
-  alertEl.innerHTML += alert('success', `${state.accountsList.length} اکانت با موفقیت تایید و شناسایی شد!`);
+  alertEl.innerHTML += alert('success', `${state.accountsList.length} اکانت تایید شد! اکانت اول به عنوان Master تنظیم می‌شود.`);
   setTimeout(() => goStep(3), 1500);
 }
 
 function renderConfig() {
   return `
 <div class="card step-panel">
-  <div class="card-title">پیکربندی استقرار یکپارچه</div>
-  <div class="card-subtitle">تنظیمات همگام‌سازی و راه‌اندازی گیت‌وی‌ها</div>
-  
-  <div class="alert alert-info">
-    <span class="alert-icon">🔒</span>
-    <span>برای امنیت و جلوگیری از تداخل، رمز پیش‌فرض پنل مدیریت مرکزی شما <b style="color:var(--cyan)">admin</b> خواهد بود. پس از اولین ورود حتماً آن را از منوی تنظیمات تغییر دهید.</span>
-  </div>
+  <div class="card-title">پیکربندی شبکه (Master-Slave)</div>
+  <div class="card-subtitle">این تنظیمات هسته اصلی شبکه‌ی پراکسی شما را شکل می‌دهند.</div>
 
   <div class="config-grid">
     <div class="form-group">
       <label class="form-label">نام Worker</label>
       <input type="text" class="form-input" id="inpWorker" value="${esc(state.workerName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">حروف کوچک، اعداد و خط تیره</div>
+      <div class="form-hint">فقط حروف کوچک، اعداد و خط تیره</div>
     </div>
     <div class="form-group">
       <label class="form-label">نام پایگاه داده D1</label>
       <input type="text" class="form-input" id="inpDB" value="${esc(state.dbName)}" style="direction:ltr;text-align:left">
-      <div class="form-hint">دیتابیس ابری برای ذخیره هماهنگ اطلاعات کاربران</div>
+      <div class="form-hint">پایگاه داده برای ذخیره کانفیگ‌ها</div>
     </div>
   </div>
 
   <div class="form-group">
     <label class="form-label">مسیر پنل (API Route)</label>
     <input type="text" class="form-input" id="inpRoute" value="${esc(state.apiRoute)}" style="direction:ltr;text-align:left">
-    <div class="form-hint">مسیر پنل مدیریت به صورت پیش‌فرض: sync</div>
+    <div class="form-hint">به صورت پیش‌فرض: sync</div>
   </div>
 
   <div id="configAlert"></div>
 
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="handleConfigNext()">تایید و استقرار همه‌جانبه</button>
+    <button class="btn btn-primary" onclick="handleConfigNext()">تایید و ساخت شبکه</button>
     <button class="btn btn-secondary" onclick="goStep(2)">بازگشت</button>
   </div>
 </div>`;
@@ -933,23 +751,23 @@ function handleConfigNext() {
 function renderDeploy() {
   return `
 <div class="card step-panel">
-  <div class="card-title">در حال استقرار و لینک‌سازی گروهی...</div>
-  <div class="card-subtitle">لطفاً تا اتمام عملیات روی هیچکدام از اکانت‌ها از صفحه خارج نشوید.</div>
+  <div class="card-title">در حال ساخت شبکه (Hub) ...</div>
+  <div class="card-subtitle">لطفاً تا پایان اتصال تمامی اکانت‌ها به یکدیگر، صفحه را نبندید.</div>
 
   <div id="deployAlert" style="margin-bottom:16px;"></div>
 
   <ul class="progress-list">
     <li class="progress-item waiting" id="prog-fetch">
-      <span class="progress-icon">○</span><div class="progress-text">دریافت سورس کد نهان از گیت‌هاب</div>
+      <span class="progress-icon">○</span><div class="progress-text">دریافت سورس کد Worker</div>
     </li>
     <li class="progress-item waiting" id="prog-d1">
-      <span class="progress-icon">○</span><div class="progress-text">آماده‌سازی دیتابیس‌های هماهنگ D1</div>
+      <span class="progress-icon">○</span><div class="progress-text">ایجاد پایگاه‌های داده D1</div>
     </li>
     <li class="progress-item waiting" id="prog-deploy">
-      <span class="progress-icon">○</span><div class="progress-text">شخصی‌سازی، تزریق ماژول Sync و استقرار</div>
+      <span class="progress-icon">○</span><div class="progress-text">استقرار و فعال‌سازی اکانت‌ها</div>
     </li>
-    <li class="progress-item waiting" id="prog-verify">
-      <span class="progress-icon">○</span><div class="progress-text">بررسی دامنه‌ها و لینک نهایی اکانت‌ها</div>
+    <li class="progress-item waiting" id="prog-link">
+      <span class="progress-icon">○</span><div class="progress-text">پیوندسازی خودکار (Master به Slaves)</div>
     </li>
   </ul>
 
@@ -988,70 +806,74 @@ async function runDeployment() {
   setProgress('prog-fetch', 'done', `سورس کد دریافت شد (نسخه ${state.workerVersion})`);
 
   let loopErrors = '';
-  
-  // کلید اختصاصی و فوق امنیتی برای همگام‌سازی ارتباط دیتابیس‌ها
-  const syncSecret = 'sync_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  
-  const slaveUrls = [];
-  const masterAcc = state.accountsList[0];
-  const slaveAccs = state.accountsList.slice(1);
 
-  // مرحله ۱: ابتدا گیت‌وی‌های فرعی (Slaves) مستقر می‌شوند تا لینک ساب آن‌ها به دست آید
-  if (slaveAccs.length > 0) {
-    for (let i = 0; i < slaveAccs.length; i++) {
-       const acc = slaveAccs[i];
-       const slaveIndex = i + 1;
-       alertEl().innerHTML = alert('info', `⏳ در حال نصب گیت‌وی فرعی ${slaveIndex} از ${state.accountsList.length - 1} (${esc(acc.accountName)})...`);
-       
-       setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1 گیت‌وی');
-       setProgress('prog-deploy', 'waiting', 'استقرار گیت‌وی فرعی');
-       setProgress('prog-verify', 'waiting', 'فعال‌سازی آدرس گیت‌وی فرعی');
+  for (let i = 0; i < state.accountsList.length; i++) {
+     const acc = state.accountsList[i];
+     const role = i === 0 ? "فرمانده (Master)" : `نود کمکی (Slave ${i})`;
+     alertEl().innerHTML = alert('info', `⏳ نصب روی اکانت ${i + 1} از ${state.accountsList.length} - نقش: ${role}...`);
+     
+     setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1');
+     setProgress('prog-deploy', 'waiting', 'استقرار و فعال‌سازی اکانت‌ها');
 
-       const res = await deployToAccount(slaveIndex, acc.token, acc.accountId, false, [], syncSecret);
-       
-       if (res.ok) {
-          slaveUrls.push(res.url);
-          await new Promise(resolve => setTimeout(resolve, 1500)); 
-       } else {
-          loopErrors += `خطا در گیت‌وی فرعی ${slaveIndex} (${acc.accountName}): ${res.msg}<br>`;
-          if(res.step === 'd1') setProgress('prog-d1', 'error');
-          if(res.step === 'deploy') setProgress('prog-deploy', 'error');
-          if(res.step === 'verify') setProgress('prog-verify', 'error');
-       }
-    }
+     const res = await deployToAccount(i, acc.token, acc.accountId);
+     
+     if (res.ok) {
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        state.deployedPanels.push({ 
+            rawUrl: res.url, 
+            url: `${res.url}/${state.apiRoute}/dash`, 
+            accountName: acc.accountName 
+        });
+        setProgress('prog-deploy', 'done', `نصب اکانت ${i+1} با موفقیت انجام شد`);
+     } else {
+        loopErrors += `اکانت ${i+1} (${acc.accountName}): ${res.msg}<br>`;
+        setProgress('prog-d1', 'error');
+        setProgress('prog-deploy', 'error');
+        continue;
+     }
   }
 
-  // مرحله ۲: مستقر کردن پنل اصلی (Master) و پیوند دادن تمام گیت‌وی‌ها به آن
-  alertEl().innerHTML = alert('info', `⏳ در حال نصب پنل مدیریت اصلی (Master) روی اکانت اول (${esc(masterAcc.accountName)})...`);
-  setProgress('prog-d1', 'active', 'ایجاد پایگاه داده D1 پنل اصلی');
-  setProgress('prog-deploy', 'waiting', 'استقرار پنل اصلی');
-  setProgress('prog-verify', 'waiting', 'فعال‌سازی آدرس پنل اصلی');
-
-  const res = await deployToAccount(0, masterAcc.token, masterAcc.accountId, true, slaveUrls, syncSecret);
-  
-  if (res.ok) {
-     state.deployedPanels.push({ 
-       url: `${res.url}/${state.apiRoute}/dash`, 
-       accountName: masterAcc.accountName,
-       slaveCount: slaveUrls.length 
-     });
-  } else {
-     loopErrors += `خطا در پنل اصلی (${masterAcc.accountName}): ${res.msg}<br>`;
-     if(res.step === 'd1') setProgress('prog-d1', 'error');
-     if(res.step === 'deploy') setProgress('prog-deploy', 'error');
-     if(res.step === 'verify') setProgress('prog-verify', 'error');
-  }
-
-  if (loopErrors && state.deployedPanels.length === 0) {
-      alertEl().innerHTML = alert('error', `عملیات استقرار با شکست مواجه شد:<br>${loopErrors}`);
+  if (state.deployedPanels.length === 0) {
+      alertEl().innerHTML = alert('error', `استقرار روی تمام اکانت‌ها با خطا مواجه شد:<br>${loopErrors}`);
       showBtns();
       return;
   }
 
-  if (loopErrors) {
-      alertEl().innerHTML = alert('warn', `عملیات انجام شد، اما پیوند برخی گیت‌وی‌های فرعی با مشکل مواجه گردید:<br>${loopErrors}`);
+  // --- جادوی پیوندسازی (Master-Slave Linker) ---
+  if (state.deployedPanels.length > 1) {
+      setProgress('prog-link', 'active', 'در حال پیوند اکانت‌های Slave به Master...');
+      const master = state.deployedPanels[0];
+      const pass = 'admin'; // رمز پیش‌فرض ثابت شده در ورکر
+      
+      const linked = [];
+      for(let i = 1; i < state.deployedPanels.length; i++) {
+          linked.push({ url: state.deployedPanels[i].rawUrl, apiKey: pass });
+      }
+      
+      try {
+          const syncRes = await fetch(`${master.rawUrl}/${state.apiRoute}/api/sync`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  key: pass,
+                  config: { linkedPanels: linked }
+              })
+          });
+          
+          if(syncRes.ok) {
+              setProgress('prog-link', 'done', 'شبکه با موفقیت یکپارچه شد! (Master + Slaves)');
+              alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام ${state.deployedPanels.length} اکانت تحت مدیریت یک پنل قرار گرفتند.`);
+          } else {
+              setProgress('prog-link', 'error', 'اکانت‌ها مستقر شدند اما پیوند خودکار برقرار نشد.');
+              alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما لینک کردن اتوماتیک نودها خطا داشت.`);
+          }
+      } catch(e) {
+          setProgress('prog-link', 'error', 'خطا در ارتباط با سرور Master');
+          alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما لینک کردن اتوماتیک نودها به دلیل قطعی ارتباط انجام نشد.`);
+      }
   } else {
-      alertEl().innerHTML = alert('success', `✅ عملیات موفقیت‌آمیز! پنل اصلی و تمام گیت‌وی‌ها بدون باگ مستقر و پیوند داده شدند.`);
+      setProgress('prog-link', 'done', 'فقط یک اکانت نصب شد (بدون نیاز به شبکه Slave)');
+      alertEl().innerHTML = alert('success', `✅ عملیات موفق! تک اکانت شما مستقر شد.`);
   }
   
   setTimeout(() => goStep(5), 2500);
@@ -1059,38 +881,64 @@ async function runDeployment() {
 
 function renderSuccess() {
   const pass = 'admin';
-  const masterPanel = state.deployedPanels[0];
   
+  let masterHtml = '';
+  let slavesHtml = '';
+
+  if (state.deployedPanels.length > 1) {
+      masterHtml = `
+      <div style="margin-bottom:16px;padding:16px;background:var(--cyan-bg);border-radius:8px;border:1px solid var(--cyan)">
+          <h4 style="color:var(--cyan);margin-bottom:8px;">👑 پنل مدیریت اصلی (Master)</h4>
+          <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px;">شما فقط باید وارد این پنل شوید. بقیه اکانت‌ها نامرئی هستند و به صورت خودکار ترافیک را از این پنل دریافت می‌کنند.</p>
+          <a href="${esc(state.deployedPanels[0].url)}" target="_blank" style="color:var(--cyan);font-weight:bold;text-decoration:none;word-break:break-all;">
+             ${esc(state.deployedPanels[0].url)}
+          </a>
+      </div>`;
+      
+      slavesHtml = state.deployedPanels.slice(1).map((item, index) => `
+        <div style="margin-bottom:8px;padding:8px 12px;background:var(--bg4);border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.8rem;color:var(--text2);">نود کمکی ${index + 1} (${esc(item.accountName)})</span>
+          <span style="font-size:0.8rem;color:var(--green);font-weight:bold;">✅ متصل به Master</span>
+        </div>
+      `).join('');
+  } else if (state.deployedPanels.length === 1) {
+      masterHtml = `
+      <div style="margin-bottom:16px;padding:16px;background:var(--cyan-bg);border-radius:8px;border:1px solid var(--cyan)">
+          <h4 style="color:var(--cyan);margin-bottom:8px;">پنل مدیریت شما</h4>
+          <a href="${esc(state.deployedPanels[0].url)}" target="_blank" style="color:var(--cyan);font-weight:bold;text-decoration:none;word-break:break-all;">
+             ${esc(state.deployedPanels[0].url)}
+          </a>
+      </div>`;
+  }
+
   return `
 <div class="card step-panel">
-  <div class="card-title">🚀 پنل مرکزی با موفقیت راه‌اندازی شد!</div>
-  <div class="card-subtitle">تعداد کل گیت‌وی‌های همگام و تجمیع شده در ساب‌سکرایب: ${masterPanel ? masterPanel.slaveCount + 1 : 0}</div>
+  <div class="card-title">🚀 ساخت هاب مرکزی کامل شد!</div>
+  <div class="card-subtitle">با ساخت یک کاربر در پنل Master، لینک آن کاربر حاوی تمامی نودهای شما خواهد بود.</div>
 
-  <div class="alert alert-success">
-     <span class="alert-icon">💡</span>
-     <span><b>نیاز به هیچ پنل دیگری ندارید!</b> کافیست وارد همین یک پنل اصلی شده و کاربران خود را مدیریت کنید. کلاینت کاربر هنگام آپدیت اشتراک، سرورهای تمام اکانت‌ها را همزمان دانلود خواهد کرد.</span>
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <span>حتماً وارد پنل Master شوید و از قسمت تنظیمات، <b>رمز عبور پیش‌فرض (admin)</b> را تغییر دهید.</span>
   </div>
 
+  ${masterHtml}
+  
+  ${slavesHtml ? `
   <div class="result-box">
-    <div class="result-label">آدرس ورود به پنل مدیریت یکتا (Master Panel):</div>
-    <div class="result-value" style="margin:8px 0;">
-       <a href="${esc(masterPanel ? masterPanel.url : '')}" target="_blank" style="color:var(--cyan);text-decoration:none;word-break:break-all;font-size:0.95rem;font-weight:700;">
-          ${esc(masterPanel ? masterPanel.url : '')}
-       </a>
-    </div>
-    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(masterPanel ? masterPanel.url : '')}')">کپی لینک پنل مدیریت</button>
-  </div>
+    <div class="result-label" style="margin-bottom:10px;">نودهای پس‌زمینه (Slaves):</div>
+    ${slavesHtml}
+  </div>` : ''}
 
   <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
     <div>
-       <div class="result-label">رمز عبور پیش‌فرض پنل مدیریت:</div>
+       <div class="result-label">رمز عبور پیش‌فرض ورود:</div>
        <div class="result-value" style="color:var(--green)">${esc(pass)}</div>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز عبور</button>
+    <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز</button>
   </div>
 
   <div class="btn-group">
-    <button class="btn btn-primary" onclick="resetAll()">نصب پروژه جدید</button>
+    <button class="btn btn-primary" onclick="resetAll()">شروع نصب مجدد</button>
   </div>
 </div>`;
 }
