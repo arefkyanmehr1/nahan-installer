@@ -179,7 +179,7 @@ display:flex;align-items:center;justify-content:center
 <div class="container">
 <div class="header">
 <div class="logo">NAHAN</div>
-<div class="logo-sub">نصب‌کننده هاب مرکزی (Master-Slave) — نسخه ۳.۰</div>
+<div class="logo-sub">نصب‌کننده هاب مرکزی (Master-Slave) — نسخه ۳.۵</div>
 </div>
 
 <div class="steps" id="stepsIndicator"></div>
@@ -299,7 +299,7 @@ async function deployToAccount(accountIndex, token, accountId) {
   setProgress('prog-deploy', 'active');
   let code = state.workerCode;
   
-  // فقط apiRoute رو تغییر میدیم و پسورد پیش‌فرض (admin) می‌مونه تا سینتکس کدهای اصلی خراب نشه.
+  // فقط apiRoute رو تغییر میدیم و پسورد پیش‌فرض (admin) می‌مونه
   code = code.replace(/apiRoute\s*:\s*['"][^'"]*['"]/g, `apiRoute: "${state.apiRoute}"`);
   
   const metadata = {
@@ -325,7 +325,6 @@ async function deployToAccount(accountIndex, token, accountId) {
   // Step 3: Enable workers.dev and verify
   setProgress('prog-verify', 'active');
   
-  // رفع باگ اکانت‌های خام: ساخت ساب‌دامنه خودکار در صورت عدم وجود
   let subRes = await cfFetch(`/accounts/${accountId}/workers/subdomain`, token);
   if (!subRes.result?.subdomain) {
       const randomSub = 'proxy-' + Math.random().toString(36).substring(2, 8);
@@ -411,16 +410,16 @@ function renderWelcome() {
   return `
 <div class="card step-panel">
   <div class="card-title">هاب مرکزی نهان (Master/Slave)</div>
-  <div class="card-subtitle">افزایش چشمگیر ظرفیت با تجمیع چندین اکانت کلودفلر در یک پنل</div>
+  <div class="card-subtitle">توزیع بار اتوماتیک با تجمیع چندین اکانت در یک پنل واحد</div>
   <p style="color:var(--text2);font-size:.9rem;margin-bottom:20px">
-    این سیستم هوشمند، یک اکانت شما را به عنوان <b>فرمانده (Master)</b> در نظر می‌گیرد و سایر اکانت‌ها را به صورت خودکار به عنوان <b>نود (Slave)</b> به آن متصل می‌کند. شما فقط یک پنل را مدیریت می‌کنید اما ترافیکتان روی ده‌ها اکانت پخش می‌شود!
+    این سیستم، اولین توکنی که وارد می‌کنید را به عنوان <b>فرمانده (Master)</b> نصب می‌کند و سایر توکن‌ها را به عنوان <b>نود کمکی (Slave)</b> در نظر می‌گیرد. در نهایت، آدرس تمام Slaveها به طور خودکار به پنل Master متصل می‌شود.
   </p>
   <div style="margin-bottom:20px">
-    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">فرآیند اتوماتیک سیستم:</div>
+    <div style="font-weight:600;margin-bottom:10px;font-size:.95rem">فرآیند سیستم:</div>
     <div class="feature-grid">
       <div class="feature-item"><span class="feature-icon">👑</span><span>ساخت پنل اصلی (Master)</span></div>
       <div class="feature-item"><span class="feature-icon">☁️</span><span>ساخت نودهای کمکی (Slaves)</span></div>
-      <div class="feature-item"><span class="feature-icon">🔗</span><span>پیوندسازی خودکار اکانت‌ها</span></div>
+      <div class="feature-item"><span class="feature-icon">🔗</span><span>پیوندسازی هوشمند به Master</span></div>
     </div>
   </div>
   <div class="btn-group">
@@ -643,9 +642,9 @@ function renderCredentials() {
        <a href="${createTokenUrl}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem;padding:4px 10px;text-decoration:none">ساخت توکن با دسترسی‌های لازم</a>
     </div>
     <textarea class="form-input" id="inpTokens" rows="6"
-              placeholder="خط اول: توکن اکانت اصلی (Master)\nخط دوم: توکن اکانت کمکی (Slave)\nخط سوم: توکن اکانت کمکی (Slave)"
+              placeholder="توکن اول (Master):\nxxxxxxxxxxxxxxx\n\nتوکن دوم (Slave):\nyyyyyyyyyyyyyy"
               spellcheck="false" style="direction:ltr;text-align:left">${state.rawTokensInput}</textarea>
-    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید. سیستم به طور خودکار همه را به هم پیوند (Link) می‌دهد.</div>
+    <div class="form-hint">هر توکن را در یک خط مجزا قرار دهید. سیستم تمام آن‌ها را پردازش و به هم پیوند (Link) می‌دهد.</div>
   </div>
   
   <div class="btn-group">
@@ -683,7 +682,7 @@ async function handleValidate() {
        const acct = acctsResult.accounts[0];
        state.accountsList.push({ token: token, accountId: acct.id, accountName: acct.name || acct.id });
     } else {
-       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی یا نامعتبر'}<br>`;
+       errorsHtml += `توکن خط ${i + 1}: ${acctsResult.msg || 'بدون دسترسی یا مسدود شده'}<br>`;
     }
   }
 
@@ -767,7 +766,7 @@ function renderDeploy() {
       <span class="progress-icon">○</span><div class="progress-text">استقرار و فعال‌سازی اکانت‌ها</div>
     </li>
     <li class="progress-item waiting" id="prog-link">
-      <span class="progress-icon">○</span><div class="progress-text">پیوندسازی خودکار (Master به Slaves)</div>
+      <span class="progress-icon">○</span><div class="progress-text">پیوندسازی خودکار (Slaves به Master)</div>
     </li>
   </ul>
 
@@ -841,9 +840,9 @@ async function runDeployment() {
 
   // --- جادوی پیوندسازی (Master-Slave Linker) ---
   if (state.deployedPanels.length > 1) {
-      setProgress('prog-link', 'active', 'در حال پیوند اکانت‌های Slave به Master...');
+      setProgress('prog-link', 'active', 'در حال تزریق آدرس نودها به پنل Master...');
       const master = state.deployedPanels[0];
-      const pass = 'admin'; // رمز پیش‌فرض ثابت شده در ورکر
+      const pass = 'admin'; 
       
       const linked = [];
       for(let i = 1; i < state.deployedPanels.length; i++) {
@@ -862,10 +861,10 @@ async function runDeployment() {
           
           if(syncRes.ok) {
               setProgress('prog-link', 'done', 'شبکه با موفقیت یکپارچه شد! (Master + Slaves)');
-              alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام ${state.deployedPanels.length} اکانت تحت مدیریت یک پنل قرار گرفتند.`);
+              alertEl().innerHTML = alert('success', `✅ عملیات موفق! تمام ${state.deployedPanels.length} اکانت تحت مدیریت پنل Master قرار گرفتند.`);
           } else {
               setProgress('prog-link', 'error', 'اکانت‌ها مستقر شدند اما پیوند خودکار برقرار نشد.');
-              alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما لینک کردن اتوماتیک نودها خطا داشت.`);
+              alertEl().innerHTML = alert('warn', `عملیات پایان یافت اما لینک کردن اتوماتیک نودها به پنل اصلی خطا داشت.`);
           }
       } catch(e) {
           setProgress('prog-link', 'error', 'خطا در ارتباط با سرور Master');
@@ -873,7 +872,7 @@ async function runDeployment() {
       }
   } else {
       setProgress('prog-link', 'done', 'فقط یک اکانت نصب شد (بدون نیاز به شبکه Slave)');
-      alertEl().innerHTML = alert('success', `✅ عملیات موفق! تک اکانت شما مستقر شد.`);
+      alertEl().innerHTML = alert('success', `✅ عملیات موفق! پنل اصلی شما مستقر شد.`);
   }
   
   setTimeout(() => goStep(5), 2500);
@@ -889,7 +888,7 @@ function renderSuccess() {
       masterHtml = `
       <div style="margin-bottom:16px;padding:16px;background:var(--cyan-bg);border-radius:8px;border:1px solid var(--cyan)">
           <h4 style="color:var(--cyan);margin-bottom:8px;">👑 پنل مدیریت اصلی (Master)</h4>
-          <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px;">شما فقط باید وارد این پنل شوید. بقیه اکانت‌ها نامرئی هستند و به صورت خودکار ترافیک را از این پنل دریافت می‌کنند.</p>
+          <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px;">فقط وارد این پنل شوید و کاربر بسازید. سایر اکانت‌ها به صورت خودکار به لینک کاربران اضافه خواهند شد.</p>
           <a href="${esc(state.deployedPanels[0].url)}" target="_blank" style="color:var(--cyan);font-weight:bold;text-decoration:none;word-break:break-all;">
              ${esc(state.deployedPanels[0].url)}
           </a>
@@ -897,7 +896,7 @@ function renderSuccess() {
       
       slavesHtml = state.deployedPanels.slice(1).map((item, index) => `
         <div style="margin-bottom:8px;padding:8px 12px;background:var(--bg4);border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:0.8rem;color:var(--text2);">نود کمکی ${index + 1} (${esc(item.accountName)})</span>
+          <span style="font-size:0.8rem;color:var(--text2);">نود ${index + 1} (${esc(item.accountName)})</span>
           <span style="font-size:0.8rem;color:var(--green);font-weight:bold;">✅ متصل به Master</span>
         </div>
       `).join('');
@@ -914,24 +913,24 @@ function renderSuccess() {
   return `
 <div class="card step-panel">
   <div class="card-title">🚀 ساخت هاب مرکزی کامل شد!</div>
-  <div class="card-subtitle">با ساخت یک کاربر در پنل Master، لینک آن کاربر حاوی تمامی نودهای شما خواهد بود.</div>
+  <div class="card-subtitle">هم‌اکنون می‌توانید وارد پنل Master شوید.</div>
 
   <div class="alert alert-warn">
     <span class="alert-icon">⚠️</span>
-    <span>حتماً وارد پنل Master شوید و از قسمت تنظیمات، <b>رمز عبور پیش‌فرض (admin)</b> را تغییر دهید.</span>
+    <span>توجه: برای حفظ امنیت، حتماً پس از ورود به پنل، رمز عبور پیش‌فرض (admin) را از بخش تنظیمات تغییر دهید.</span>
   </div>
 
   ${masterHtml}
   
   ${slavesHtml ? `
   <div class="result-box">
-    <div class="result-label" style="margin-bottom:10px;">نودهای پس‌زمینه (Slaves):</div>
+    <div class="result-label" style="margin-bottom:10px;">نودهای پس‌زمینه که به لینک کاربران اضافه می‌شوند:</div>
     ${slavesHtml}
   </div>` : ''}
 
   <div class="result-box" style="display:flex;justify-content:space-between;align-items:center">
     <div>
-       <div class="result-label">رمز عبور پیش‌فرض ورود:</div>
+       <div class="result-label">رمز عبور ورود به پنل:</div>
        <div class="result-value" style="color:var(--green)">${esc(pass)}</div>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="copyText(this,'${esc(pass)}')">کپی رمز</button>
